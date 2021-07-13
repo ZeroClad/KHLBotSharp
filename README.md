@@ -18,3 +18,6 @@
 ### 下载
 - [.NET Core 3.1 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/netcore3.1.zip)
 - [.NET 6 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/net6.zip)
+
+### 到此一游
+![:KHLBotSharp](https://count.getloli.com/get/@:KHLBotSharp)
