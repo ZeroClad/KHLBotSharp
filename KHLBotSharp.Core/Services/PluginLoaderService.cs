@@ -32,7 +32,7 @@ namespace KHLBotSharp.Services
                 {
                     try
                     {
-                        var assemblyDetails = e.Name.Split(", ", StringSplitOptions.RemoveEmptyEntries);
+                        var assemblyDetails = e.Name.Split(',').Where(x => !string.IsNullOrEmpty(x));
                         var file = assemblyDetails.First();
                         var dependencyDll = Path.Combine(Environment.CurrentDirectory, plugin, file + ".dll");
                         var result = Assembly.LoadFrom(dependencyDll);

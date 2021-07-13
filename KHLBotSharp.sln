@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31423.177
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KHLBotSharp", "KHLBotSharp\KHLBotSharp.csproj", "{45F8702C-DFA8-4FCF-BB63-C75B80829EA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KHLBotSharp.NET6", "KHLBotSharp\KHLBotSharp.NET6.csproj", "{45F8702C-DFA8-4FCF-BB63-C75B80829EA2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{03F0DA1D-19A4-4323-ADAE-13613EACE5AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KHLBotSharp.Core", "KHLBotSharp.Core\KHLBotSharp.Core.csproj", "{9F3D977A-68F7-423E-96E4-F9FAC4C40040}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KHLBotSharp.NETCore3", "KHLBotSharp.NETCore3\KHLBotSharp.NETCore3.csproj", "{853AC4F9-C117-475B-B77C-0DF933BF25D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{9F3D977A-68F7-423E-96E4-F9FAC4C40040}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F3D977A-68F7-423E-96E4-F9FAC4C40040}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F3D977A-68F7-423E-96E4-F9FAC4C40040}.Release|Any CPU.Build.0 = Release|Any CPU
+		{853AC4F9-C117-475B-B77C-0DF933BF25D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{853AC4F9-C117-475B-B77C-0DF933BF25D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{853AC4F9-C117-475B-B77C-0DF933BF25D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{853AC4F9-C117-475B-B77C-0DF933BF25D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

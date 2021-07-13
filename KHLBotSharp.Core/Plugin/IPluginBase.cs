@@ -11,7 +11,7 @@ namespace KHLBotSharp
         /// Handler for <typeparamref name="T"/> Events
         /// </summary>
         /// <returns></returns>
-         public Task<bool> Handle(EventMessage<T> eventArgs);
+         Task<bool> Handle(EventMessage<T> eventArgs);
 
     }
 
@@ -21,6 +21,6 @@ namespace KHLBotSharp
         /// Resolve what you need in DI injection. You can also do loading configs or any preparation things here
         /// </summary>
         /// <returns></returns>
-        public Task Ctor(IServiceProvider provider);
+        Task Ctor(IServiceProvider provider);
      }
 }
