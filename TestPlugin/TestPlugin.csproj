@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RestSharp" Version="106.11.8-alpha.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KHLBotSharp.Core\KHLBotSharp.Core.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if not exist &quot;$(SolutionDir)\KHLBotSharp\$(OutDir)\Profiles\DefaultBot\Plugins\TestPlugin\&quot; mkdir &quot;$(SolutionDir)\KHLBotSharp\$(OutDir)\Profiles\DefaultBot\Plugins\TestPlugin\&quot;&#xD;&#xA;copy /Y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)\KHLBotSharp\$(OutDir)\Profiles\DefaultBot\Plugins\TestPlugin\&quot;" />
+  </Target>
+
+</Project>
