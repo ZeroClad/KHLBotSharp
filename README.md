@@ -16,5 +16,5 @@
 - 启动器也可以自主添加或者修改，只需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.NETCore3)并且打包为你想要的.NET版本即可，相同插件可支持的范围内
 
 ### 下载
-[.NET Core 3.1 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/netcore3.1.zip)
-[.NET 6 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/net6.zip)
+- [.NET Core 3.1 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/netcore3.1.zip)
+- [.NET 6 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/net6.zip)
