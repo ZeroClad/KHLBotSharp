@@ -15,6 +15,13 @@
 - 目前启动器支持俩选择: .NET 6以及.NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6
 - 启动器也可以自主添加或者修改，只需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.NETCore3)并且打包为你想要的.NET版本即可，相同插件可支持的范围内
 
+## 使用
+- 启动过一次启动器后，在`Profiles\<你的Profile名字>`内会拥有一个config.json, 里面将会需要填写BotToken，而BotToken还请自行到[开黑啦开发者网页](https://developer.kaiheila.cn/bot/index)注册
+- 保存config.json后，打开启动器即可
+- 如果需要多个机器人运行，则可使用cmd cd到启动器文件夹内，输入下列指令`KHLBotSharp -c 你的Profile名字`
+- 如果需要只单独运行一个特定的Profile，则使用cmd cd到启动器文件夹内，输入下列指令`KHLBotSharp -r 你的Profile名字`
+- 暂时不支持Docker以及非Windows，不过如果你想要使用，都可以自行下载源代码Publish
+
 ### 下载
 - [.NET Core 3.1 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/netcore3.1.zip)
 - [.NET 6 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.1/net6.zip)
