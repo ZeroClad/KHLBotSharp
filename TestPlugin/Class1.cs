@@ -1,10 +1,9 @@
-﻿using KHLBotSharp.Common.Request;
+﻿using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.EventHandlers.TextEvents;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.EventsMessage.Text;
 using KHLBotSharp.Models.MessageHttps.RequestMessage;
-using RestSharp;
 using System;
 using System.Threading.Tasks;
 
@@ -14,11 +13,14 @@ namespace TestPlugin
     {
         private ILogService logService;
         private IKHLHttpService requestFactory;
+        private IBotConfigSettings botConfigSettings;
         public Task Ctor(IServiceProvider provider)
         {
             logService = (ILogService)provider.GetService(typeof(ILogService));
             requestFactory = (IKHLHttpService)provider.GetService(typeof(IKHLHttpService));
+            botConfigSettings = (IBotConfigSettings)provider.GetService(typeof(IBotConfigSettings));
             logService.Info("Loaded DI data");
+            logService.Info("Testing config reading " + botConfigSettings.BotToken);
             return Task.CompletedTask;
         }
 

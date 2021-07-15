@@ -2,6 +2,7 @@
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -11,6 +12,8 @@ namespace KHLBotSharp.Services
     {
         private string botName;
         private string logColor;
+        private bool InitState;
+
         private readonly List<string> colorCodes = new List<string>
         {
             "fuchsia",
@@ -25,32 +28,56 @@ namespace KHLBotSharp.Services
         {
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
             AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")+ "]]: [/][grey54][[Dbg]]: [/][underline green1][[" + botName+ "]][/]: [underline cyan1][[" +callerName+ "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]","]]") + "[/]");
+            WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Dbg]: " + log);
         }
 
         public void Error(string log, [CallerFilePath] string callerName = "")
         {
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
             AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][red][[Err]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]", "]]") + "[/]");
+            WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Err]: " + log);
         }
 
         public void Info(string log, [CallerFilePath] string callerName = "")
         {
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
             AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][blue][[Inf]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]", "]]") + "[/]");
+            WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Inf]: " + log);
         }
 
         public void Init(string bot)
         {
+            if (InitState)
+            {
+                throw new InvalidOperationException("Do not init in plugins! You son of the bxtch");
+            }
+            InitState = true;
             this.botName = bot;
             Random rnd = new Random();
             var selectColor = rnd.Next(0, colorCodes.Count);
             logColor = colorCodes[selectColor];
         }
 
+        private void WriteFile(string log)
+        {
+            var fileName = DateTime.Now.ToString("yyyy_MM_dd") + ".log";
+            var path = Path.Combine(Environment.CurrentDirectory, "Profiles", botName, "Log");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            var logPath = Path.Combine(path, fileName);
+            using (StreamWriter stream = File.AppendText(logPath))
+            {
+                stream.WriteLine(log);
+            }
+        }
+
         public void Warning(string log, [CallerFilePath] string callerName = "")
         {
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
             AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][yellow][[Wrn]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]", "]]") + "[/]");
+            WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Wrn]: " + log);
         }
     }
 }

@@ -38,13 +38,7 @@ if(args.Length > 1)
             File.Copy("defaultConfig.json", Path.Combine(Environment.CurrentDirectory, "Profiles\\" + profileName + "\\config.json"));
         }
         var bot = "Profiles\\" + profileName;
-        var config = JObject.Parse(File.ReadAllText(Path.Combine(bot, "config.json")));
-        var token = config["BotToken"].ToString();
-        if (string.IsNullOrEmpty(token))
-        {
-            Console.WriteLine("Missing token for " + bot.Split("\\").Last() + ". Skipping startup");
-        }
-        var botService = new BotService(token, bot);
+        var botService = new BotService(bot);
         _ = botService.Run();
     }
 }
@@ -60,14 +54,7 @@ else
     var bots = Directory.GetDirectories("Profiles");
     foreach (var bot in bots)
     {
-        var config = JObject.Parse(File.ReadAllText(Path.Combine(bot, "config.json")));
-        var token = config["BotToken"].ToString();
-        if (string.IsNullOrEmpty(token))
-        {
-            Console.WriteLine("Missing token for " + bot.Split("\\").Last() + ". Skipping startup");
-            continue;
-        }
-        var botService = new BotService(token, bot);
+        var botService = new BotService(bot);
         _ = botService.Run();
     }
 }

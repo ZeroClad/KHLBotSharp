@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using KHLBotSharp.Common.Request;
+using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.EventsMessage.Body;
@@ -30,14 +31,14 @@ namespace KHLBotSharp.Host
         private HttpClient hc;
         private IServiceProvider provider;
         public User me { get; private set; }
-        public int APIVersion { get; set; } = 3;
         public ILogService logService { get; private set; }
         private long sn;
         private Timer timeoutTimer;
         private CancellationTokenSource reset = new CancellationTokenSource();
         private IPluginLoaderService pluginLoader;
         private Timer timer = new Timer();
-        public BotService(string token, string bot)
+        private BotConfigSettings settings;
+        public BotService(string bot)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton(typeof(ILogService), typeof(LogService));
@@ -48,9 +49,15 @@ namespace KHLBotSharp.Host
             hc = new HttpClient();
             pluginLoader = new PluginLoaderService();
             pluginLoader.LoadPlugin(bot, serviceCollection);
+            if (!File.Exists(Path.Combine(bot, "config.json")))
+            {
+                File.WriteAllText(Path.Combine(bot, "config.json"), JsonConvert.SerializeObject(new BotConfigSettings(), Formatting.Indented));
+            }
+            settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(bot, "config.json")));
+            serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
-            hc.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + APIVersion + "/");
-            hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", token);
+            hc.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/");
+            hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
             provider.GetService<IHttpClientService>().Init(hc);
             logService = provider.GetService<ILogService>();
 #pragma warning disable CS0612
@@ -61,6 +68,11 @@ namespace KHLBotSharp.Host
 
         public async Task Run()
         {
+            if (!settings.Active)
+            {
+                logService.Warning("Bot is done loaded but disabled to run. Please set inside your config.json to reactive it");
+                return;
+            }
             try
             {
                 var response = await hc.GetAsync("user/me");

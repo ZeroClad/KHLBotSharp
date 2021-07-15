@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace KHLBotSharp.Services
     public class HttpClientService : IHttpClientService
     {
         private HttpClient client;
-
+        private bool InitState;
         public async Task<T> GetAsync<T>(string url)
         {
             var result = await client.GetAsync(url);
@@ -49,8 +50,13 @@ namespace KHLBotSharp.Services
             return GetAsync<T>(finalurl);
         }
 
-        public void Init(HttpClient client)
+        public void Init(HttpClient client, [CallerMemberName] string caller = null)
         {
+            if(caller != "BotService" || InitState)
+            {
+                throw new InvalidDataException("This cannot be called in plugin!");
+            }
+            this.InitState = true;
             this.client = client;
         }
 

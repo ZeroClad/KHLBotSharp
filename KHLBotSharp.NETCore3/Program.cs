@@ -1,9 +1,7 @@
 ﻿using KHLBotSharp.Core.Host;
 using KHLBotSharp.Host;
-using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 
 namespace KHLBotSharp.NETCore3
@@ -44,13 +42,7 @@ namespace KHLBotSharp.NETCore3
                         File.Copy("defaultConfig.json", Path.Combine(Environment.CurrentDirectory, "Profiles\\" + profileName + "\\config.json"));
                     }
                     var bot = "Profiles\\" + profileName;
-                    var config = JObject.Parse(File.ReadAllText(Path.Combine(bot, "config.json")));
-                    var token = config["BotToken"].ToString();
-                    if (string.IsNullOrEmpty(token))
-                    {
-                        Console.WriteLine("Missing token for " + bot.Split("\\").Last() + ". Skipping startup");
-                    }
-                    var botService = new BotService(token, bot);
+                    var botService = new BotService( bot);
                     _ = botService.Run();
                 }
             }
@@ -66,14 +58,7 @@ namespace KHLBotSharp.NETCore3
                 var bots = Directory.GetDirectories("Profiles");
                 foreach (var bot in bots)
                 {
-                    var config = JObject.Parse(File.ReadAllText(Path.Combine(bot, "config.json")));
-                    var token = config["BotToken"].ToString();
-                    if (string.IsNullOrEmpty(token))
-                    {
-                        Console.WriteLine("Missing token for " + bot.Split("\\").Last() + ". Skipping startup");
-                        continue;
-                    }
-                    var botService = new BotService(token, bot);
+                    var botService = new BotService(bot);
                     _ = botService.Run();
                 }
             }
