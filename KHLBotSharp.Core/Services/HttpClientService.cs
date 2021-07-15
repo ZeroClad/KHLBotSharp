@@ -14,13 +14,13 @@ namespace KHLBotSharp.Services
     public class HttpClientService : IHttpClientService
     {
         private HttpClient client;
-        public HttpClientService(HttpClient client)
-        {
-            this.client = client;
-        }
+
         public async Task<T> GetAsync<T>(string url)
         {
-            return JsonConvert.DeserializeObject<T>(await (await client.GetAsync(url)).Content.ReadAsStringAsync());
+            var result = await client.GetAsync(url);
+            var json = await result.Content.ReadAsStringAsync();
+            var data = JsonConvert.DeserializeObject<T>(json);
+            return data;
         }
 
         public Task<T> GetAsync<T>(string url, object data)
@@ -47,6 +47,11 @@ namespace KHLBotSharp.Services
                 finalurl.Remove(finalurl.Length - 2);
             }
             return GetAsync<T>(finalurl);
+        }
+
+        public void Init(HttpClient client)
+        {
+            this.client = client;
         }
 
         public async Task<T> PostAsync<T>(string url, object data)

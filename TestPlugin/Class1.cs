@@ -13,11 +13,11 @@ namespace TestPlugin
     public class Class1 : IGroupTextMessageHandler
     {
         private ILogService logService;
-        private IRequestFactory requestFactory;
+        private IKHLHttpService requestFactory;
         public Task Ctor(IServiceProvider provider)
         {
             logService = (ILogService)provider.GetService(typeof(ILogService));
-            requestFactory = (IRequestFactory)provider.GetService(typeof(IRequestFactory));
+            requestFactory = (IKHLHttpService)provider.GetService(typeof(IKHLHttpService));
             logService.Info("Loaded DI data");
             return Task.CompletedTask;
         }

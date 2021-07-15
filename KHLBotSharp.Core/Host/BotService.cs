@@ -24,14 +24,14 @@ using Timer = System.Timers.Timer;
 
 namespace KHLBotSharp.Host
 {
-    internal class BotService
+    public class BotService
     {
         private ClientWebSocket ws;
         private HttpClient hc;
         private IServiceProvider provider;
         public User me { get; private set; }
         public int APIVersion { get; set; } = 3;
-        public ILogService logService { get; }
+        public ILogService logService { get; private set; }
         private long sn;
         private Timer timeoutTimer;
         private CancellationTokenSource reset = new CancellationTokenSource();
@@ -42,20 +42,20 @@ namespace KHLBotSharp.Host
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton(typeof(ILogService), typeof(LogService));
             serviceCollection.AddSingleton(typeof(IPluginLoaderService), typeof(PluginLoaderService));
-            serviceCollection.AddScoped(typeof(IRequestFactory), typeof(RequestFactory));
-            serviceCollection.AddScoped(typeof(HttpClient));
+            serviceCollection.AddSingleton(typeof(IHttpClientService), typeof(HttpClientService));
+            serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             ws = new ClientWebSocket();
             hc = new HttpClient();
             pluginLoader = new PluginLoaderService();
-            serviceCollection.AddSingleton<IHttpClientService>(new HttpClientService(hc));
             pluginLoader.LoadPlugin(bot, serviceCollection);
             provider = serviceCollection.BuildServiceProvider();
             hc.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + APIVersion + "/");
             hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", token);
+            provider.GetService<IHttpClientService>().Init(hc);
             logService = provider.GetService<ILogService>();
-#pragma warning disable CS0612 
-            logService.Init(bot.Split("\\").Last());
-#pragma warning restore CS0612 
+#pragma warning disable CS0612
+            logService.Init(bot.Split('\\').Last());
+#pragma warning restore CS0612
             logService.Info("Completed init bot");
         }
 
@@ -83,25 +83,25 @@ namespace KHLBotSharp.Host
                             try
                             {
                                 ArraySegment<Byte> buffer = new ArraySegment<byte>(new Byte[8192]);
-                                WebSocketReceiveResult result = null;
+                                WebSocketReceiveResult wsResult = null;
                                 using (var ms = new MemoryStream())
                                 {
                                     do
                                     {
-                                        result = await ws.ReceiveAsync(buffer, reset.Token);
-                                        ms.Write(buffer.Array, buffer.Offset, result.Count);
+                                        wsResult = await ws.ReceiveAsync(buffer, reset.Token);
+                                        ms.Write(buffer.Array, buffer.Offset, wsResult.Count);
                                     }
-                                    while (!result.EndOfMessage);
+                                    while (!wsResult.EndOfMessage);
 
                                     ms.Seek(0, SeekOrigin.Begin);
 
-                                    if (result.MessageType == WebSocketMessageType.Binary)
+                                    if (wsResult.MessageType == WebSocketMessageType.Binary)
                                     {
                                         int decompressedLength = 0;
                                         byte[] decompressedData = new byte[8192];
                                         using (InflaterInputStream inflater = new InflaterInputStream(ms))
                                             decompressedLength = inflater.Read(decompressedData, 0, decompressedData.Length);
-                                        var json = Encoding.UTF8.GetString(decompressedData, 0, decompressedLength);
+                                        json = Encoding.UTF8.GetString(decompressedData, 0, decompressedLength);
                                         var eventMsg = JObject.Parse(json);
                                         switch (eventMsg["s"].ToString())
                                         {
@@ -262,7 +262,6 @@ namespace KHLBotSharp.Host
                                                 break;
                                             case "1":
                                                 logService.Info("WebSocket Handshake Success");
-
                                                 timer.Interval = 30000;
                                                 timer.Elapsed += Timer_Elapsed;
                                                 timer.Start();
@@ -287,6 +286,8 @@ namespace KHLBotSharp.Host
                         }
                         try
                         {
+                            timer.Stop();
+                            timeoutTimer.Stop();
                             reset.Cancel();
                             reset.Dispose();
                             reset = new CancellationTokenSource();
@@ -333,7 +334,7 @@ namespace KHLBotSharp.Host
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             logService.Debug("Sending Ping");
-            _ = ws.SendAsync(Encoding.UTF8.GetBytes(JObject.FromObject(new { s = 2, sn = sn }).ToString()), WebSocketMessageType.Text, true, CancellationToken.None);
+            _ = ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JObject.FromObject(new { s = 2, sn = sn }).ToString())), WebSocketMessageType.Text, true, CancellationToken.None);
             if (timeoutTimer == null)
             {
                 timeoutTimer = new Timer();
@@ -347,8 +348,6 @@ namespace KHLBotSharp.Host
         {
             logService.Error("Websocket Timeout");
             reset.Cancel();
-            reset.Dispose();
-            reset = new CancellationTokenSource();
             timeoutTimer.Stop();
             timer.Stop();
         }

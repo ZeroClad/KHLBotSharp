@@ -1,4 +1,5 @@
-﻿using KHLBotSharp.Host;
+﻿using KHLBotSharp.Core.Host;
+using KHLBotSharp.Host;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
@@ -11,6 +12,7 @@ namespace KHLBotSharp.NETCore3
     {
         static void Main(string[] args)
         {
+            Welcome.Print();
             if (args.Length > 1)
             {
                 var profileName = args[1];
@@ -75,8 +77,6 @@ namespace KHLBotSharp.NETCore3
                     _ = botService.Run();
                 }
             }
-
-            Console.WriteLine("All bots are loaded");
             Thread.Sleep(-1);
         }
     }

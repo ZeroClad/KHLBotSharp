@@ -14,6 +14,7 @@ namespace KHLBotSharp.Services
     public class PluginLoaderService: IPluginLoaderService
     {
         private IEnumerable<IKHLPlugin> plugins;
+        private ILogService logService;
         private bool _initialized;
         public void LoadPlugin(string bot, IServiceCollection services)
         {
@@ -35,6 +36,10 @@ namespace KHLBotSharp.Services
                         var assemblyDetails = e.Name.Split(',').Where(x => !string.IsNullOrEmpty(x));
                         var file = assemblyDetails.First();
                         var dependencyDll = Path.Combine(Environment.CurrentDirectory, plugin, file + ".dll");
+                        if (!File.Exists(dependencyDll))
+                        {
+                            return null;
+                        }
                         var result = Assembly.LoadFrom(dependencyDll);
                         return result;
                     }
@@ -75,6 +80,7 @@ namespace KHLBotSharp.Services
 
         public virtual IEnumerable<IKHLPlugin> ResolvePlugin(IServiceProvider provider)
         {
+            this.logService = provider.GetService<ILogService>();
             if(plugins == null)
             {
                 plugins = provider.GetServices<IKHLPlugin>();
@@ -100,15 +106,21 @@ namespace KHLBotSharp.Services
             where T : AbstractExtra
             where T2 : IKHLPlugin<T>
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
             foreach (var plugin in plugins)
             {
-                if (await plugin.Handle(input))
+                try
                 {
-                    break;
+                    if (await plugin.Handle(input))
+                    {
+                        break;
+                    }
                 }
+                catch(Exception ex)
+                {
+                    logService.Error(plugin.GetType().Name + ":-" + ex.ToString());
+                }
+
             }
-            Console.WriteLine(stopwatch.ElapsedMilliseconds + " ms");
         }
 
         public virtual void HandleMessage<T>(EventMessage<T> input, IServiceProvider provider)

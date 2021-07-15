@@ -5,16 +5,15 @@ using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using KHLBotSharp.Models.Objects;
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace KHLBotSharp.Common.Request
 {
-    public class RequestFactory:IRequestFactory
+    public class KHLHttpService:IKHLHttpService
     {
         private readonly IHttpClientService httpApi;
-        public RequestFactory(IHttpClientService httpApiBaseRequestService)
+        public KHLHttpService(IHttpClientService httpApiBaseRequestService)
         {
             httpApi = httpApiBaseRequestService;
         }
