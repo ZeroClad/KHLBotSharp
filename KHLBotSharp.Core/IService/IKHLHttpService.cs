@@ -45,5 +45,6 @@ namespace KHLBotSharp.IService
         Task GrantServerRole(string GuildId, string UserId, uint RoleId);
         Task RevokeServerRole(string GuildId, string UserId, uint RoleId);
         Task<KHLResponseMessage<User>> GetMyself();
+        Task<KHLResponseMessage<User>> GetDetail(string UserId, string GuildId);
     }
 }

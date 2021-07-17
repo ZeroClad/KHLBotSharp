@@ -3,6 +3,7 @@ using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -52,9 +53,9 @@ namespace KHLBotSharp.Services
 
         public void Init(HttpClient client, [CallerMemberName] string caller = null)
         {
-            if(caller != "BotService" || InitState)
+            if(InitState)
             {
-                throw new InvalidDataException("This cannot be called in plugin!");
+                throw new InvalidOperationException("This cannot be called in plugin!");
             }
             this.InitState = true;
             this.client = client;

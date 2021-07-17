@@ -64,6 +64,8 @@ namespace KHLBotSharp.Host
             logService.Init(bot.Split('\\').Last());
 #pragma warning restore CS0612
             logService.Info("Completed init bot");
+            timer.Interval = 30000;
+            timer.Elapsed += Timer_Elapsed;
         }
 
         public async Task Run()
@@ -138,6 +140,8 @@ namespace KHLBotSharp.Host
                                                             pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>(), provider);
                                                             break;
                                                         case 9:
+                                                            //Having error
+                                                            logService.Debug(eventMsg.ToString());
                                                             pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>(), provider);
                                                             break;
                                                         case 10:
@@ -274,8 +278,6 @@ namespace KHLBotSharp.Host
                                                 break;
                                             case "1":
                                                 logService.Info("WebSocket Handshake Success");
-                                                timer.Interval = 30000;
-                                                timer.Elapsed += Timer_Elapsed;
                                                 timer.Start();
                                                 break;
                                             case "3":

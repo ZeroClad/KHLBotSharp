@@ -40,7 +40,8 @@ namespace KHLBotSharp.Services
                         {
                             return null;
                         }
-                        var result = Assembly.LoadFrom(dependencyDll);
+                        var bytes = File.ReadAllBytes(dependencyDll);
+                        var result = Assembly.Load(bytes);
                         return result;
                     }
                     catch(Exception ex)
