@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace KHLBotSharp.Host
         private ClientWebSocket ws;
         private HttpClient hc;
         private IServiceProvider provider;
-        public User me { get; private set; }
+        public User Me { get; private set; }
         public ILogService logService { get; private set; }
         private long sn;
         private Timer timeoutTimer;
@@ -72,19 +73,31 @@ namespace KHLBotSharp.Host
             logService.Info("Completed init bot");
         }
 
-        public async Task Run()
+        public async Task Run(bool? atMe = null)
         {
             if (!settings.Active)
             {
                 logService.Warning("Bot is done loaded but disabled to run. Please set inside your config.json to reactive it");
                 return;
             }
+            if(atMe != null)
+            {
+                settings.AtMe = atMe.Value;
+            }
+            if (!settings.AtMe)
+            {
+                logService.Warning("Bot don't need @ to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
+            }
+            if (settings.ProcessChar != new string[] { ".", "。" })
+            {
+                logService.Warning("Bot isn't using command '.' or '。'to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
+            }
             try
             {
                 var response = await hc.GetAsync("user/me");
                 var json = await response.Content.ReadAsStringAsync();
-                me = JsonConvert.DeserializeObject<KHLResponseMessage<User>>(json).Data;
-                logService.Info("Bot ID readed as " + me.Id + " Name: " + me.Nick);
+                Me = JsonConvert.DeserializeObject<KHLResponseMessage<User>>(json).Data;
+                logService.Info("Bot ID readed as " + Me.Id + " Name: " + Me.Nick);
                 response = await hc.GetAsync("gateway/index");
                 json = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<JObject>(json);
@@ -177,7 +190,6 @@ namespace KHLBotSharp.Host
             switch (eventMsg["s"].ToString())
             {
                 case "0":
-                    logService.Debug("Received Event, Triggering Plugins");
                     var channelType = eventMsg.Value<JToken>("d").Value<string>("channel_type");
                     if (channelType == "GROUP")
                     {
@@ -185,24 +197,43 @@ namespace KHLBotSharp.Host
                         {
                             case 1:
                                 var groupText = eventMsg.ToObject<EventMessage<GroupTextMessageEvent>>();
+                                if(!settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
+                                {
+                                    break;
+                                }
+                                if (settings.AtMe)
+                                {
+                                    if(groupText.Data.Extra.Mention.Any(x => x == Me.Id))
+                                    {
+                                        logService.Debug("Received Group Text Event, Triggering Plugins");
+                                        pluginLoader.HandleMessage(groupText, provider);
+                                    }
+                                    break;
+                                }
                                 if (!groupText.Data.Extra.Author.IsBot)
                                 {
+                                    logService.Debug("Received Group Text Event, Triggering Plugins");
                                     pluginLoader.HandleMessage(groupText, provider);
                                 }
                                 break;
                             case 2:
+                                logService.Debug("Received Group Image Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupPictureMessageEvent>>(), provider);
                                 break;
                             case 3:
+                                logService.Debug("Received Group Video Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>(), provider);
                                 break;
                             case 9:
+                                logService.Debug("Received Group Markdown Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>(), provider);
                                 break;
                             case 10:
+                                logService.Debug("Received Group Card Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupCardMessageEvent>>(), provider);
                                 break;
                             case 255:
+                                logService.Debug("Received Group System Event, Triggering Plugins");
                                 var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
                                 switch (extra)
                                 {
@@ -289,21 +320,27 @@ namespace KHLBotSharp.Host
                         switch (eventMsg.Value<JToken>("d").Value<int>("type"))
                         {
                             case 1:
+                                logService.Debug("Received Private Text Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateTextMessageEvent>>(), provider);
                                 break;
                             case 2:
+                                logService.Debug("Received Private Image Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivatePictureMessageEvent>>(), provider);
                                 break;
                             case 3:
+                                logService.Debug("Received Private Video Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateVideoMessageEvent>>(), provider);
                                 break;
                             case 9:
+                                logService.Debug("Received Private Markdown Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateKMarkdownMessageEvent>>(), provider);
                                 break;
                             case 10:
+                                logService.Debug("Received Private Card Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateCardMessageEvent>>(), provider);
                                 break;
                             case 255:
+                                logService.Debug("Received Private System Event, Triggering Plugins");
                                 var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
                                 switch (extra)
                                 {
