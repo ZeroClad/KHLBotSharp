@@ -50,7 +50,7 @@ namespace KHLBotSharp.Services
             }
             return GetAsync<T>(finalurl);
         }
-
+        [Obsolete("Don't call in any plugin! This should be the bot host to init, not you!")]
         public void Init(HttpClient client, [CallerMemberName] string caller = null)
         {
             if(InitState)

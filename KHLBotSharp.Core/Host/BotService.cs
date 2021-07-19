@@ -58,14 +58,18 @@ namespace KHLBotSharp.Host
             provider = serviceCollection.BuildServiceProvider();
             hc.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/");
             hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
+            //Yeah we just don't want any plugin programmer call this so thats why
+#pragma warning disable CS0618
             provider.GetService<IHttpClientService>().Init(hc);
+#pragma warning restore CS0618
             logService = provider.GetService<ILogService>();
+            timer.Interval = 30000;
+            timer.Elapsed += Timer_Elapsed;
+            //Yeah we just don't want any plugin programmer call this so thats why
 #pragma warning disable CS0612
             logService.Init(bot.Split('\\').Last());
 #pragma warning restore CS0612
             logService.Info("Completed init bot");
-            timer.Interval = 30000;
-            timer.Elapsed += Timer_Elapsed;
         }
 
         public async Task Run()
@@ -92,247 +96,9 @@ namespace KHLBotSharp.Host
                     do
                     {
                         logService.Info("WebSocket Ready Listening for events");
-                        while (ws.State == WebSocketState.Open && !reset.IsCancellationRequested)
-                        {
-                            try
-                            {
-                                ArraySegment<Byte> buffer = new ArraySegment<byte>(new Byte[8192]);
-                                WebSocketReceiveResult wsResult = null;
-                                using (var ms = new MemoryStream())
-                                {
-                                    do
-                                    {
-                                        wsResult = await ws.ReceiveAsync(buffer, reset.Token);
-                                        ms.Write(buffer.Array, buffer.Offset, wsResult.Count);
-                                    }
-                                    while (!wsResult.EndOfMessage);
-
-                                    ms.Seek(0, SeekOrigin.Begin);
-
-                                    if (wsResult.MessageType == WebSocketMessageType.Binary)
-                                    {
-                                        int decompressedLength = 0;
-                                        byte[] decompressedData = new byte[8192];
-                                        using (InflaterInputStream inflater = new InflaterInputStream(ms))
-                                            decompressedLength = inflater.Read(decompressedData, 0, decompressedData.Length);
-                                        json = Encoding.UTF8.GetString(decompressedData, 0, decompressedLength);
-                                        var eventMsg = JObject.Parse(json);
-                                        switch (eventMsg["s"].ToString())
-                                        {
-                                            case "0":
-                                                logService.Debug("Received Event, Triggering Plugins");
-                                                var channelType = eventMsg.Value<JToken>("d").Value<string>("channel_type");
-                                                if (channelType == "GROUP")
-                                                {
-                                                    switch (eventMsg.Value<JToken>("d").Value<int>("type"))
-                                                    {
-                                                        case 1:
-                                                            var groupText = eventMsg.ToObject<EventMessage<GroupTextMessageEvent>>();
-                                                            if (!groupText.Data.Extra.Author.IsBot)
-                                                            {
-                                                                pluginLoader.HandleMessage(groupText, provider);
-                                                            }
-                                                            break;
-                                                        case 2:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupPictureMessageEvent>>(), provider);
-                                                            break;
-                                                        case 3:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>(), provider);
-                                                            break;
-                                                        case 9:
-                                                            //Having error
-                                                            logService.Debug(eventMsg.ToString());
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>(), provider);
-                                                            break;
-                                                        case 10:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupCardMessageEvent>>(), provider);
-                                                            break;
-                                                        case 255:
-                                                            var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
-                                                            switch (extra)
-                                                            {
-                                                                case "added_reaction":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserAddReactionEvent>>>(), provider);
-                                                                    break;
-                                                                case "deleted_reaction":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserRemoveReactionEvent>>>(), provider);
-                                                                    break;
-                                                                case "updated_message":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageUpdateEvent>>>(), provider);
-                                                                    break;
-                                                                case "deleted_message":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageRemoveEvent>>>(), provider);
-                                                                    break;
-                                                                case "added_channel":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelCreatedEvent>>>(), provider);
-                                                                    break;
-                                                                case "updated_channel":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelModifyEvent>>>(), provider);
-                                                                    break;
-                                                                case "deleted_channel":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovedEvent>>>(), provider);
-                                                                    break;
-                                                                case "pinned_message":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelPinnedMessageEvent>>>(), provider);
-                                                                    break;
-                                                                case "unpinned_message":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovePinMessageEvent>>>(), provider);
-                                                                    break;
-                                                                case "joined_guild":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerNewMemberJoinEvent>>>(), provider);
-                                                                    break;
-                                                                case "exited_guild":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberExitEvent>>>(), provider);
-                                                                    break;
-                                                                case "updated_guild_member":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberModifiedEvent>>>(), provider);
-                                                                    break;
-                                                                case "guild_member_online":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOnlineEvent>>>(), provider);
-                                                                    break;
-                                                                case "guild_member_offline":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOfflineEvent>>>(), provider);
-                                                                    break;
-                                                                case "added_role":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleAddEvent>>>(), provider);
-                                                                    break;
-                                                                case "deleted_role":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleRemoveEvent>>>(), provider);
-                                                                    break;
-                                                                case "updated_role":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleModifyEvent>>>(), provider);
-                                                                    break;
-                                                                case "updated_guild":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerUpdateEvent>>>(), provider);
-                                                                    break;
-                                                                case "deleted_guild":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveEvent>>>(), provider);
-                                                                    break;
-                                                                case "added_block_list":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerBlacklistUserEvent>>>(), provider);
-                                                                    break;
-                                                                case "deleted_block_list":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveBlacklistUserEvent>>>(), provider);
-                                                                    break;
-                                                                case "joined_channel":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserJoinVoiceChannelEvent>>>(), provider);
-                                                                    break;
-                                                                case "exited_channel":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserExitVoiceChannelEvent>>>(), provider);
-                                                                    break;
-                                                            }
-                                                            break;
-                                                    }
-                                                }
-                                                else if (channelType == "BROADCAST")
-                                                {
-                                                    logService.Info("Received system message broadcast. Skipping data process");
-                                                    break;
-                                                }
-                                                else
-                                                {
-                                                    switch (eventMsg.Value<JToken>("d").Value<int>("type"))
-                                                    {
-                                                        case 1:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateTextMessageEvent>>(), provider);
-                                                            break;
-                                                        case 2:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivatePictureMessageEvent>>(), provider);
-                                                            break;
-                                                        case 3:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateVideoMessageEvent>>(), provider);
-                                                            break;
-                                                        case 9:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateKMarkdownMessageEvent>>(), provider);
-                                                            break;
-                                                        case 10:
-                                                            pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateCardMessageEvent>>(), provider);
-                                                            break;
-                                                        case 255:
-                                                            var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
-                                                            switch (extra)
-                                                            {
-                                                                case "updated_private_message":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageModifyEvent>>>(), provider);
-                                                                    break;
-                                                                case "deleted_private_message":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveEvent>>>(), provider);
-                                                                    break;
-                                                                case "private_added_reaction":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageAddReactionEvent>>>(), provider);
-                                                                    break;
-                                                                case "private_deleted_reaction":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveReactionEvent>>>(), provider);
-                                                                    break;
-                                                                case "user_updated":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserInfoChangeEvent>>>(), provider);
-                                                                    break;
-                                                                case "message_btn_click":
-                                                                    pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<CardMessageButtonClickEvent>>>(), provider);
-                                                                    break;
-                                                            }
-                                                            break;
-                                                    }
-                                                }
-                                                sn = eventMsg.Value<long>("sn");
-                                                break;
-                                            case "1":
-                                                logService.Info("WebSocket Handshake Success");
-                                                timer.Start();
-                                                break;
-                                            case "3":
-                                                logService.Debug("Received Pong");
-                                                if (timeoutTimer != null)
-                                                {
-                                                    timeoutTimer.Stop();
-                                                }
-                                                break;
-                                        }
-
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                logService.Error(e.Message + e.StackTrace);
-                                break;
-                            }
-                        }
-                        try
-                        {
-                            timer.Stop();
-                            timeoutTimer.Stop();
-                            reset.Cancel();
-                            reset.Dispose();
-                            reset = new CancellationTokenSource();
-                            logService.Error("WebSocket Disconnected");
-                            try
-                            {
-                                //Try close again websocket first
-                                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
-                            }
-                            catch
-                            {
-
-                            }
-                            finally
-                            {
-                                //Wait 3 sec
-                                await Task.Delay(3000);
-                            }
-                            ws.Dispose();
-                            response = await hc.GetAsync("gateway/index");
-                            json = await response.Content.ReadAsStringAsync();
-                            result = JsonConvert.DeserializeObject<JObject>(json);
-                            socketUrl = result["data"]["url"].ToString();
-                            ws = new ClientWebSocket();
-                            await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
-                        }
-                        catch (Exception ex)
-                        {
-                            logService.Error(ex.Message + ex.StackTrace);
-                        }
-
+                        await ListenSocket();
+                        //We should infinite retry connect socket whatever happens
+                        await RestartSocket();
                     }
                     while (true);
                 });
@@ -364,6 +130,259 @@ namespace KHLBotSharp.Host
             reset.Cancel();
             timeoutTimer.Stop();
             timer.Stop();
+        }
+
+        private async Task ListenSocket()
+        {
+            while (ws.State == WebSocketState.Open && !reset.IsCancellationRequested)
+            {
+                try
+                {
+                    ArraySegment<Byte> buffer = new ArraySegment<byte>(new Byte[8192]);
+                    WebSocketReceiveResult wsResult = null;
+                    using (var ms = new MemoryStream())
+                    {
+                        do
+                        {
+                            wsResult = await ws.ReceiveAsync(buffer, reset.Token);
+                            ms.Write(buffer.Array, buffer.Offset, wsResult.Count);
+                        }
+                        while (!wsResult.EndOfMessage);
+
+                        ms.Seek(0, SeekOrigin.Begin);
+
+                        if (wsResult.MessageType == WebSocketMessageType.Binary)
+                        {
+                            await ParseEvent(ms);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    //Plugin error
+                    logService.Error(e.Message + e.StackTrace);
+                    break;
+                }
+            }
+        }
+
+        private Task ParseEvent(MemoryStream ms)
+        {
+            int decompressedLength = 0;
+            byte[] decompressedData = new byte[40960];
+            using (InflaterInputStream inflater = new InflaterInputStream(ms))
+                decompressedLength = inflater.Read(decompressedData, 0, decompressedData.Length);
+            var json = Encoding.UTF8.GetString(decompressedData, 0, decompressedLength);
+            var eventMsg = JObject.Parse(json);
+            switch (eventMsg["s"].ToString())
+            {
+                case "0":
+                    logService.Debug("Received Event, Triggering Plugins");
+                    var channelType = eventMsg.Value<JToken>("d").Value<string>("channel_type");
+                    if (channelType == "GROUP")
+                    {
+                        switch (eventMsg.Value<JToken>("d").Value<int>("type"))
+                        {
+                            case 1:
+                                var groupText = eventMsg.ToObject<EventMessage<GroupTextMessageEvent>>();
+                                if (!groupText.Data.Extra.Author.IsBot)
+                                {
+                                    pluginLoader.HandleMessage(groupText, provider);
+                                }
+                                break;
+                            case 2:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupPictureMessageEvent>>(), provider);
+                                break;
+                            case 3:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>(), provider);
+                                break;
+                            case 9:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>(), provider);
+                                break;
+                            case 10:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupCardMessageEvent>>(), provider);
+                                break;
+                            case 255:
+                                var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
+                                switch (extra)
+                                {
+                                    case "added_reaction":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserAddReactionEvent>>>(), provider);
+                                        break;
+                                    case "deleted_reaction":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserRemoveReactionEvent>>>(), provider);
+                                        break;
+                                    case "updated_message":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageUpdateEvent>>>(), provider);
+                                        break;
+                                    case "deleted_message":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageRemoveEvent>>>(), provider);
+                                        break;
+                                    case "added_channel":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelCreatedEvent>>>(), provider);
+                                        break;
+                                    case "updated_channel":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelModifyEvent>>>(), provider);
+                                        break;
+                                    case "deleted_channel":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovedEvent>>>(), provider);
+                                        break;
+                                    case "pinned_message":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelPinnedMessageEvent>>>(), provider);
+                                        break;
+                                    case "unpinned_message":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovePinMessageEvent>>>(), provider);
+                                        break;
+                                    case "joined_guild":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerNewMemberJoinEvent>>>(), provider);
+                                        break;
+                                    case "exited_guild":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberExitEvent>>>(), provider);
+                                        break;
+                                    case "updated_guild_member":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberModifiedEvent>>>(), provider);
+                                        break;
+                                    case "guild_member_online":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOnlineEvent>>>(), provider);
+                                        break;
+                                    case "guild_member_offline":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOfflineEvent>>>(), provider);
+                                        break;
+                                    case "added_role":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleAddEvent>>>(), provider);
+                                        break;
+                                    case "deleted_role":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleRemoveEvent>>>(), provider);
+                                        break;
+                                    case "updated_role":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleModifyEvent>>>(), provider);
+                                        break;
+                                    case "updated_guild":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerUpdateEvent>>>(), provider);
+                                        break;
+                                    case "deleted_guild":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveEvent>>>(), provider);
+                                        break;
+                                    case "added_block_list":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerBlacklistUserEvent>>>(), provider);
+                                        break;
+                                    case "deleted_block_list":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveBlacklistUserEvent>>>(), provider);
+                                        break;
+                                    case "joined_channel":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserJoinVoiceChannelEvent>>>(), provider);
+                                        break;
+                                    case "exited_channel":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserExitVoiceChannelEvent>>>(), provider);
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                    else if (channelType == "BROADCAST")
+                    {
+                        logService.Info("Received system message broadcast. Skipping data process");
+                        break;
+                    }
+                    else
+                    {
+                        switch (eventMsg.Value<JToken>("d").Value<int>("type"))
+                        {
+                            case 1:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateTextMessageEvent>>(), provider);
+                                break;
+                            case 2:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivatePictureMessageEvent>>(), provider);
+                                break;
+                            case 3:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateVideoMessageEvent>>(), provider);
+                                break;
+                            case 9:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateKMarkdownMessageEvent>>(), provider);
+                                break;
+                            case 10:
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateCardMessageEvent>>(), provider);
+                                break;
+                            case 255:
+                                var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
+                                switch (extra)
+                                {
+                                    case "updated_private_message":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageModifyEvent>>>(), provider);
+                                        break;
+                                    case "deleted_private_message":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveEvent>>>(), provider);
+                                        break;
+                                    case "private_added_reaction":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageAddReactionEvent>>>(), provider);
+                                        break;
+                                    case "private_deleted_reaction":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveReactionEvent>>>(), provider);
+                                        break;
+                                    case "user_updated":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserInfoChangeEvent>>>(), provider);
+                                        break;
+                                    case "message_btn_click":
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<CardMessageButtonClickEvent>>>(), provider);
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                    sn = eventMsg.Value<long>("sn");
+                    break;
+                case "1":
+                    logService.Info("WebSocket Handshake Success");
+                    timer.Start();
+                    break;
+                case "3":
+                    logService.Debug("Received Pong");
+                    if (timeoutTimer != null)
+                    {
+                        timeoutTimer.Stop();
+                    }
+                    break;
+            }
+            return Task.CompletedTask;
+        }
+
+        private async Task RestartSocket()
+        {
+            try
+            {
+                timer.Stop();
+                timeoutTimer.Stop();
+                reset.Cancel();
+                reset.Dispose();
+                reset = new CancellationTokenSource();
+                logService.Error("WebSocket Disconnected");
+                try
+                {
+                    //Try close again websocket first
+                    await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                }
+                catch
+                {
+
+                }
+                finally
+                {
+                    //Wait 3 sec
+                    await Task.Delay(3000);
+                }
+                ws.Dispose();
+                var response = await hc.GetAsync("gateway/index");
+                var json = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<JObject>(json);
+                var socketUrl = result["data"]["url"].ToString();
+                ws = new ClientWebSocket();
+                await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                //Socket restart failed
+                logService.Error(ex.Message + ex.StackTrace);
+            }
         }
     }
 }

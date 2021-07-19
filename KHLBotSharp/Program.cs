@@ -1,9 +1,7 @@
 ﻿using KHLBotSharp.Core.Host;
 using KHLBotSharp.Host;
-using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 Welcome.Print();
@@ -20,7 +18,6 @@ if(args.Length > 1)
         {
             Directory.CreateDirectory("Profiles\\" + profileName);
             Directory.CreateDirectory("Profiles\\" + profileName + "\\Plugins");
-            File.Copy("defaultConfig.json", Path.Combine(Environment.CurrentDirectory, "Profiles\\" + profileName + "\\config.json"));
         }
         Console.WriteLine("Profile creation success!");
         return;
@@ -35,7 +32,6 @@ if(args.Length > 1)
         {
             Directory.CreateDirectory("Profiles\\" + profileName);
             Directory.CreateDirectory("Profiles\\" + profileName + "\\Plugins");
-            File.Copy("defaultConfig.json", Path.Combine(Environment.CurrentDirectory, "Profiles\\" + profileName + "\\config.json"));
         }
         var bot = "Profiles\\" + profileName;
         var botService = new BotService(bot);
@@ -49,7 +45,6 @@ else
         Directory.CreateDirectory("Profiles");
         Directory.CreateDirectory("Profiles\\DefaultBot");
         Directory.CreateDirectory("Profiles\\DefaultBot\\Plugins");
-        File.Copy("defaultConfig.json", Path.Combine(Environment.CurrentDirectory, "Profiles\\DefaultBot\\config.json"));
     }
     var bots = Directory.GetDirectories("Profiles");
     foreach (var bot in bots)

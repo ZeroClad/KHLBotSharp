@@ -13,10 +13,4 @@
     <ProjectReference Include="..\KHLBotSharp.Core\KHLBotSharp.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="defaultConfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
