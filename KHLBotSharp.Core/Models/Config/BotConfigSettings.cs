@@ -12,6 +12,7 @@ namespace KHLBotSharp.Core.Models.Config
         public int APIVersion { get; set; } = 3;
         public bool AtMe { get; set; } = true;
         public string[] ProcessChar { get; set; } = new string[] { ".","。" };
+        public bool Debug { get; set; } = false;
     }
 
     public interface IBotConfigSettings
@@ -22,6 +23,7 @@ namespace KHLBotSharp.Core.Models.Config
         int APIVersion { get; set; }
         bool AtMe { get; set; }
         string[] ProcessChar { get; set; }
+        bool Debug { get; set; }
     }
 
     public class AppSettings: Dictionary<string, PluginSettings>

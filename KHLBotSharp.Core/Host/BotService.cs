@@ -68,8 +68,12 @@ namespace KHLBotSharp.Host
             timer.Elapsed += Timer_Elapsed;
             //Yeah we just don't want any plugin programmer call this so thats why
 #pragma warning disable CS0612
-            logService.Init(bot.Split('\\').Last());
+            logService.Init(bot.Split('\\').Last(), settings);
 #pragma warning restore CS0612
+            if (settings.Debug)
+            {
+                logService.Warning("Debug activated, this will cause more logs appears!");
+            }
             logService.Info("Completed init bot");
         }
 

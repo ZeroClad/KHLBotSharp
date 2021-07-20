@@ -1,4 +1,5 @@
-﻿using KHLBotSharp.IService;
+﻿using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.IService;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace KHLBotSharp.Services
     {
         private string botName;
         private string logColor;
-        private bool InitState;
+        private bool InitState, showDebug;
 
         private readonly List<string> colorCodes = new List<string>
         {
@@ -26,6 +27,10 @@ namespace KHLBotSharp.Services
         };
         public void Debug(string log, [CallerFilePath] string callerName = "")
         {
+            if (!showDebug)
+            {
+                return;
+            }
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
             AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")+ "]]: [/][grey54][[Dbg]]: [/][underline green1][[" + botName+ "]][/]: [underline cyan1][[" +callerName+ "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]","]]") + "[/]");
             WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Dbg]: " + log);
@@ -45,7 +50,7 @@ namespace KHLBotSharp.Services
             WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Inf]: " + log);
         }
 
-        public void Init(string bot)
+        public void Init(string bot, IBotConfigSettings configSettings)
         {
             if (InitState)
             {
@@ -56,6 +61,7 @@ namespace KHLBotSharp.Services
             Random rnd = new Random();
             var selectColor = rnd.Next(0, colorCodes.Count);
             logColor = colorCodes[selectColor];
+            showDebug = configSettings.Debug;
         }
 
         private void WriteFile(string log)

@@ -68,7 +68,7 @@ namespace KHLBotSharp.Core.Models
         {
             var settings = new JsonSerializerSettings();
             settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            var json = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
+            var json = JsonConvert.SerializeObject(this, Formatting.None, settings);
             return json;
         }
     }
