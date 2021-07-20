@@ -4,7 +4,7 @@
 ## 插件开发
 - 插件需要添加KHLBotSharp.Core作为Dependency，打包后此dll不需要复制
 - 当前只测试过了IGroupTextMessageHandler，因此将会使用这个作为例子
-- 点击这里查看[例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/Class1.cs)
+- 点击这里查看[例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/PluginSample.cs)
 - `Ctor`为插件的初始化，在这里你会获得IServiceProvider，源自于Dependency Injection(DI)，因此可以进行`GetService`获取你想使用的东西，但是还请注意，这里并不能让你注册DI，只能获取
 - `Handle`则是插件的真正运行位置，当收到特定的Event后将会传输到这，再进行处理即可
 - 你可以拥有多个处理相同事件的插件
