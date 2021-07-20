@@ -1,15 +1,32 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 
 namespace KHLBotSharp.Core.Models
 {
     public class ButtonModule : ICardButtonComponent
     {
         public string Type => "button";
+        [JsonIgnore]
+        public CardTheme Theme
+        {
+            get
+            {
+                if (Enum.TryParse(ThemeString, true, out CardTheme theme))
+                {
+                    return theme;
+                }
+                ThemeString = "primary";
+                return CardTheme.Primary;
+            }
+            set
+            {
+                ThemeString = Enum.GetName(typeof(CardTheme), value).ToLower();
+            }
+        }
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("theme")]
-        public CardTheme Theme { get; set; }
+        public string ThemeString { get; set; } = "primary";
         [JsonProperty("value")]
         public string Value { get; set; }
         public ICardTextComponent Text { get; set; }

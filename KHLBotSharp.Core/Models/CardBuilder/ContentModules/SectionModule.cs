@@ -14,7 +14,7 @@ namespace KHLBotSharp.Core.Models
         {
             get
             {
-                if (Enum.TryParse(ModeString, out Direction theme))
+                if (Enum.TryParse(ModeString,true, out Direction theme))
                 {
                     return theme;
                 }
@@ -22,7 +22,7 @@ namespace KHLBotSharp.Core.Models
             }
             set
             {
-                ModeString = Enum.GetName(typeof(Direction), value);
+                ModeString = Enum.GetName(typeof(Direction), value).ToLower();
             }
         }
         [EditorBrowsable(EditorBrowsableState.Never)]

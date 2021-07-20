@@ -1,6 +1,4 @@
-﻿using KHLBotSharp.Core.Common.Converter;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -19,15 +17,16 @@ namespace KHLBotSharp.Core.Models
         {
             get
             {
-                if(Enum.TryParse(ThemeString, out CardTheme theme))
+                if (Enum.TryParse(ThemeString, true, out CardTheme theme))
                 {
                     return theme;
                 }
+                ThemeString = "primary";
                 return CardTheme.Primary;
             }
             set
             {
-                ThemeString = Enum.GetName(typeof(CardTheme), value);
+                ThemeString = Enum.GetName(typeof(CardTheme), value).ToLower();
             }
         }
 
@@ -35,11 +34,33 @@ namespace KHLBotSharp.Core.Models
         public List<ICardBodyComponent> Modules { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("theme")]
-        public string ThemeString { get; set; }
+        public string ThemeString { get; set; } = "primary";
 
-        public ICardComponent AddModules(params ICardBodyComponent[] cardComponents)
+        public Card AddModules(params ICardBodyComponent[] cardComponents)
         {
+            if(Modules == null)
+            {
+                Modules = new List<ICardBodyComponent>();
+            }
             Modules.AddRange(cardComponents);
+            return this;
+        }
+    }
+
+    public class CardBuilder: List<Card>
+    {
+        public Card Create()
+        {
+            var card = new Card();
+            this.Add(card);
+            return card;
+        }
+
+        public CardBuilder Create(params ICardBodyComponent[] components)
+        {
+            var card = new Card();
+            card.AddModules(components);
+            this.Add(card);
             return this;
         }
 
@@ -50,11 +71,6 @@ namespace KHLBotSharp.Core.Models
             var json = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
             return json;
         }
-    }
-
-    public class CardBuilder: List<Card>
-    {
-
     }
 
     public enum CardTheme

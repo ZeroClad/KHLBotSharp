@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Core.Models
 {
-    public class ContextModules : ICardBodyComponent
+    public class ContextModule : ICardBodyComponent
     {
         public string Type => "context";
         [JsonProperty("elements")]
         public List<ICardContent> Elements { get; set; }
-        public ContextModules AddElements(params ICardContent[] contents)
+        public ContextModule AddElements(params ICardContent[] contents)
         {
             if(Elements == null)
             {

@@ -21,6 +21,11 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
             {
                 TempTargetId = request.Extra.Author.Id;
             }
+            //Card Message
+            if (Content.StartsWith("[") && Content.EndsWith("]"))
+            {
+                Type = 10;
+            }
         }
         public SendMessage(ReceiveMessageData<GroupTextMessageEvent> request, string content, bool quote = true, bool tempMessage = false)
         {
@@ -35,6 +40,11 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
             if (tempMessage)
             {
                 TempTargetId = request.Extra.Author.Id;
+            }
+            //Card Message
+            if (Content.StartsWith("[") && Content.EndsWith("]"))
+            {
+                Type = 10;
             }
         }
 

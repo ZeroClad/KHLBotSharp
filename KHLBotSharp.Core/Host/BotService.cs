@@ -18,7 +18,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,6 +47,7 @@ namespace KHLBotSharp.Host
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             ws = new ClientWebSocket();
             hc = new HttpClient();
+            hc.Timeout = new TimeSpan(0,0,30);
             pluginLoader = new PluginLoaderService();
             pluginLoader.LoadPlugin(bot, serviceCollection);
             if (!File.Exists(Path.Combine(bot, "config.json")))
@@ -88,9 +88,14 @@ namespace KHLBotSharp.Host
             {
                 logService.Warning("Bot don't need @ to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
             }
-            if (settings.ProcessChar != new string[] { ".", "。" })
+            if (!(settings.ProcessChar.Contains(".") && settings.ProcessChar.Contains("。")))
             {
                 logService.Warning("Bot isn't using command '.' or '。'to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
+            }
+            if(settings.BotToken == null)
+            {
+                logService.Error("Bot Token not found! Please set inside your config.json to let it works! Bot stopped!");
+                return;
             }
             try
             {
@@ -197,23 +202,31 @@ namespace KHLBotSharp.Host
                         {
                             case 1:
                                 var groupText = eventMsg.ToObject<EventMessage<GroupTextMessageEvent>>();
-                                if(!settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
-                                {
-                                    break;
-                                }
                                 if (settings.AtMe)
                                 {
-                                    if(groupText.Data.Extra.Mention.Any(x => x == Me.Id))
+                                    if (groupText.Data.Extra.Mention.Any(x => x == Me.Id))
                                     {
-                                        logService.Debug("Received Group Text Event, Triggering Plugins");
-                                        pluginLoader.HandleMessage(groupText, provider);
+                                        groupText.Data.Content = groupText.Data.Content.Replace("@" + Me.Nick + "#" + Me.Id, "").Trim();
+                                        if(settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
+                                        {
+                                            if (!groupText.Data.Extra.Author.IsBot)
+                                            {
+                                                logService.Debug("Received Group Text Event, Triggering Plugins");
+                                                pluginLoader.HandleMessage(groupText, provider);
+                                            }
+                                        }
                                     }
-                                    break;
                                 }
-                                if (!groupText.Data.Extra.Author.IsBot)
+                                else
                                 {
-                                    logService.Debug("Received Group Text Event, Triggering Plugins");
-                                    pluginLoader.HandleMessage(groupText, provider);
+                                    if (settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
+                                    {
+                                        if (!groupText.Data.Extra.Author.IsBot)
+                                        {
+                                            logService.Debug("Received Group Text Event, Triggering Plugins");
+                                            pluginLoader.HandleMessage(groupText, provider);
+                                        }
+                                    }
                                 }
                                 break;
                             case 2:
