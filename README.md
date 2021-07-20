@@ -28,5 +28,65 @@
 
 ### 到此一游
 ![:KHLBotSharp](https://count.getloli.com/get/@:KHLBotSharp?theme=rule34)
-
 > 欢迎各路大神fork以及修改代码
+
+## 文档
+> 创建插件之前，需要先知道插件监听的事件，框架会自动根据你监听的事件进行自动分类和整合数据。下列是插件可加载的列表:-
+
+|消息事件|解释|
+|----|----|
+|`IGroupCardMessageHandler`|频道卡片消息事件|
+|`IGroupKMarkdownMessageHandler`|频道KMarkdown消息事件|
+|`IGroupPictureMessageHandler`|频道图片消息事件|
+|`IGroupTextMessageHandler`|频道文字消息事件|
+|`IGroupVideoMessageHandler`|频道影片消息事件|
+|`IPrivateCardMessageHandler`|私聊卡片消息|
+|`IPrivateKMarkdownMessageHandler`|私聊KMarkdown消息事件|
+|`IPrivatePictureMessageHandler`|私聊图片消息事件|
+|`IPrivateTextMessageHandler`|私聊文字消息事件|
+|`IPrivateVideoMessageHandler`|私聊影片消息|
+
+|系统事件|解释|
+|----|----|
+|`IBotExitServerHandler`|机器人退出服务器事件|
+|`IBotJoinServerHandler`|机器人加入服务器事件|
+|`ICardMessageButtonClickHandler`|卡片消息按钮点击事件|
+|`IChannelCreatedHandler`|频道创建事件|
+|`IChannelMessageRemoveHandler`|频道消息撤回事件|
+|`IChannelMessageUpdateHandler`|频道消息修改事件|
+|`IChannelModifyHandler`|频道修改事件|
+|`IChannelPinnedMessageHandler`|频道置顶消息事件|
+|`IChannelRemoveHandler`|频道删除事件|
+|`IChannelRemovePinMessageHandler`|频道置顶消息移除事件|
+|`IChannelUserAddReactionHandler`|频道用户添加表情到消息事件|
+|`IChannelUserRemoveReactionHandler`|频道用户从消息删除表情事件|
+|`IPrivateMessageAddReactionHandler`|私聊用户添加表情到消息事件|
+|`IPrivateMessageModifyHandler`|私聊消息修改事件|
+|`IPrivateMessageRemoveHandler`|私聊消息撤回事件|
+|`IPrivateMessageRemoveReactionHandler`|私聊用户从消息删除表情事件|
+|`IServerBlacklistUserHandler`|服务器添加黑名单事件|
+|`IServerMemberModifiedHandler`|服务器成员修改昵称事件|
+|`IServerMemberOfflineHandler`|服务器成员下线事件|
+|`IServerMemberOnlineHandler`|服务器成员上线事件|
+|`IServerNewMemberJoinHandler`|服务器新成员加入事件|
+|`IServerRemoveBlacklistUserHandler`|服务器移除黑名单事件|
+|`IServerRemoveHandler`|服务器删除事件|
+|`IServerRoleAddHandler`|服务器添加角色事件|
+|`IServerRoleModifyHandler`|服务器角色修改事件|
+|`IServerRoleRemoveHandler`|服务器角色移除事件|
+|`IServerUpdateHandler`|服务器修改设置事件|
+|`IUserExitVoiceChannelHandler`|用户离开语音频道事件|
+|`IUserInfoChangeHandler`|用户个人资料修改事件|
+|`IUserJoinVoiceChannelHandler`|用户加入语音频道事件|
+
+---
+
+> 在创建了`class`后，以下是一些你可以在`Ctor`内从`IServiceProvider`获得到的`interface`
+
+|IService|解释|
+|----------|----|
+|`ILogService`|日志Service|
+|`IKHLHttpService`|开黑啦的Http请求指令，例如可发群聊消息，私聊消息等等，属于重要的Service，务必GetService时获取|
+|`IBotConfigSettings`|获取在当前Profile内的config.ini设置|
+
+---
