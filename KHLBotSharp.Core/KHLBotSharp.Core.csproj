@@ -3,8 +3,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>开黑啦机器人框架</Description>
-    <Copyright>PoH98 @ 2021</Copyright>
+    <Copyright>MIT License</Copyright>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Version>0.2.0</Version>
+    <RepositoryUrl>https://github.com/PoH98/KHLBotSharp</RepositoryUrl>
+    <PackageTags>KHLSharp.Core</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.10" />
