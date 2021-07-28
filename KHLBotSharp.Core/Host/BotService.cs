@@ -101,36 +101,40 @@ namespace KHLBotSharp.Host
                 logService.Error("Bot Token not found! Please set inside your config.json to let it works! Bot stopped!");
                 return;
             }
-            try
+            //If we get error on here, we keep loops
+            do
             {
-                var response = await hc.GetAsync("user/me");
-                var json = await response.Content.ReadAsStringAsync();
-                Me = JsonConvert.DeserializeObject<KHLResponseMessage<User>>(json).Data;
-                logService.Info("Bot ID readed as " + Me.Id + " Name: " + Me.Nick);
-                response = await hc.GetAsync("gateway/index");
-                json = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<JObject>(json);
-                var socketUrl = result["data"]["url"].ToString();
-                await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
-                logService.Info("WebSocket Established");
-                _ = Task.Run(async () =>
+                try
                 {
-                    do
+                    var response = await hc.GetAsync("user/me");
+                    var json = await response.Content.ReadAsStringAsync();
+                    Me = JsonConvert.DeserializeObject<KHLResponseMessage<User>>(json).Data;
+                    logService.Info("Bot ID readed as " + Me.Id + " Name: " + Me.Nick);
+                    response = await hc.GetAsync("gateway/index");
+                    json = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<JObject>(json);
+                    var socketUrl = result["data"]["url"].ToString();
+                    await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
+                    logService.Info("WebSocket Established");
+                    _ = Task.Run(async () =>
                     {
-                        logService.Info("WebSocket Ready Listening for events");
-                        await ListenSocket();
-                        //We should infinite retry connect socket whatever happens
-                        await RestartSocket();
-                    }
-                    while (true);
-                });
+                        do
+                        {
+                            logService.Info("WebSocket Ready Listening for events");
+                            await ListenSocket();
+                            //We should infinite retry connect socket whatever happens
+                            await RestartSocket();
+                        }
+                        while (true);
+                    });
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    logService.Error(ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                logService.Error(ex.ToString());
-            }
-
-
+            while (true);
         }
 
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
