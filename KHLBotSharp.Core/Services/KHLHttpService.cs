@@ -203,7 +203,7 @@ namespace KHLBotSharp.Common.Request
             }
             else
             {
-                return await httpApi.UploadFileAsync(File.OpenRead(filePath));
+                return await httpApi.UploadFileAsync(filePath);
             }
         }
 

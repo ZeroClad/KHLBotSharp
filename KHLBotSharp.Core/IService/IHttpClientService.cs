@@ -14,5 +14,6 @@ namespace KHLBotSharp.IService
          Task<T> GetAsync<T>(string url, object data);
          Task<T> PostAsync<T>(string url, object data);
          Task<string> UploadFileAsync(Stream file);
+        Task<string> UploadFileAsync(string file);
     }
 }

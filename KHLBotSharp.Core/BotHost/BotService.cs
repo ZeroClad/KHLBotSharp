@@ -23,7 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Timer = System.Timers.Timer;
 
-namespace KHLBotSharp.Host
+namespace KHLBotSharp.BotHost
 {
     public class BotService
     {
@@ -42,7 +42,6 @@ namespace KHLBotSharp.Host
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton(typeof(ILogService), typeof(LogService));
-            serviceCollection.AddSingleton(typeof(IPluginLoaderService), typeof(PluginLoaderService));
             serviceCollection.AddSingleton(typeof(IHttpClientService), typeof(HttpClientService));
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             ws = new ClientWebSocket();

@@ -1,5 +1,5 @@
-﻿using KHLBotSharp.Core.Host;
-using KHLBotSharp.Host;
+﻿using KHLBotSharp.Core.BotHost;
+using KHLBotSharp.BotHost;
 using System;
 using System.IO;
 using System.Threading;

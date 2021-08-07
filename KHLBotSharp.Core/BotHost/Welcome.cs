@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace KHLBotSharp.Core.Host
+namespace KHLBotSharp.Core.BotHost
 {
     public class Welcome
     {

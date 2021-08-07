@@ -1,6 +1,7 @@
 ﻿using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
+using KHLBotSharp.Models.MessageHttps.RequestMessage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace KHLBotSharp.Services
     {
         private IEnumerable<IKHLPlugin> plugins;
         private ILogService logService;
+        private IKHLHttpService httpService;
         private bool _initialized;
         public void LoadPlugin(string bot, IServiceCollection services)
         {
@@ -81,6 +83,7 @@ namespace KHLBotSharp.Services
         public virtual IEnumerable<IKHLPlugin> ResolvePlugin(IServiceProvider provider)
         {
             this.logService = provider.GetService<ILogService>();
+            this.httpService = provider.GetService<IKHLHttpService>();
             if(plugins == null)
             {
                 plugins = provider.GetServices<IKHLPlugin>();
@@ -117,6 +120,17 @@ namespace KHLBotSharp.Services
                 }
                 catch(Exception ex)
                 {
+                    if(input.MessageType.ToString() == "0")
+                    {
+                        try
+                        {
+                            await httpService.SendGroupMessage(new SendMessage() { Content = "错误报告: " + ex.Message, TargetId = input.Data.TargetId });
+                        }
+                        catch
+                        {
+                            //Ignore send as we can't even send the message out
+                        }
+                    }
                     logService.Error(plugin.GetType().Name + ":-" + ex.ToString());
                 }
 

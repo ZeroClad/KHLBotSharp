@@ -29,8 +29,28 @@ namespace KHLBotSharp.Core.Models
         [JsonProperty("mode", NullValueHandling = NullValueHandling.Ignore)]
         public string ModeString { get; set; }
 
-        [JsonProperty("accessory", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore]
         public List<ICardTextGroup> Accessory { get; set; }
+
+        [JsonIgnore]
+        public ICardTextGroup AccessoryObject { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [JsonProperty("accessory", NullValueHandling = NullValueHandling.Ignore)]
+        public object AccessoryReturn
+        {
+            get
+            {
+                if(Accessory != null)
+                {
+                    return Accessory;
+                }
+                else
+                {
+                    return AccessoryObject;
+                }
+            }
+        }
 
         public SectionModule AddAccessory(params ICardTextGroup[] cardComponents)
         {
@@ -39,6 +59,11 @@ namespace KHLBotSharp.Core.Models
                 Accessory = new List<ICardTextGroup>();
             }
             Accessory.AddRange(cardComponents);
+            return this;
+        }
+        public SectionModule AddAccessory(ICardTextGroup cardComponents)
+        {
+            AccessoryObject = cardComponents;
             return this;
         }
     }

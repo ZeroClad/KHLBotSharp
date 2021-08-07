@@ -35,7 +35,8 @@ namespace KHLBotSharp.Core.Models
         [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("theme")]
         public string ThemeString { get; set; } = "primary";
-
+        [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
+        public string Color { get; set; }
         public Card AddModules(params ICardBodyComponent[] cardComponents)
         {
             if(Modules == null)

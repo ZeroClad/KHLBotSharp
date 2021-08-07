@@ -69,13 +69,32 @@ namespace KHLBotSharp.Services
             return JsonConvert.DeserializeObject<T>(content);
         }
 
+        public async Task<string> UploadFileAsync(string file)
+        {
+            var requestContent = new MultipartFormDataContent();
+            var fileContent = new ByteArrayContent(ReadFully(File.OpenRead(file)));
+            requestContent.Add(fileContent, "file", file.Substring(file.LastIndexOf("\\")));
+            var result = await client.PostAsync("asset/create", requestContent);
+            var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+            if(data.Data.Url == null)
+            {
+                throw new HttpRequestException("Upload file failed.\n" + data.Message);
+            }
+            return data.Data.Url;
+        }
+
         public async Task<string> UploadFileAsync(Stream file)
         {
             var requestContent = new MultipartFormDataContent();
             var fileContent = new ByteArrayContent(ReadFully(file));
             requestContent.Add(fileContent, "file");
             var result = await client.PostAsync("asset/create", requestContent);
-            return JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync()).Data.Url;
+            var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+            if (data.Data.Url == null)
+            {
+                throw new HttpRequestException("Upload file failed.\n" + data.Message);
+            }
+            return data.Data.Url;
         }
 
         private byte[] ReadFully(Stream input)

@@ -11,5 +11,5 @@
     public interface ICardParagraphComponent : ICardTextGroup { }
     public interface ICardTextComponent : ICardTextGroup, ICardContent { }
     public interface ICardImageComponent : ICardContent { }
-    public interface ICardButtonComponent : ICardComponent { }
+    public interface ICardButtonComponent : ICardComponent, ICardTextGroup { }
 }

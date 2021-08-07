@@ -1,0 +1,12 @@
+{
+  "BotToken": null,
+  "Active": true,
+  "Settings": {},
+  "APIVersion": 3,
+  "AtMe": true,
+  "ProcessChar": [
+    ".",
+    "。"
+  ],
+  "Debug": false
+}

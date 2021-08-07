@@ -1,9 +1,7 @@
-﻿using KHLBotSharp.Core.Host;
-using KHLBotSharp.Host;
-using Newtonsoft.Json.Linq;
+﻿using KHLBotSharp.Core.BotHost;
+using KHLBotSharp.BotHost;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 Welcome.Print();
