@@ -30,6 +30,10 @@
 ![:KHLBotSharp](https://count.getloli.com/get/@:KHLBotSharp?theme=rule34)
 > 欢迎各路大神fork以及修改代码
 
+## 即将出现的更新:
+- 添加Webhook支持，依旧是直接支持多个机器人在一个Webhook上运行
+- 完整所有KHLHttp
+
 ## 文档
 > 创建插件之前，需要先知道插件监听的事件，框架会自动根据你监听的事件进行自动分类和整合数据。下列是插件可加载的列表:-
 
