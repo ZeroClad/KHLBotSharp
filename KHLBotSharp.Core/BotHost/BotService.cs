@@ -46,7 +46,7 @@ namespace KHLBotSharp.BotHost
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             ws = new ClientWebSocket();
             hc = new HttpClient();
-            hc.Timeout = new TimeSpan(0,0,30);
+            hc.Timeout = new TimeSpan(0,0,5);
             pluginLoader = new PluginLoaderService();
             pluginLoader.LoadPlugin(bot, serviceCollection);
             if (!File.Exists(Path.Combine(bot, "config.json")))

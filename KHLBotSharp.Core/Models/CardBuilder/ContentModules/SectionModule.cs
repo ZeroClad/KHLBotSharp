@@ -33,7 +33,7 @@ namespace KHLBotSharp.Core.Models
         public List<ICardTextGroup> Accessory { get; set; }
 
         [JsonIgnore]
-        public ICardTextGroup AccessoryObject { get; set; }
+        public ICardContent AccessoryObject { get; set; }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("accessory", NullValueHandling = NullValueHandling.Ignore)]
@@ -61,7 +61,7 @@ namespace KHLBotSharp.Core.Models
             Accessory.AddRange(cardComponents);
             return this;
         }
-        public SectionModule AddAccessory(ICardTextGroup cardComponents)
+        public SectionModule AddAccessory(ICardContent cardComponents)
         {
             AccessoryObject = cardComponents;
             return this;
