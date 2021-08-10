@@ -2,7 +2,7 @@
 using KHLBotSharp.Models.Objects;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Text
+namespace KHLBotSharp.Models.EventsMessage
 {
     public class GroupPictureMessageEvent : AbstractExtra
     {

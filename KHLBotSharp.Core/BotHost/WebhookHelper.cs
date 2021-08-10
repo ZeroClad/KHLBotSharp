@@ -33,14 +33,14 @@ namespace KHLBotSharp.Core.BotHost
             hc.Timeout = new TimeSpan(0, 0, 30);
             hc.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/");
             hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
-            var httpservice = new HttpClientService();
+            var logService = new LogService();
+            logService.Init("Bot", settings);
+            service.AddSingleton(typeof(ILogService), logService);
+            var httpservice = new HttpClientService(logService);
 #pragma warning disable CS0618 // Type or member is obsolete
             httpservice.Init(hc);
 #pragma warning restore CS0618 // Type or member is obsolete
             service.AddSingleton(typeof(IHttpClientService), httpservice);
-            var logService = new LogService();
-            logService.Init("Bot", settings);
-            service.AddSingleton(typeof(ILogService), logService);
             return service;
         }
     }

@@ -1,9 +1,9 @@
 ﻿using KHLBotSharp.Models.EventsMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class UserJoinVoiceChannelEvent:AbstractBody
+    public class UserJoinVoiceChannelEvent : AbstractBody
     {
         [JsonProperty("user_id")]
         public string UserId { get; set; }

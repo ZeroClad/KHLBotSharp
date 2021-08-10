@@ -8,10 +8,11 @@ namespace KHLBotSharp.IService
 {
     public interface IPluginLoaderService
     {
+        void Init(IServiceProvider provider);
         void LoadPlugin(string bot, IServiceCollection services);
-        IEnumerable<IKHLPlugin> ResolvePlugin(IServiceProvider provider);
-        IEnumerable<T> ResolvePlugin<T>(IServiceProvider provider) where T : IKHLPlugin;
-        void HandleMessage<T, T2>(EventMessage<T> input, IEnumerable<T2>  plugins) where T : AbstractExtra where T2 : IKHLPlugin<T>;
-        void HandleMessage<T>(EventMessage<T> input, IServiceProvider provider) where T : AbstractExtra;
+        IEnumerable<IKHLPlugin> ResolvePlugin();
+        IEnumerable<T> ResolvePlugin<T>() where T : IKHLPlugin;
+        void HandleMessage<T, T2>(EventMessage<T> input, IEnumerable<T2> plugins) where T : AbstractExtra where T2 : IKHLPlugin<T>;
+        void HandleMessage<T>(EventMessage<T> input) where T : AbstractExtra;
     }
 }

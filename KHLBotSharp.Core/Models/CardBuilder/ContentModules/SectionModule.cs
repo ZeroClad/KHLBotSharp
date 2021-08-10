@@ -14,7 +14,7 @@ namespace KHLBotSharp.Core.Models
         {
             get
             {
-                if (Enum.TryParse(ModeString,true, out Direction theme))
+                if (Enum.TryParse(ModeString, true, out Direction theme))
                 {
                     return theme;
                 }
@@ -30,10 +30,10 @@ namespace KHLBotSharp.Core.Models
         public string ModeString { get; set; }
 
         [JsonIgnore]
-        public List<ICardTextGroup> Accessory { get; set; }
+        public List<ICardComponent> Accessory { get; set; }
 
         [JsonIgnore]
-        public ICardContent AccessoryObject { get; set; }
+        public ICardComponent AccessoryObject { get; set; }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("accessory", NullValueHandling = NullValueHandling.Ignore)]
@@ -41,7 +41,7 @@ namespace KHLBotSharp.Core.Models
         {
             get
             {
-                if(Accessory != null)
+                if (Accessory != null)
                 {
                     return Accessory;
                 }
@@ -52,18 +52,18 @@ namespace KHLBotSharp.Core.Models
             }
         }
 
-        public SectionModule AddAccessory(params ICardTextGroup[] cardComponents)
+        public SectionModule AddAccessory(params ICardComponent[] cardComponents)
         {
-            if(Accessory == null)
+            if(cardComponents.Length == 1)
             {
-                Accessory = new List<ICardTextGroup>();
+                AccessoryObject = cardComponents[0];
+                return this;
+            }
+            if (Accessory == null)
+            {
+                Accessory = new List<ICardComponent>();
             }
             Accessory.AddRange(cardComponents);
-            return this;
-        }
-        public SectionModule AddAccessory(ICardContent cardComponents)
-        {
-            AccessoryObject = cardComponents;
             return this;
         }
     }

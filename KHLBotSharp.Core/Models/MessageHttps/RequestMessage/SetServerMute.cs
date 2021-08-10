@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.MessageHttps.RequestMessage
 {
-    public class SetServerMute:AbstractMessageType
+    public class SetServerMute : AbstractMessageType
     {
         public SetServerMute(string guildId, string userId, MuteType muteType)
         {

@@ -10,7 +10,7 @@ namespace KHLBotSharp.Core.Models
         public List<ICardButtonComponent> Elements { get; set; }
         public ActionGroupModule AddElements(params ICardButtonComponent[] buttonComponents)
         {
-            if(Elements == null)
+            if (Elements == null)
             {
                 Elements = new List<ICardButtonComponent>();
             }

@@ -1,4 +1,4 @@
-﻿namespace KHLBotSharp.Models.EventsMessage.Body
+﻿namespace KHLBotSharp.Models.EventsMessage
 {
     public class ServerMemberOfflineEvent : ServerMemberOnlineEvent
     {

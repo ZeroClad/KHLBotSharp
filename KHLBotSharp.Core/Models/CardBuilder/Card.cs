@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace KHLBotSharp.Core.Models
 {
-    public class Card:ICardComponent
+    public class Card : ICardComponent
     {
         [JsonProperty("type")]
         public string Type { get; } = "card";
@@ -39,7 +39,7 @@ namespace KHLBotSharp.Core.Models
         public string Color { get; set; }
         public Card AddModules(params ICardBodyComponent[] cardComponents)
         {
-            if(Modules == null)
+            if (Modules == null)
             {
                 Modules = new List<ICardBodyComponent>();
             }
@@ -48,7 +48,7 @@ namespace KHLBotSharp.Core.Models
         }
     }
 
-    public class CardBuilder: List<Card>
+    public class CardBuilder : List<Card>
     {
         public Card Create()
         {

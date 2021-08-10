@@ -1,6 +1,6 @@
-﻿namespace KHLBotSharp.Models.EventsMessage.Body
+﻿namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ChannelUserRemoveReactionEvent:ChannelUserAddReactionEvent
+    public class ChannelUserRemoveReactionEvent : ChannelUserAddReactionEvent
     {
 
     }

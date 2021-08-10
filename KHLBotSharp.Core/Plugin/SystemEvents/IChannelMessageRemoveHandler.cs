@@ -1,10 +1,10 @@
 ﻿using KHLBotSharp.EventHandlers.SystemEvents.Base;
-using KHLBotSharp.Models.EventsMessage.Body;
+using KHLBotSharp.Models.EventsMessage;
 
 
 namespace KHLBotSharp.EventHandlers.SystemEvents
 {
-    public interface IChannelMessageRemoveHandler: ISystemEventHandler<ChannelMessageRemoveEvent>
+    public interface IChannelMessageRemoveHandler : ISystemEventHandler<ChannelMessageRemoveEvent>
     {
     }
 }

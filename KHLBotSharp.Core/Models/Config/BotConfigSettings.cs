@@ -1,23 +1,30 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace KHLBotSharp.Core.Models.Config
 {
-    public class BotConfigSettings:IBotConfigSettings
+    public class BotConfigSettings : IBotConfigSettings
     {
         public string BotToken { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string EncryptKey { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string VerifyToken { get; set; }
         public bool Active { get; set; } = true;
         public AppSettings Settings { get; set; } = new AppSettings();
         public int APIVersion { get; set; } = 3;
         public bool AtMe { get; set; } = true;
-        public string[] ProcessChar { get; set; } = new string[] { ".","。" };
+        public string[] ProcessChar { get; set; } = new string[] { ".", "。" };
         public bool Debug { get; set; } = false;
     }
 
     public interface IBotConfigSettings
     {
         string BotToken { get; set; }
+        string EncryptKey { get; set; }
+        string VerifyToken { get; set; }
         bool Active { get; set; }
         AppSettings Settings { get; set; }
         int APIVersion { get; set; }
@@ -26,7 +33,7 @@ namespace KHLBotSharp.Core.Models.Config
         bool Debug { get; set; }
     }
 
-    public class AppSettings: Dictionary<string, PluginSettings>
+    public class AppSettings : Dictionary<string, PluginSettings>
     {
         /// <summary>
         /// Try get plugin's settings
@@ -45,7 +52,7 @@ namespace KHLBotSharp.Core.Models.Config
             return false;
         }
     }
-    public class PluginSettings: Dictionary<string, object>
+    public class PluginSettings : Dictionary<string, object>
     {
         /// <summary>
         /// Try get config value
@@ -83,7 +90,7 @@ namespace KHLBotSharp.Core.Models.Config
                 var converter = TypeDescriptor.GetConverter(this[key].GetType());
                 if (converter.CanConvertTo(typeof(T)))
                 {
-                   return (T)converter.ConvertTo(this[key], typeof(T));
+                    return (T)converter.ConvertTo(this[key], typeof(T));
                 }
                 throw new InvalidCastException("Unable to convert to Type " + typeof(T).Name);
             }

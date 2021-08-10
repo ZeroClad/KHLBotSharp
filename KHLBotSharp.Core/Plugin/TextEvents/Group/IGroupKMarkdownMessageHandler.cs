@@ -1,8 +1,8 @@
-﻿using KHLBotSharp.Models.EventsMessage.Text;
+﻿using KHLBotSharp.Models.EventsMessage;
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IGroupKMarkdownMessageHandler:IKHLPlugin<GroupKMarkdownMessageEvent>
+    public interface IGroupKMarkdownMessageHandler : IKHLPlugin<GroupKMarkdownMessageEvent>
     {
     }
 }

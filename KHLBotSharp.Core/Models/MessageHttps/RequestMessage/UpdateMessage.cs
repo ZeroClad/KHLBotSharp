@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.MessageHttps.RequestMessage
 {
-    public class UpdateMessage: AbstractMessageType
+    public class UpdateMessage : AbstractMessageType
     {
         public UpdateMessage(string Quote, string Content)
         {

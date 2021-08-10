@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {
-    public class SendChannelMessageReply:BaseData
+    public class SendChannelMessageReply : BaseData
     {
         [JsonProperty("msg_id")]
         public string MessageId { get; set; }

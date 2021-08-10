@@ -43,6 +43,7 @@ namespace KHLBotSharp.Core.BotHost
                 // ERROR: Unable to set console mode
                 // However who cares?
             }
+            
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             AnsiConsole.Render(new FigletText("KHLBot v" + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion).Centered().Color(Color.Aqua));
         }
@@ -51,6 +52,9 @@ namespace KHLBotSharp.Core.BotHost
         {
             AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][red][[Err]]: [/][underline green1][[Global]][/]: [underline cyan1][[BotService]][/]: [white]" + e.ToString().Replace("[", "[[").Replace("]", "]]") + "[/]");
             File.WriteAllText("error.log", e.ToString());
+            Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+            Environment.Exit(0);
+            //Exit and restart
         }
     }
 }

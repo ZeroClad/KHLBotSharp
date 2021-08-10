@@ -3,7 +3,7 @@ using KHLBotSharp.Models.Objects;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace KHLBotSharp.Models.EventsMessage.Text
+namespace KHLBotSharp.Models.EventsMessage
 {
     public class GroupTextMessageEvent : AbstractExtra
     {

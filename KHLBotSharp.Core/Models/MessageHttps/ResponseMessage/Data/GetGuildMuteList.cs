@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {
-    public class GetGuildMuteList:BaseData
+    public class GetGuildMuteList : BaseData
     {
         [JsonProperty("1")]
         public IList<string> Mic { get; set; }

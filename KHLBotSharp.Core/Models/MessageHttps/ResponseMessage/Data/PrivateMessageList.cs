@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {
-    public class PrivateMessageList:BaseData
+    public class PrivateMessageList : BaseData
     {
         [JsonProperty("items")]
         public IList<PrivateMessageDetail> Items { get; set; }
     }
 
-    public class PrivateMessageDetail:BaseData
+    public class PrivateMessageDetail : BaseData
     {
         [JsonProperty("code")]
         public string Code { get; set; }

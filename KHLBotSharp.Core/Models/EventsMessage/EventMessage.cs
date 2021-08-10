@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.EventsMessage
 {
-    public class EventMessage<T>: EventMessage where T : AbstractExtra
+    public class EventMessage<T> : EventMessage where T : AbstractExtra
     {
         [JsonProperty("d")]
         public ReceiveMessageData<T> Data { get; set; }
@@ -17,7 +17,7 @@ namespace KHLBotSharp.Models.EventsMessage
         public int SerialNumber { get; set; }
     }
 
-    public class ReceiveMessageData<T>: ReceiveMessageData where T : AbstractExtra
+    public class ReceiveMessageData<T> : ReceiveMessageData where T : AbstractExtra
     {
         public T Extra { get; set; }
     }

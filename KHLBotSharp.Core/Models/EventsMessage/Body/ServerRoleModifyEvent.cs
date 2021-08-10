@@ -1,6 +1,6 @@
-﻿namespace KHLBotSharp.Models.EventsMessage.Body
+﻿namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ServerRoleModifyEvent:ServerRoleAddEvent
+    public class ServerRoleModifyEvent : ServerRoleAddEvent
     {
     }
 }

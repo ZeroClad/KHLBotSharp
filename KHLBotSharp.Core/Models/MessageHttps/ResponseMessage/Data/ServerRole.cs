@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {
-    public class ServerRole:BaseData
+    public class ServerRole : BaseData
     {
         [JsonProperty("role_id")]
         public uint RoleId { get; set; }

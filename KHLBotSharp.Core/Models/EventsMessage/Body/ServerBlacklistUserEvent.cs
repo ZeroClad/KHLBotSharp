@@ -2,9 +2,9 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ServerBlacklistUserEvent:AbstractBody
+    public class ServerBlacklistUserEvent : AbstractBody
     {
         [JsonProperty("operator_id")]
         public string OperatorId { get; set; }

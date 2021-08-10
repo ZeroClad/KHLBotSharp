@@ -1,9 +1,9 @@
 ﻿using KHLBotSharp.Models.EventsMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ChannelRemovedEvent:AbstractBody
+    public class ChannelRemovedEvent : AbstractBody
     {
         [JsonProperty("id")]
         public string Id { get; set; }

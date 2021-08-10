@@ -3,9 +3,6 @@ using KHLBotSharp.Common.Request;
 using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
-using KHLBotSharp.Models.EventsMessage.Body;
-using KHLBotSharp.Models.EventsMessage.Extra;
-using KHLBotSharp.Models.EventsMessage.Text;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.Objects;
 using KHLBotSharp.Services;
@@ -37,16 +34,19 @@ namespace KHLBotSharp.BotHost
         private CancellationTokenSource reset = new CancellationTokenSource();
         private IPluginLoaderService pluginLoader;
         private Timer timer = new Timer();
+        private Timer errorRate = new Timer();
         private BotConfigSettings settings;
+
         public BotService(string bot)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton(typeof(ILogService), typeof(LogService));
             serviceCollection.AddSingleton(typeof(IHttpClientService), typeof(HttpClientService));
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
+            serviceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
             ws = new ClientWebSocket();
             hc = new HttpClient();
-            hc.Timeout = new TimeSpan(0,0,5);
+            hc.Timeout = new TimeSpan(0, 0, 10);
             pluginLoader = new PluginLoaderService();
             pluginLoader.LoadPlugin(bot, serviceCollection);
             if (!File.Exists(Path.Combine(bot, "config.json")))
@@ -56,6 +56,7 @@ namespace KHLBotSharp.BotHost
             settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(bot, "config.json")));
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
+            pluginLoader.Init(provider);
             hc.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/");
             hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
             //Yeah we just don't want any plugin programmer call this so thats why
@@ -83,7 +84,15 @@ namespace KHLBotSharp.BotHost
                 logService.Warning("Bot is done loaded but disabled to run. Please set inside your config.json to reactive it");
                 return;
             }
-            if(atMe != null)
+            var error = provider.GetService<IErrorRateService>();
+            errorRate.Elapsed += (args, obj)=>
+            {
+                error.ReportStatus();
+                error.CheckResetError();
+            };
+            errorRate.Interval = 5000;
+            errorRate.Start();
+            if (atMe != null)
             {
                 settings.AtMe = atMe.Value;
             }
@@ -95,7 +104,7 @@ namespace KHLBotSharp.BotHost
             {
                 logService.Warning("Bot isn't using command '.' or '。'to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
             }
-            if(settings.BotToken == null)
+            if (settings.BotToken == null)
             {
                 logService.Error("Bot Token not found! Please set inside your config.json to let it works! Bot stopped!");
                 return;
@@ -131,6 +140,7 @@ namespace KHLBotSharp.BotHost
                 catch (Exception ex)
                 {
                     logService.Error(ex.Message);
+                    error.AddError();
                 }
             }
             while (true);
@@ -214,12 +224,12 @@ namespace KHLBotSharp.BotHost
                                     if (groupText.Data.Extra.Mention.Any(x => x == Me.Id))
                                     {
                                         groupText.Data.Content = groupText.Data.Content.Replace("@" + Me.Nick + "#" + Me.Id, "").Trim();
-                                        if(settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
+                                        if (settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
                                         {
                                             if (!groupText.Data.Extra.Author.IsBot)
                                             {
                                                 logService.Debug("Received Group Text Event, Triggering Plugins");
-                                                pluginLoader.HandleMessage(groupText, provider);
+                                                pluginLoader.HandleMessage(groupText);
                                             }
                                         }
                                     }
@@ -231,26 +241,26 @@ namespace KHLBotSharp.BotHost
                                         if (!groupText.Data.Extra.Author.IsBot)
                                         {
                                             logService.Debug("Received Group Text Event, Triggering Plugins");
-                                            pluginLoader.HandleMessage(groupText, provider);
+                                            pluginLoader.HandleMessage(groupText);
                                         }
                                     }
                                 }
                                 break;
                             case 2:
                                 logService.Debug("Received Group Image Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupPictureMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupPictureMessageEvent>>());
                                 break;
                             case 3:
                                 logService.Debug("Received Group Video Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>());
                                 break;
                             case 9:
                                 logService.Debug("Received Group Markdown Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>());
                                 break;
                             case 10:
                                 logService.Debug("Received Group Card Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupCardMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupCardMessageEvent>>());
                                 break;
                             case 255:
                                 logService.Debug("Received Group System Event, Triggering Plugins");
@@ -258,73 +268,73 @@ namespace KHLBotSharp.BotHost
                                 switch (extra)
                                 {
                                     case "added_reaction":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserAddReactionEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserAddReactionEvent>>>());
                                         break;
                                     case "deleted_reaction":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserRemoveReactionEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelUserRemoveReactionEvent>>>());
                                         break;
                                     case "updated_message":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageUpdateEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageUpdateEvent>>>());
                                         break;
                                     case "deleted_message":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageRemoveEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelMessageRemoveEvent>>>());
                                         break;
                                     case "added_channel":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelCreatedEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelCreatedEvent>>>());
                                         break;
                                     case "updated_channel":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelModifyEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelModifyEvent>>>());
                                         break;
                                     case "deleted_channel":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovedEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovedEvent>>>());
                                         break;
                                     case "pinned_message":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelPinnedMessageEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelPinnedMessageEvent>>>());
                                         break;
                                     case "unpinned_message":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovePinMessageEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ChannelRemovePinMessageEvent>>>());
                                         break;
                                     case "joined_guild":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerNewMemberJoinEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerNewMemberJoinEvent>>>());
                                         break;
                                     case "exited_guild":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberExitEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberExitEvent>>>());
                                         break;
                                     case "updated_guild_member":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberModifiedEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberModifiedEvent>>>());
                                         break;
                                     case "guild_member_online":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOnlineEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOnlineEvent>>>());
                                         break;
                                     case "guild_member_offline":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOfflineEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOfflineEvent>>>());
                                         break;
                                     case "added_role":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleAddEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleAddEvent>>>());
                                         break;
                                     case "deleted_role":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleRemoveEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleRemoveEvent>>>());
                                         break;
                                     case "updated_role":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleModifyEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleModifyEvent>>>());
                                         break;
                                     case "updated_guild":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerUpdateEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerUpdateEvent>>>());
                                         break;
                                     case "deleted_guild":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveEvent>>>());
                                         break;
                                     case "added_block_list":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerBlacklistUserEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerBlacklistUserEvent>>>());
                                         break;
                                     case "deleted_block_list":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveBlacklistUserEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRemoveBlacklistUserEvent>>>());
                                         break;
                                     case "joined_channel":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserJoinVoiceChannelEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserJoinVoiceChannelEvent>>>());
                                         break;
                                     case "exited_channel":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserExitVoiceChannelEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserExitVoiceChannelEvent>>>());
                                         break;
                                 }
                                 break;
@@ -341,23 +351,23 @@ namespace KHLBotSharp.BotHost
                         {
                             case 1:
                                 logService.Debug("Received Private Text Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateTextMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateTextMessageEvent>>());
                                 break;
                             case 2:
                                 logService.Debug("Received Private Image Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivatePictureMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivatePictureMessageEvent>>());
                                 break;
                             case 3:
                                 logService.Debug("Received Private Video Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateVideoMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateVideoMessageEvent>>());
                                 break;
                             case 9:
                                 logService.Debug("Received Private Markdown Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateKMarkdownMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateKMarkdownMessageEvent>>());
                                 break;
                             case 10:
                                 logService.Debug("Received Private Card Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateCardMessageEvent>>(), provider);
+                                pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateCardMessageEvent>>());
                                 break;
                             case 255:
                                 logService.Debug("Received Private System Event, Triggering Plugins");
@@ -365,22 +375,22 @@ namespace KHLBotSharp.BotHost
                                 switch (extra)
                                 {
                                     case "updated_private_message":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageModifyEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageModifyEvent>>>());
                                         break;
                                     case "deleted_private_message":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveEvent>>>());
                                         break;
                                     case "private_added_reaction":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageAddReactionEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageAddReactionEvent>>>());
                                         break;
                                     case "private_deleted_reaction":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveReactionEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<PrivateMessageRemoveReactionEvent>>>());
                                         break;
                                     case "user_updated":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserInfoChangeEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<UserInfoChangeEvent>>>());
                                         break;
                                     case "message_btn_click":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<CardMessageButtonClickEvent>>>(), provider);
+                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<CardMessageButtonClickEvent>>>());
                                         break;
                                 }
                                 break;

@@ -36,8 +36,8 @@ namespace KHLBotSharp.Models.Objects
         public IList<uint> Roles { get; set; }
     }
 
-    public enum Status 
-    { 
+    public enum Status
+    {
         Normal = 0,
         Banned = 10
     }

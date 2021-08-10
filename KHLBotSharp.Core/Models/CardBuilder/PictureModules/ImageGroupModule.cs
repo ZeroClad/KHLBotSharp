@@ -10,7 +10,7 @@ namespace KHLBotSharp.Core.Models
         public List<ICardImageComponent> Elements { get; set; }
         public ImageGroupModule AddElements(params ICardImageComponent[] imageComponents)
         {
-            if(Elements == null)
+            if (Elements == null)
             {
                 Elements = new List<ICardImageComponent>();
             }

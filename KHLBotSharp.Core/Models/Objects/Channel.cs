@@ -1,11 +1,10 @@
 ﻿using KHLBotSharp.Common.Converter;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.Objects
 {
-    public class Channel:BaseData
+    public class Channel : BaseData
     {
         [JsonProperty("id")]
         public string Id { get; set; }

@@ -3,9 +3,9 @@ using KHLBotSharp.Models.EventsMessage.Abstract;
 using KHLBotSharp.Models.Objects;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ServerUpdateEvent: AbstractBody
+    public class ServerUpdateEvent : AbstractBody
     {
         [JsonProperty("id")]
         public string Id { get; set; }

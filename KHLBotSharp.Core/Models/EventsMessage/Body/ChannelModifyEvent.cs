@@ -4,9 +4,9 @@ using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ChannelModifyEvent:AbstractBody
+    public class ChannelModifyEvent : AbstractBody
     {
         [JsonProperty("id")]
         public string Id { get; set; }

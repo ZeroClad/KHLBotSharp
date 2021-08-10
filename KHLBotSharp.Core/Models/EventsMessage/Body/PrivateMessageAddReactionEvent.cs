@@ -2,9 +2,9 @@
 using KHLBotSharp.Models.Objects;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class PrivateMessageAddReactionEvent:AbstractBody
+    public class PrivateMessageAddReactionEvent : AbstractBody
     {
         [JsonProperty("emoji")]
         public Emoji Emoji { get; set; }

@@ -1,7 +1,7 @@
-﻿namespace KHLBotSharp.Models.EventsMessage.Text
+﻿namespace KHLBotSharp.Models.EventsMessage
 {
-    public class PrivateCardMessageEvent:PrivateKMarkdownMessageEvent
+    public class PrivateCardMessageEvent : PrivateKMarkdownMessageEvent
     {
-        
+
     }
 }

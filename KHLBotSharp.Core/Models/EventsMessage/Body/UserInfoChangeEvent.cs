@@ -1,10 +1,9 @@
 ﻿using KHLBotSharp.Models.EventsMessage.Abstract;
-using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class UserInfoChangeEvent:AbstractBody
+    public class UserInfoChangeEvent : AbstractBody
     {
         [JsonProperty("user_id")]
         public string UserId { get; set; }

@@ -10,7 +10,7 @@ namespace KHLBotSharp.Core.Models
         public List<ICardContent> Elements { get; set; }
         public ContextModule AddElements(params ICardContent[] contents)
         {
-            if(Elements == null)
+            if (Elements == null)
             {
                 Elements = new List<ICardContent>();
             }

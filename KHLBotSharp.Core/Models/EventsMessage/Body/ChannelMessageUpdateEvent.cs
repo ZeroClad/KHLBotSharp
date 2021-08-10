@@ -2,9 +2,9 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ChannelMessageUpdateEvent:AbstractBody
+    public class ChannelMessageUpdateEvent : AbstractBody
     {
         [JsonProperty("channel_id")]
         public string ChannelId { get; set; }

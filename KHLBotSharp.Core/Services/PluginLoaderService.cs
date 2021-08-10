@@ -9,15 +9,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace KHLBotSharp.Services
 {
-    public class PluginLoaderService: IPluginLoaderService
+    public class PluginLoaderService : IPluginLoaderService
     {
         private IEnumerable<IKHLPlugin> plugins;
         private ILogService logService;
         private IKHLHttpService httpService;
         private bool _initialized;
+        private IServiceProvider provider;
+        private IErrorRateService errorRate;
         public void LoadPlugin(string bot, IServiceCollection services)
         {
             /*加载所有文件夹内的插件文件夹*/
@@ -45,7 +48,7 @@ namespace KHLBotSharp.Services
                         var result = Assembly.LoadFrom(dependencyDll);
                         return result;
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         File.WriteAllText("error.log", ex.ToString());
                         Environment.Exit(1);
@@ -80,17 +83,17 @@ namespace KHLBotSharp.Services
             Environment.Exit(0);
         }
 
-        public virtual IEnumerable<IKHLPlugin> ResolvePlugin(IServiceProvider provider)
+        public virtual IEnumerable<IKHLPlugin> ResolvePlugin()
         {
             this.logService = provider.GetService<ILogService>();
             this.httpService = provider.GetService<IKHLHttpService>();
-            if(plugins == null)
+            if (plugins == null)
             {
                 plugins = provider.GetServices<IKHLPlugin>();
             }
             if (!_initialized)
             {
-                foreach(var plug in plugins)
+                foreach (var plug in plugins)
                 {
                     plug.Ctor(provider);
                 }
@@ -99,9 +102,9 @@ namespace KHLBotSharp.Services
             return plugins;
         }
 
-        public virtual IEnumerable<T> ResolvePlugin<T>(IServiceProvider provider) where T : IKHLPlugin
+        public virtual IEnumerable<T> ResolvePlugin<T>() where T : IKHLPlugin
         {
-            var pluginList = ResolvePlugin(provider);
+            var pluginList = ResolvePlugin();
             return pluginList.Where(x => x is T).Select(y => (T)y);
         }
 
@@ -117,10 +120,16 @@ namespace KHLBotSharp.Services
                     {
                         break;
                     }
+                    else
+                    {
+                        //Slow things down abit
+                        await Task.Delay(50);
+                    }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    if(input.MessageType.ToString() == "0")
+                    errorRate.AddError();
+                    if (input.MessageType.ToString() == "0")
                     {
                         try
                         {
@@ -135,12 +144,19 @@ namespace KHLBotSharp.Services
                 }
 
             }
+            GC.Collect();
         }
 
-        public virtual void HandleMessage<T>(EventMessage<T> input, IServiceProvider provider)
+        public virtual void HandleMessage<T>(EventMessage<T> input)
             where T : AbstractExtra
         {
-            HandleMessage(input, ResolvePlugin<IKHLPlugin<T>>(provider));
+            HandleMessage(input, ResolvePlugin<IKHLPlugin<T>>());
+        }
+
+        public void Init(IServiceProvider provider)
+        {
+            this.provider = provider;
+            errorRate = provider.GetService<IErrorRateService>();
         }
     }
 }

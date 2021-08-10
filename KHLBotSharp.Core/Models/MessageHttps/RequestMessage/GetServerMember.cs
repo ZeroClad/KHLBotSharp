@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace KHLBotSharp.Models.MessageHttps.RequestMessage
 {
-    public class GetServerMember:AbstractMessageType
+    public class GetServerMember : AbstractMessageType
     {
         public GetServerMember(string guild)
         {
@@ -30,7 +30,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
         {
             get
             {
-                if(SortByActiveTime == SortType.Undefined)
+                if (SortByActiveTime == SortType.Undefined)
                 {
                     return null;
                 }
@@ -38,7 +38,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
             }
             set
             {
-                if(value == null)
+                if (value == null)
                 {
                     SortByActiveTime = SortType.Undefined;
                 }
@@ -46,7 +46,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
             }
         }
         [JsonIgnore]
-        public SortType SortByJoinedTime{ get; set; } = SortType.Undefined;
+        public SortType SortByJoinedTime { get; set; } = SortType.Undefined;
         [JsonProperty("joined_at")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public int? JoinedAt

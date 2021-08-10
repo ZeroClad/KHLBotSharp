@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {
-    public class GetGuildMemberList:BaseData
+    public class GetGuildMemberList : BaseData
     {
         [JsonProperty("user_count")]
         public int UserCount { get; set; }

@@ -1,9 +1,9 @@
 ﻿using KHLBotSharp.Models.EventsMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ServerMemberExitEvent:AbstractBody
+    public class ServerMemberExitEvent : AbstractBody
     {
         [JsonProperty("user_id")]
         public string UserId { get; set; }

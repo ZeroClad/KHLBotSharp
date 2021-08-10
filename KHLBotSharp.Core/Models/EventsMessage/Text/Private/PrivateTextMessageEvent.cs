@@ -3,9 +3,9 @@ using KHLBotSharp.Models.Objects;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace KHLBotSharp.Models.EventsMessage.Text
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class PrivateTextMessageEvent:AbstractExtra
+    public class PrivateTextMessageEvent : AbstractExtra
     {
         [JsonProperty("guild_id")]
         public string GuildId { get; set; }

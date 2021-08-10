@@ -1,5 +1,4 @@
 ﻿using KHLBotSharp.Models.EventsMessage;
-using KHLBotSharp.Models.EventsMessage.Text;
 using KHLBotSharp.Models.MessageHttps.RequestMessage.Abstract;
 using Newtonsoft.Json;
 

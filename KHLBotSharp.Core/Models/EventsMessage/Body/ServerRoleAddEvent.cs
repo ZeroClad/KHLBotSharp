@@ -3,9 +3,9 @@ using KHLBotSharp.Models.EventsMessage.Abstract;
 using Newtonsoft.Json;
 using System.Drawing;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ServerRoleAddEvent:AbstractBody
+    public class ServerRoleAddEvent : AbstractBody
     {
         [JsonProperty("role_id")]
         public int RoleId { get; set; }

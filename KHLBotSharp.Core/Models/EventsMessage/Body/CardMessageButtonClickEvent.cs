@@ -1,9 +1,9 @@
 ﻿using KHLBotSharp.Models.EventsMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class CardMessageButtonClickEvent:AbstractBody
+    public class CardMessageButtonClickEvent : AbstractBody
     {
         [JsonProperty("value")]
         public string Value { get; set; }

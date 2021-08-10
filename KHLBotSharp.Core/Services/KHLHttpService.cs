@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace KHLBotSharp.Common.Request
 {
-    public class KHLHttpService:IKHLHttpService
+    public class KHLHttpService : IKHLHttpService
     {
         private readonly IHttpClientService httpApi;
         public KHLHttpService(IHttpClientService httpApiBaseRequestService)

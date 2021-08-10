@@ -3,7 +3,7 @@ using System;
 
 namespace KHLBotSharp.Common.Converter
 {
-    public class BoolConverter:JsonConverter
+    public class BoolConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {

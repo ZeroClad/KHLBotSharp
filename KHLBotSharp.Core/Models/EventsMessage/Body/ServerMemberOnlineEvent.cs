@@ -2,9 +2,9 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ServerMemberOnlineEvent:AbstractBody
+    public class ServerMemberOnlineEvent : AbstractBody
     {
         [JsonProperty("user_id")]
         public string UserId { get; set; }

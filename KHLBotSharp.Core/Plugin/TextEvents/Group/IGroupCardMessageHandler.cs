@@ -1,4 +1,4 @@
-﻿using KHLBotSharp.Models.EventsMessage.Text;
+﻿using KHLBotSharp.Models.EventsMessage;
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {

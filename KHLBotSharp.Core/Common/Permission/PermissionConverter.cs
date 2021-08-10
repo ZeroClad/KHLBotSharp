@@ -1,5 +1,4 @@
-﻿using KHLBotSharp.Common.Request;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,7 +10,7 @@ namespace KHLBotSharp.Common.Permission
         {
             List<Permission> permissions = new List<Permission>();
             var mbit = new BitArray(BitConverter.GetBytes(num));
-            for(int x = 0; x < 28; x++)
+            for (int x = 0; x < 28; x++)
             {
                 if (mbit[x])
                 {

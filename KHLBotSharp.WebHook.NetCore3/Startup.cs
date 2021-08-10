@@ -1,15 +1,10 @@
 using KHLBotSharp.Core.BotHost;
+using KHLBotSharp.WebHook.NetCore3.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace KHLBotSharp.WebHook.NetCore3
 {
@@ -27,6 +22,7 @@ namespace KHLBotSharp.WebHook.NetCore3
         {
             services.AddControllers();
             services.RegisterKHLBot();
+            services.AddScoped<IDecoderService, DecoderService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

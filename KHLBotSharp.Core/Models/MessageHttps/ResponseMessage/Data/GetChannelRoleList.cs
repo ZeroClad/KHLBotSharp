@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {
-    public class GetChannelRoleList:BaseData
+    public class GetChannelRoleList : BaseData
     {
         [JsonProperty("permission_overwrites")]
         public IList<PermissionRole> Roles { get; set; }

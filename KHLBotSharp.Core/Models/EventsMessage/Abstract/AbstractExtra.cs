@@ -1,5 +1,4 @@
-﻿using KHLBotSharp.Common.Converter;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.MessageHttps.EventMessage.Abstract
 {

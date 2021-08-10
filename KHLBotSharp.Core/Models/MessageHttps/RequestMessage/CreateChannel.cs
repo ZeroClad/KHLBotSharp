@@ -30,7 +30,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
         {
             get
             {
-                if(Voice == null)
+                if (Voice == null)
                 {
                     return VoiceQuality.Undefined;
                 }
@@ -38,7 +38,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
             }
             set
             {
-                if(value == VoiceQuality.Undefined)
+                if (value == VoiceQuality.Undefined)
                 {
                     Voice = null;
                 }

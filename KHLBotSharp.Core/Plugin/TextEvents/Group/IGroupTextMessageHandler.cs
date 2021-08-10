@@ -1,9 +1,9 @@
-﻿using KHLBotSharp.Models.EventsMessage.Text;
+﻿using KHLBotSharp.Models.EventsMessage;
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IGroupTextMessageHandler:IKHLPlugin<GroupTextMessageEvent>
+    public interface IGroupTextMessageHandler : IKHLPlugin<GroupTextMessageEvent>
     {
-        
+
     }
 }

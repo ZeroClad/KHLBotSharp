@@ -1,9 +1,9 @@
 ﻿using KHLBotSharp.EventHandlers.SystemEvents.Base;
-using KHLBotSharp.Models.EventsMessage.Body;
+using KHLBotSharp.Models.EventsMessage;
 
 namespace KHLBotSharp.EventHandlers.SystemEvents
 {
-    public interface IServerNewMemberJoinHandler: ISystemEventHandler<ServerNewMemberJoinEvent>
+    public interface IServerNewMemberJoinHandler : ISystemEventHandler<ServerNewMemberJoinEvent>
     {
 
     }

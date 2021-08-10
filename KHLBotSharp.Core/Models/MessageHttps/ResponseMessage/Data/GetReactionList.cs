@@ -1,11 +1,5 @@
-﻿using KHLBotSharp.Common.Converter;
-using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
+﻿using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {

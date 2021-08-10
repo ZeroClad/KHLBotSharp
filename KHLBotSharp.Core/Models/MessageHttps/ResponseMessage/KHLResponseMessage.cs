@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage
 {
-    public class KHLResponseMessage<T>: KHLResponseMessage where T : BaseData
+    public class KHLResponseMessage<T> : KHLResponseMessage where T : BaseData
     {
         [JsonProperty("data")]
         public T Data { get; set; }

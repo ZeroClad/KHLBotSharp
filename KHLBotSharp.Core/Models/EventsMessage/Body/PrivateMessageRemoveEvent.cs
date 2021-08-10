@@ -1,9 +1,9 @@
 ﻿using KHLBotSharp.Models.EventsMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class PrivateMessageRemoveEvent:AbstractBody
+    public class PrivateMessageRemoveEvent : AbstractBody
     {
         [JsonProperty("chat_code")]
         public string ChatCode { get; set; }

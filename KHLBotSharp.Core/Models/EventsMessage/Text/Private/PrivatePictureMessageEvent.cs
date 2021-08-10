@@ -2,9 +2,9 @@
 using KHLBotSharp.Models.Objects;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Text
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class PrivatePictureMessageEvent:AbstractExtra
+    public class PrivatePictureMessageEvent : AbstractExtra
     {
         [JsonProperty("guild_id")]
         public string GuildId { get; set; }
@@ -17,7 +17,7 @@ namespace KHLBotSharp.Models.EventsMessage.Text
 
     }
 
-    public class PictureAttachments:Attachments
+    public class PictureAttachments : Attachments
     {
 
     }

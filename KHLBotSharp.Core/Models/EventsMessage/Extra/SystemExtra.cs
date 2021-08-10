@@ -2,9 +2,9 @@
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Extra
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class SystemExtra<T>: AbstractExtra where T : AbstractBody
+    public class SystemExtra<T> : AbstractExtra where T : AbstractBody
     {
         [JsonProperty("body")]
         public T Body { get; set; }

@@ -32,21 +32,21 @@ namespace KHLBotSharp.Services
                 return;
             }
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
-            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")+ "]]: [/][grey54][[Dbg]]: [/][underline green1][[" + botName+ "]][/]: [underline cyan1][[" +callerName+ "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]","]]") + "[/]");
+            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][grey54][[Dbg]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: [" + logColor + "]" + log.Replace("[", "[[").Replace("]", "]]").Replace("\\","\\\\").Replace("\"","'") + "[/]");
             WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Dbg]: " + log);
         }
 
         public void Error(string log, [CallerFilePath] string callerName = "")
         {
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
-            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][red][[Err]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]", "]]") + "[/]");
+            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][red][[Err]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: [" + logColor + "]" + log.Replace("[", "[[").Replace("]", "]]").Replace("\\", "\\\\").Replace("\"", "'") + "[/]");
             WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Err]: " + log);
         }
 
         public void Info(string log, [CallerFilePath] string callerName = "")
         {
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
-            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][blue][[Inf]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]", "]]") + "[/]");
+            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][blue][[Inf]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: [" + logColor + "]" + log.Replace("[", "[[").Replace("]", "]]").Replace("\\", "\\\\").Replace("\"", "'") + "[/]");
             WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Inf]: " + log);
         }
 
@@ -82,8 +82,13 @@ namespace KHLBotSharp.Services
         public void Warning(string log, [CallerFilePath] string callerName = "")
         {
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
-            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][yellow][[Wrn]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: ["+logColor+"]" + log.Replace("[", "[[").Replace("]", "]]") + "[/]");
+            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][yellow][[Wrn]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: [" + logColor + "]" + log.Replace("[", "[[").Replace("]", "]]") + "[/]");
             WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Wrn]: " + log);
+        }
+
+        public void Write(string log, [CallerFilePath] string callerName = "")
+        {
+            WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Fil]: " + log);
         }
     }
 }

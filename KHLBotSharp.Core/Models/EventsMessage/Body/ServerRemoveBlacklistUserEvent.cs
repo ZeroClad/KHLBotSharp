@@ -2,13 +2,13 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class ServerRemoveBlacklistUserEvent:AbstractBody
+    public class ServerRemoveBlacklistUserEvent : AbstractBody
     {
         [JsonProperty("operator_id")]
         public string OperatorId { get; set; }
         [JsonProperty("user_id")]
-        public IList<string> UserIds { get; set;}
+        public IList<string> UserIds { get; set; }
     }
 }

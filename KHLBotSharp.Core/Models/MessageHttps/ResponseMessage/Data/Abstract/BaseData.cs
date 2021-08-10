@@ -1,7 +1,4 @@
-﻿using KHLBotSharp.Common.Converter;
-using Newtonsoft.Json;
-
-namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract
+﻿namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract
 {
     public abstract class BaseData
     {

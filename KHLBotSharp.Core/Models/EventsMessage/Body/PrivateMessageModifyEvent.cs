@@ -1,9 +1,9 @@
 ﻿using KHLBotSharp.Models.EventsMessage.Abstract;
 using Newtonsoft.Json;
 
-namespace KHLBotSharp.Models.EventsMessage.Body
+namespace KHLBotSharp.Models.EventsMessage
 {
-    public class PrivateMessageModifyEvent:AbstractBody
+    public class PrivateMessageModifyEvent : AbstractBody
     {
         [JsonProperty("author_id")]
         public string AuthorId { get; set; }

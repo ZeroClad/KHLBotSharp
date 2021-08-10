@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
 {
-    public class GetServerRoles:BaseData
+    public class GetServerRoles : BaseData
     {
         [JsonProperty("items")]
         public IList<Role> Items { get; set; }
