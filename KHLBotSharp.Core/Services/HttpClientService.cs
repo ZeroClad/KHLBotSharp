@@ -18,19 +18,19 @@ namespace KHLBotSharp.Services
         private HttpClient client;
         private bool InitState;
         private readonly ILogService log;
-        public HttpClientService(ILogService log)
+        private readonly IErrorRateService errorRateService;
+        public HttpClientService(ILogService log, IErrorRateService errorRateService)
         {
             this.log = log;
+            this.errorRateService = errorRateService;
         }
         public async Task<T> GetAsync<T>(string url)
         {
             log.Write("GET " + url);
-            var result = await client.GetAsync(url);
-            if (!result.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException(result.StatusCode.ToString());
-            }
+            var result = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            result.EnsureSuccessStatusCode();
             var json = await result.Content.ReadAsStringAsync();
+            result.Dispose();
             var data = JsonConvert.DeserializeObject<T>(json);
             return data;
         }
@@ -75,53 +75,86 @@ namespace KHLBotSharp.Services
 
         public async Task<T> PostAsync<T>(string url, object data)
         {
-            var json = JObject.FromObject(data).ToString();
-            log.Write("POST "+ url + "\n" +json);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var result = await client.PostAsync(url, stringContent);
-            if (!result.IsSuccessStatusCode)
+            this.client.Timeout = new TimeSpan(0, 0, 2);
+            try
             {
-                throw new HttpRequestException(result.StatusCode.ToString());
+                var json = JObject.FromObject(data).ToString();
+                log.Write("POST " + url + "\n" + json);
+                var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+                var result = await client.PostAsync(url, stringContent);
+                result.EnsureSuccessStatusCode();
+                var content = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<T>(content);
             }
-            var content = await result.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(content);
+            catch
+            {
+                errorRateService.AddError();
+                return await PostAsync<T>(url, data);
+            }
         }
 
         public async Task<string> UploadFileAsync(string file)
         {
             log.Write("UploadFile " + file);
-            var requestContent = new MultipartFormDataContent();
-            var fileContent = new ByteArrayContent(ReadFully(File.OpenRead(file)));
-            requestContent.Add(fileContent, "file", file.Substring(file.LastIndexOf("\\")));
-            var result = await client.PostAsync("asset/create", requestContent);
-            if (!result.IsSuccessStatusCode)
+            this.client.Timeout = new TimeSpan(0, 0, 5);
+            try
             {
-                throw new HttpRequestException(result.StatusCode.ToString());
+                var requestContent = new MultipartFormDataContent();
+                var fileContent = new ByteArrayContent(ReadFully(File.OpenRead(file)));
+                requestContent.Add(fileContent, "file", file.Substring(file.LastIndexOf("\\")));
+                var result = await client.PostAsync("asset/create", requestContent);
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException(result.StatusCode.ToString());
+                }
+                var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+                if (data.Data.Url == null)
+                {
+                    throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                }
+                return data.Data.Url;
             }
-            var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
-            if (data.Data.Url == null)
+            catch(Exception e)
             {
-                throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                if(e is FileNotFoundException)
+                {
+                    throw;
+                }
+                errorRateService.AddError();
+                return await UploadFileAsync(file);
             }
-            return data.Data.Url;
+
         }
 
         public async Task<string> UploadFileAsync(Stream file)
         {
-            var requestContent = new MultipartFormDataContent();
-            var fileContent = new ByteArrayContent(ReadFully(file));
-            requestContent.Add(fileContent, "file");
-            var result = await client.PostAsync("asset/create", requestContent);
-            if (!result.IsSuccessStatusCode)
+            this.client.Timeout = new TimeSpan(0, 0, 5);
+            try
             {
-                throw new HttpRequestException(result.StatusCode.ToString());
+                var requestContent = new MultipartFormDataContent();
+                var fileContent = new ByteArrayContent(ReadFully(file));
+                requestContent.Add(fileContent, "file");
+                var result = await client.PostAsync("asset/create", requestContent);
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException(result.StatusCode.ToString());
+                }
+                var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+                if (data.Data.Url == null)
+                {
+                    throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                }
+                return data.Data.Url;
             }
-            var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
-            if (data.Data.Url == null)
+            catch (Exception e)
             {
-                throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                if(e is FileNotFoundException)
+                {
+                    throw;
+                }
+                errorRateService.AddError();
+                return await UploadFileAsync(file);
             }
-            return data.Data.Url;
         }
 
         private byte[] ReadFully(Stream input)
@@ -138,7 +171,6 @@ namespace KHLBotSharp.Services
                     return ms.ToArray();
                 }
             }
-
         }
 
         ~HttpClientService()

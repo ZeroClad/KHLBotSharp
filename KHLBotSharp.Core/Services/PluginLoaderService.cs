@@ -144,7 +144,6 @@ namespace KHLBotSharp.Services
                 }
 
             }
-            GC.Collect();
         }
 
         public virtual void HandleMessage<T>(EventMessage<T> input)
