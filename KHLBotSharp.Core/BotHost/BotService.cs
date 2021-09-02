@@ -25,24 +25,23 @@ namespace KHLBotSharp.BotHost
     public class BotService
     {
         private ClientWebSocket ws;
-        private HttpClient hc;
-        private IServiceProvider provider;
+        private readonly HttpClient hc;
+        private readonly IServiceProvider provider;
         public User Me { get; private set; }
         public ILogService logService { get; private set; }
         private long sn;
         private Timer timeoutTimer;
         private CancellationTokenSource reset = new CancellationTokenSource();
-        private IPluginLoaderService pluginLoader;
-        private Timer timer = new Timer();
-        private Timer errorRate = new Timer();
-        private BotConfigSettings settings;
-        private int httpHeartbeat = 0;
+        private readonly IPluginLoaderService pluginLoader;
+        private readonly Timer timer = new Timer();
+        private readonly Timer errorRate = new Timer();
+        private readonly BotConfigSettings settings;
 
         public BotService(string bot)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton(typeof(ILogService), typeof(LogService));
-            serviceCollection.AddSingleton(typeof(IHttpClientService), typeof(HttpClientService));
+            serviceCollection.AddScoped(typeof(IHttpClientService), typeof(HttpClientService));
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             serviceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
             ws = new ClientWebSocket();
@@ -53,6 +52,7 @@ namespace KHLBotSharp.BotHost
             {
                 File.WriteAllText(Path.Combine(bot, "config.json"), JsonConvert.SerializeObject(new BotConfigSettings(), Formatting.Indented));
             }
+
             settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(bot, "config.json")));
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
@@ -61,10 +61,6 @@ namespace KHLBotSharp.BotHost
             hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
             hc.DefaultRequestHeaders.Add("Connection", "keep-alive");
             hc.DefaultRequestHeaders.Add("Keep-Alive", "600");
-            //Yeah we just don't want any plugin programmer call this so thats why
-#pragma warning disable CS0618
-            provider.GetService<IHttpClientService>().Init(hc);
-#pragma warning restore CS0618
             logService = provider.GetService<ILogService>();
             timer.Interval = 30000;
             timer.Elapsed += Timer_Elapsed;
@@ -155,34 +151,16 @@ namespace KHLBotSharp.BotHost
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             logService.Debug("Sending Ping");
-            HttpHeartBeat();
-            _ = ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JObject.FromObject(new { s = 2, sn = sn }).ToString())), WebSocketMessageType.Text, true, CancellationToken.None);
+            _ = ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JObject.FromObject(new { s = 2, sn }).ToString())), WebSocketMessageType.Text, true, CancellationToken.None);
             if (timeoutTimer == null)
             {
-                timeoutTimer = new Timer();
-                timeoutTimer.Interval = 6000;
+                timeoutTimer = new Timer
+                {
+                    Interval = 6000
+                };
                 timeoutTimer.Elapsed += TimeoutTimer_Elapsed;
             }
             timeoutTimer.Start();
-        }
-
-        private async void HttpHeartBeat()
-        {
-            httpHeartbeat++;
-            if(httpHeartbeat >= 2)
-            {
-                httpHeartbeat = 0;
-                var response = await hc.GetAsync("user/me", HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<KHLResponseMessage<User>>(json).Data;
-                if (result != Me)
-                {
-                    Me = result;
-                    logService.Info("Bot ID updated as " + Me.Id + " Name: " + Me.Nick);
-                }
-            }
-
         }
 
         private void TimeoutTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

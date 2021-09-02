@@ -65,14 +65,19 @@ namespace KHLBotSharp.Services
                     {
                         foreach (var interfaceType in implementedInterfaces)
                         {
-                            services.AddSingleton(interfaceType, type);
+                            services.AddScoped(interfaceType, type);
                         }
                     }
                     else
                     {
                         // No implemented interface, register as self
-                        services.AddSingleton(type);
+                        services.AddScoped(type);
                     }
+                }
+                var diregister = pluginAssembly.GetTypes().Where(x => typeof(IServiceRegister).IsAssignableFrom(x) && !x.IsAbstract);
+                foreach(var type in diregister)
+                {
+                    (type as IServiceRegister).Register(services);
                 }
             }
         }

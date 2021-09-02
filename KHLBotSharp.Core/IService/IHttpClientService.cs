@@ -8,8 +8,6 @@ namespace KHLBotSharp.IService
 {
     public interface IHttpClientService
     {
-        [Obsolete("Do not call this function in any Plugin!")]
-        void Init(HttpClient client, [CallerMemberName] string caller = null);
         Task<T> GetAsync<T>(string url);
         Task<T> GetAsync<T>(string url, object data);
         Task<T> PostAsync<T>(string url, object data);

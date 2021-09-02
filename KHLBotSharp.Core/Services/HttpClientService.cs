@@ -1,4 +1,5 @@
-﻿using KHLBotSharp.IService;
+﻿using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.IService;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using Newtonsoft.Json;
@@ -7,6 +8,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,14 +17,20 @@ namespace KHLBotSharp.Services
 {
     public class HttpClientService : IHttpClientService
     {
-        private HttpClient client;
-        private bool InitState;
+        private readonly HttpClient client;
         private readonly ILogService log;
         private readonly IErrorRateService errorRateService;
-        public HttpClientService(ILogService log, IErrorRateService errorRateService)
+        public HttpClientService(ILogService log, IErrorRateService errorRateService, IBotConfigSettings settings)
         {
             this.log = log;
             this.errorRateService = errorRateService;
+            client = new HttpClient
+            {
+                BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
+            };
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Keep-Alive", "600");
         }
         public async Task<T> GetAsync<T>(string url)
         {
@@ -62,20 +70,8 @@ namespace KHLBotSharp.Services
             return GetAsync<T>(finalurl);
         }
 
-        [Obsolete("Don't call in any plugin! This should be the bot host to init, not you!")]
-        public void Init(HttpClient client, [CallerMemberName] string caller = null)
-        {
-            if (InitState)
-            {
-                throw new InvalidOperationException("This cannot be called in plugin!");
-            }
-            this.InitState = true;
-            this.client = client;
-        }
-
         public async Task<T> PostAsync<T>(string url, object data)
         {
-            this.client.Timeout = new TimeSpan(0, 0, 2);
             try
             {
                 var json = JObject.FromObject(data).ToString();
@@ -86,8 +82,16 @@ namespace KHLBotSharp.Services
                 var content = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<T>(content);
             }
-            catch
+            catch(Exception e)
             {
+                if(e is OperationCanceledException)
+                {
+                    log.Error("Connection Timeout for " + url);
+                }
+                else
+                {
+                    log.Error(e.ToString());
+                }
                 errorRateService.AddError();
                 return await PostAsync<T>(url, data);
             }
@@ -96,7 +100,6 @@ namespace KHLBotSharp.Services
         public async Task<string> UploadFileAsync(string file)
         {
             log.Write("UploadFile " + file);
-            this.client.Timeout = new TimeSpan(0, 0, 5);
             try
             {
                 var requestContent = new MultipartFormDataContent();
@@ -116,7 +119,15 @@ namespace KHLBotSharp.Services
             }
             catch(Exception e)
             {
-                if(e is FileNotFoundException)
+                if (e is OperationCanceledException)
+                {
+                    log.Error("Connection Timeout for " + client.BaseAddress + "asset/create");
+                }
+                else
+                {
+                    log.Error(e.ToString());
+                }
+                if (e is FileNotFoundException)
                 {
                     throw;
                 }
@@ -128,7 +139,6 @@ namespace KHLBotSharp.Services
 
         public async Task<string> UploadFileAsync(Stream file)
         {
-            this.client.Timeout = new TimeSpan(0, 0, 5);
             try
             {
                 var requestContent = new MultipartFormDataContent();
@@ -148,7 +158,15 @@ namespace KHLBotSharp.Services
             }
             catch (Exception e)
             {
-                if(e is FileNotFoundException)
+                if (e is OperationCanceledException)
+                {
+                    log.Error("Connection Timeout for " + client.BaseAddress + "asset/create");
+                }
+                else
+                {
+                    log.Error(e.ToString());
+                }
+                if (e is FileNotFoundException)
                 {
                     throw;
                 }

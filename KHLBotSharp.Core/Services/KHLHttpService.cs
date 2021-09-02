@@ -73,6 +73,11 @@ namespace KHLBotSharp.Common.Request
             return httpApi.GetAsync<KHLResponseMessage<User>>("user/view?user_id=" + UserId + "&guild_id=" + GuildId);
         }
 
+        public Task<KHLResponseMessage<Emoji>> GetEmojiList(string GuildId)
+        {
+            return httpApi.GetAsync<KHLResponseMessage<Emoji>>("guild-emoji/list?guild_id=" + GuildId);
+        }
+
         public Task<KHLResponseMessage<Guild>> GetGuild(string GuildId)
         {
             return httpApi.GetAsync<KHLResponseMessage<Guild>>("guild/view?guild_id=" + GuildId);
@@ -175,22 +180,22 @@ namespace KHLBotSharp.Common.Request
 
         public Task SetMute(SetServerMute Request)
         {
-            throw new NotImplementedException();
+            return httpApi.PostAsync<object>("guild-mute/create", Request);
         }
 
         public Task UnMute(SetServerMute Request)
         {
-            throw new NotImplementedException();
+            return httpApi.PostAsync<object>("guild-mute/delete", Request);
         }
 
         public Task UpdateGroupMessage(UpdateMessage Request)
         {
-            throw new NotImplementedException();
+            return httpApi.PostAsync<KHLResponseMessage<ServerRole>>("message/update", Request);
         }
 
         public Task<KHLResponseMessage<ServerRole>> UpdateServerRole(UpdateServerRole Request)
         {
-            throw new NotImplementedException();
+            return httpApi.PostAsync<KHLResponseMessage<ServerRole>>("guild-role/update", Request);
         }
 
         public async Task<string> UploadFile(string filePath)
