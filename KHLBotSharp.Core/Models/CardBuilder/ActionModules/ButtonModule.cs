@@ -19,10 +19,7 @@ namespace KHLBotSharp.Core.Models
                 ThemeString = "primary";
                 return CardTheme.Primary;
             }
-            set
-            {
-                ThemeString = Enum.GetName(typeof(CardTheme), value).ToLower();
-            }
+            set => ThemeString = Enum.GetName(typeof(CardTheme), value).ToLower();
         }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("theme")]

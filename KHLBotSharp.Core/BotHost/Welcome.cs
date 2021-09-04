@@ -9,19 +9,19 @@ namespace KHLBotSharp.Core.BotHost
 {
     public class Welcome
     {
-        const uint ENABLE_QUICK_EDIT = 0x0040;
+        private const uint ENABLE_QUICK_EDIT = 0x0040;
 
         // STD_INPUT_HANDLE (DWORD): -10 is the standard input device.
-        const int STD_INPUT_HANDLE = -10;
+        private const int STD_INPUT_HANDLE = -10;
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetStdHandle(int nStdHandle);
+        private static extern IntPtr GetStdHandle(int nStdHandle);
 
         [DllImport("kernel32.dll")]
-        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
 
         [DllImport("kernel32.dll")]
-        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
         public static void Print()
         {
             IntPtr consoleHandle = GetStdHandle(STD_INPUT_HANDLE);
@@ -43,7 +43,7 @@ namespace KHLBotSharp.Core.BotHost
                 // ERROR: Unable to set console mode
                 // However who cares?
             }
-            
+
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             AnsiConsole.Render(new FigletText("KHLBot v" + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion).Centered().Color(Color.Aqua));
         }

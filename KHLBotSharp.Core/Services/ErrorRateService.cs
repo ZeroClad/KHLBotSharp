@@ -4,12 +4,12 @@ using System.Diagnostics;
 
 namespace KHLBotSharp.Services
 {
-    class ErrorRateService : IErrorRateService
+    internal class ErrorRateService : IErrorRateService
     {
         private int Errors = 0;
-        private int ErrorThreehold = 20;
+        private readonly int ErrorThreehold = 20;
         private int ResetError = 0;
-        private ILogService logService;
+        private readonly ILogService logService;
         public ErrorRateService(ILogService logService)
         {
             this.logService = logService;
@@ -23,11 +23,11 @@ namespace KHLBotSharp.Services
 
         public void ReportStatus()
         {
-            if(ResetError % 5 == 0)
+            if (ResetError % 20 == 0)
             {
                 logService.Debug("Detected Error Count: " + Errors);
             }
-            if(Errors > ErrorThreehold)
+            if (Errors > ErrorThreehold)
             {
                 logService.Error("Too much error detected, Restarting bot!");
                 Process.Start(Process.GetCurrentProcess().MainModule.FileName);
@@ -37,7 +37,7 @@ namespace KHLBotSharp.Services
 
         public void CheckResetError()
         {
-            if(ResetError > 10)
+            if (ResetError > 10)
             {
                 Errors = 0;
             }

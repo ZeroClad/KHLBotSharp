@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 
 namespace KHLBotSharp.Core.Models.Config
 {
@@ -19,6 +18,7 @@ namespace KHLBotSharp.Core.Models.Config
         public bool AtMe { get; set; } = true;
         public string[] ProcessChar { get; set; } = new string[] { ".", "。" };
         public bool Debug { get; set; } = false;
+        public string DisableBotCommand { get; set; } = "";
     }
 
     public interface IBotConfigSettings
@@ -32,6 +32,7 @@ namespace KHLBotSharp.Core.Models.Config
         bool AtMe { get; set; }
         string[] ProcessChar { get; set; }
         bool Debug { get; set; }
+        string DisableBotCommand { get; set; }
     }
 
     public class AppSettings : Dictionary<string, PluginSettings>
@@ -44,7 +45,7 @@ namespace KHLBotSharp.Core.Models.Config
         /// <returns></returns>
         public bool TryGet(string pluginName, out PluginSettings settings)
         {
-            if (this.ContainsKey(pluginName))
+            if (ContainsKey(pluginName))
             {
                 settings = this[pluginName];
                 return true;

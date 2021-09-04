@@ -1,8 +1,8 @@
-﻿using KHLBotSharp.Core.Models.Config;
+﻿using KHLBotSharp;
+using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.EventHandlers.TextEvents;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
-using KHLBotSharp.Models.EventsMessage.Text;
 using KHLBotSharp.Models.MessageHttps.RequestMessage;
 using System;
 using System.Threading.Tasks;
@@ -15,11 +15,17 @@ namespace TestPlugin
         private ILogService logService;
         private IKHLHttpService requestFactory;
         private IBotConfigSettings botConfigSettings;
+        /// <summary>
+        /// For more info for this, view how we register DI in TestDI.cs!
+        /// 更多详情，请查看TestDI.cs如何自定义注册Dependency Inject
+        /// </summary>
+        private ITestDI testDI;
         public Task Ctor(IServiceProvider provider)
         {
             logService = (ILogService)provider.GetService(typeof(ILogService));
             requestFactory = (IKHLHttpService)provider.GetService(typeof(IKHLHttpService));
             botConfigSettings = (IBotConfigSettings)provider.GetService(typeof(IBotConfigSettings));
+            testDI = (ITestDI)provider.GetService(typeof(ITestDI));
             logService.Info("Loaded DI data");
             logService.Info("Testing config reading " + botConfigSettings.BotToken);
             return Task.CompletedTask;
@@ -55,6 +61,8 @@ namespace TestPlugin
             //*********************************************************
             //示范Card消息，SendMessage会自动检测Json后进行切换成为Card消息因此无需手动输入Type, false为无需回复指令消息，正常默认都会自动回复
             await requestFactory.SendGroupMessage(new SendMessage(eventArgs.Data, CardBuilderSample.GetCard(), false));
+            //我们使用已经注册过的DI
+            testDI.HelloWorld();
             //停止后面插件的运行，表示这个指令我们已经完成了，后面的无需跟上
             return true;
         }

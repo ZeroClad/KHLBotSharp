@@ -7,7 +7,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
     {
         public UpdateMessage(string Quote, string Content)
         {
-            this.MsgId = Quote;
+            MsgId = Quote;
             this.Content = Content;
         }
         [JsonProperty("msg_id")]

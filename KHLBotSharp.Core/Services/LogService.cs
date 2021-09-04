@@ -25,15 +25,16 @@ namespace KHLBotSharp.Services
             "wheat1",
             "white"
         };
+
         public void Debug(string log, [CallerFilePath] string callerName = "")
         {
+            WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Dbg]: " + log);
             if (!showDebug)
             {
                 return;
             }
             callerName = callerName.Split('\\').Last().Replace(".cs", "");
-            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][grey54][[Dbg]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: [" + logColor + "]" + log.Replace("[", "[[").Replace("]", "]]").Replace("\\","\\\\").Replace("\"","'") + "[/]");
-            WriteFile("[" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "]: [Dbg]: " + log);
+            AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][grey54][[Dbg]]: [/][underline green1][[" + botName + "]][/]: [underline cyan1][[" + callerName + "]][/]: [" + logColor + "]" + log.Replace("[", "[[").Replace("]", "]]").Replace("\\", "\\\\").Replace("\"", "'") + "[/]");
         }
 
         public void Error(string log, [CallerFilePath] string callerName = "")
@@ -57,11 +58,28 @@ namespace KHLBotSharp.Services
                 throw new InvalidOperationException("Do not init in plugins! You son of the bxtch");
             }
             InitState = true;
-            this.botName = bot;
+            botName = bot;
             Random rnd = new Random();
             var selectColor = rnd.Next(0, colorCodes.Count);
             logColor = colorCodes[selectColor];
             showDebug = configSettings.Debug;
+            var path = Path.Combine(Environment.CurrentDirectory, "Profiles", botName, "Log");
+            foreach (var file in Directory.GetFiles(path))
+            {
+                try
+                {
+                    FileInfo info = new FileInfo(file);
+                    if ((DateTime.Now - info.CreationTime).TotalDays > 7)
+                    {
+                        info.Delete();
+                    }
+                }
+                catch
+                {
+                    //Skip
+                }
+
+            }
         }
 
         private void WriteFile(string log)

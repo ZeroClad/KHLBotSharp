@@ -75,7 +75,7 @@ namespace KHLBotSharp.Services
                     }
                 }
                 var diregister = pluginAssembly.GetTypes().Where(x => typeof(IServiceRegister).IsAssignableFrom(x) && !x.IsAbstract);
-                foreach(var type in diregister)
+                foreach (var type in diregister)
                 {
                     (type as IServiceRegister).Register(services);
                 }
@@ -90,8 +90,8 @@ namespace KHLBotSharp.Services
 
         public virtual IEnumerable<IKHLPlugin> ResolvePlugin()
         {
-            this.logService = provider.GetService<ILogService>();
-            this.httpService = provider.GetService<IKHLHttpService>();
+            logService = provider.GetService<ILogService>();
+            httpService = provider.GetService<IKHLHttpService>();
             if (plugins == null)
             {
                 plugins = provider.GetServices<IKHLPlugin>();
@@ -117,6 +117,7 @@ namespace KHLBotSharp.Services
             where T : AbstractExtra
             where T2 : IKHLPlugin<T>
         {
+            Stopwatch speedTest = Stopwatch.StartNew();
             foreach (var plugin in plugins)
             {
                 try
@@ -149,6 +150,8 @@ namespace KHLBotSharp.Services
                 }
 
             }
+            speedTest.Stop();
+            logService.Debug("Plugin process success in " + speedTest.ElapsedMilliseconds + " ms");
         }
 
         public virtual void HandleMessage<T>(EventMessage<T> input)

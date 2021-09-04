@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
+﻿using System.IO;
 using System.Threading.Tasks;
 
 namespace KHLBotSharp.IService
 {
+    /// <summary>
+    /// 基础HttpClient，包装过
+    /// </summary>
     public interface IHttpClientService
     {
         Task<T> GetAsync<T>(string url);

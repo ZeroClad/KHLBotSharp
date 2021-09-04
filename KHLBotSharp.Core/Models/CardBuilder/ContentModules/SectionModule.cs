@@ -20,10 +20,7 @@ namespace KHLBotSharp.Core.Models
                 }
                 return null;
             }
-            set
-            {
-                ModeString = Enum.GetName(typeof(Direction), value).ToLower();
-            }
+            set => ModeString = Enum.GetName(typeof(Direction), value).ToLower();
         }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("mode", NullValueHandling = NullValueHandling.Ignore)]
@@ -54,7 +51,7 @@ namespace KHLBotSharp.Core.Models
 
         public SectionModule AddAccessory(params ICardComponent[] cardComponents)
         {
-            if(cardComponents.Length == 1)
+            if (cardComponents.Length == 1)
             {
                 AccessoryObject = cardComponents[0];
                 return this;

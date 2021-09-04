@@ -1,5 +1,5 @@
-﻿using KHLBotSharp.Models.EventsMessage.Abstract;
-using KHLBotSharp.Models.EventsMessage;
+﻿using KHLBotSharp.Models.EventsMessage;
+using KHLBotSharp.Models.EventsMessage.Abstract;
 
 namespace KHLBotSharp.EventHandlers.SystemEvents.Base
 {

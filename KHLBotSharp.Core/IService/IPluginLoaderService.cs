@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.IService
 {
+    /// <summary>
+    /// 内部使用，无需搞懂
+    /// </summary>
     public interface IPluginLoaderService
     {
         void Init(IServiceProvider provider);

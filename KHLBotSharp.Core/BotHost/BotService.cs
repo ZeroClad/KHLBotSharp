@@ -10,10 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -25,7 +25,6 @@ namespace KHLBotSharp.BotHost
     public class BotService
     {
         private ClientWebSocket ws;
-        private readonly HttpClient hc;
         private readonly IServiceProvider provider;
         public User Me { get; private set; }
         public ILogService logService { get; private set; }
@@ -36,7 +35,8 @@ namespace KHLBotSharp.BotHost
         private readonly Timer timer = new Timer();
         private readonly Timer errorRate = new Timer();
         private readonly BotConfigSettings settings;
-
+        private readonly IHttpClientService hc;
+        private Stopwatch pingTime;
         public BotService(string bot)
         {
             var serviceCollection = new ServiceCollection();
@@ -45,23 +45,18 @@ namespace KHLBotSharp.BotHost
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             serviceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
             ws = new ClientWebSocket();
-            hc = new HttpClient();
             pluginLoader = new PluginLoaderService();
             pluginLoader.LoadPlugin(bot, serviceCollection);
             if (!File.Exists(Path.Combine(bot, "config.json")))
             {
                 File.WriteAllText(Path.Combine(bot, "config.json"), JsonConvert.SerializeObject(new BotConfigSettings(), Formatting.Indented));
             }
-
             settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(bot, "config.json")));
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
             pluginLoader.Init(provider);
-            hc.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/");
-            hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
-            hc.DefaultRequestHeaders.Add("Connection", "keep-alive");
-            hc.DefaultRequestHeaders.Add("Keep-Alive", "600");
             logService = provider.GetService<ILogService>();
+            hc = provider.GetService<IHttpClientService>();
             timer.Interval = 30000;
             timer.Elapsed += Timer_Elapsed;
             //Yeah we just don't want any plugin programmer call this so thats why
@@ -83,7 +78,7 @@ namespace KHLBotSharp.BotHost
                 return;
             }
             var error = provider.GetService<IErrorRateService>();
-            errorRate.Elapsed += (args, obj)=>
+            errorRate.Elapsed += (args, obj) =>
             {
                 error.ReportStatus();
                 error.CheckResetError();
@@ -112,17 +107,9 @@ namespace KHLBotSharp.BotHost
             {
                 try
                 {
-                    var response = await hc.GetAsync("user/me", HttpCompletionOption.ResponseHeadersRead);
-                    response.EnsureSuccessStatusCode();
-                    var json = await response.Content.ReadAsStringAsync();
-                    Me = JsonConvert.DeserializeObject<KHLResponseMessage<User>>(json).Data;
+                    Me = (await hc.GetAsync<KHLResponseMessage<User>>("user/me", HttpCompletionOption.ResponseHeadersRead)).Data;
                     logService.Info("Bot ID readed as " + Me.Id + " Name: " + Me.Nick);
-                    response.Dispose();
-                    response = await hc.GetAsync("gateway/index", HttpCompletionOption.ResponseHeadersRead);
-                    response.EnsureSuccessStatusCode();
-                    json = await response.Content.ReadAsStringAsync();
-                    var result = JsonConvert.DeserializeObject<JObject>(json);
-                    response.Dispose();
+                    var result = await hc.GetAsync<JObject>("gateway/index", HttpCompletionOption.ResponseHeadersRead);
                     var socketUrl = result["data"]["url"].ToString();
                     await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
                     logService.Info("WebSocket Established");
@@ -160,6 +147,11 @@ namespace KHLBotSharp.BotHost
                 };
                 timeoutTimer.Elapsed += TimeoutTimer_Elapsed;
             }
+            if(pingTime == null)
+            {
+                pingTime = new Stopwatch();
+            }
+            pingTime.Restart();
             timeoutTimer.Start();
         }
 
@@ -177,7 +169,7 @@ namespace KHLBotSharp.BotHost
             {
                 try
                 {
-                    ArraySegment<Byte> buffer = new ArraySegment<byte>(new Byte[8192]);
+                    ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[8192]);
                     WebSocketReceiveResult wsResult = null;
                     using (var ms = new MemoryStream())
                     {
@@ -207,17 +199,22 @@ namespace KHLBotSharp.BotHost
 
         private Task ParseEvent(MemoryStream ms)
         {
+            Stopwatch speedTest = Stopwatch.StartNew();
             int decompressedLength = 0;
             byte[] decompressedData = new byte[40960];
             using (InflaterInputStream inflater = new InflaterInputStream(ms))
+            {
                 decompressedLength = inflater.Read(decompressedData, 0, decompressedData.Length);
+            }
             var json = Encoding.UTF8.GetString(decompressedData, 0, decompressedLength);
             var eventMsg = JObject.Parse(json);
             if (sn == eventMsg.Value<long>("sn"))
             {
+                speedTest.Stop();
+                logService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
                 return Task.CompletedTask;
             }
-            switch (eventMsg["s"].ToString())
+            switch (eventMsg.Value<string>("s"))
             {
                 case "0":
                     var channelType = eventMsg.Value<JToken>("d").Value<string>("channel_type");
@@ -411,13 +408,16 @@ namespace KHLBotSharp.BotHost
                     timer.Start();
                     break;
                 case "3":
-                    logService.Debug("Received Pong");
+                    logService.Debug("Received Pong in " + pingTime.ElapsedMilliseconds + " ms");
+                    pingTime.Stop();
                     if (timeoutTimer != null)
                     {
                         timeoutTimer.Stop();
                     }
                     break;
             }
+            speedTest.Stop();
+            logService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
             return Task.CompletedTask;
         }
 
@@ -426,7 +426,7 @@ namespace KHLBotSharp.BotHost
             try
             {
                 timer.Stop();
-                if(timeoutTimer != null)
+                if (timeoutTimer != null)
                 {
                     timeoutTimer.Stop();
                 }
@@ -457,9 +457,7 @@ namespace KHLBotSharp.BotHost
             }
             try
             {
-                var response = await hc.GetAsync("gateway/index");
-                var json = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<JObject>(json);
+                var result = await hc.GetAsync<JObject>("gateway/index");
                 var socketUrl = result["data"]["url"].ToString();
                 ws = new ClientWebSocket();
                 await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);

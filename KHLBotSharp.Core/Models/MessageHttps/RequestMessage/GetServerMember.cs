@@ -9,7 +9,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
     {
         public GetServerMember(string guild)
         {
-            this.GuildId = guild;
+            GuildId = guild;
         }
         [JsonProperty("guild_id")]
         public string GuildId { get; set; }

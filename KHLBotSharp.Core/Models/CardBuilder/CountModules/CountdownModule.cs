@@ -21,10 +21,7 @@ namespace KHLBotSharp.Core.Models
                 ModeString = "hour";
                 return CountMode.Hour;
             }
-            set
-            {
-                ModeString = Enum.GetName(typeof(CountMode), value).ToLower();
-            }
+            set => ModeString = Enum.GetName(typeof(CountMode), value).ToLower();
         }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [JsonProperty("theme")]

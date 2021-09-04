@@ -24,10 +24,7 @@ namespace KHLBotSharp.Core.Models
                 ThemeString = "primary";
                 return CardTheme.Primary;
             }
-            set
-            {
-                ThemeString = Enum.GetName(typeof(CardTheme), value).ToLower();
-            }
+            set => ThemeString = Enum.GetName(typeof(CardTheme), value).ToLower();
         }
 
         [JsonProperty("modules")]
@@ -53,7 +50,7 @@ namespace KHLBotSharp.Core.Models
         public Card Create()
         {
             var card = new Card();
-            this.Add(card);
+            Add(card);
             return card;
         }
 
@@ -61,14 +58,16 @@ namespace KHLBotSharp.Core.Models
         {
             var card = new Card();
             card.AddModules(components);
-            this.Add(card);
+            Add(card);
             return this;
         }
 
         public override string ToString()
         {
-            var settings = new JsonSerializerSettings();
-            settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
             var json = JsonConvert.SerializeObject(this, Formatting.None, settings);
             return json;
         }

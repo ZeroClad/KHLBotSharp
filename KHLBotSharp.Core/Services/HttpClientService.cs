@@ -3,13 +3,12 @@ using KHLBotSharp.IService;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +19,8 @@ namespace KHLBotSharp.Services
         private readonly HttpClient client;
         private readonly ILogService log;
         private readonly IErrorRateService errorRateService;
+        private readonly IBotConfigSettings settings;
+        private readonly Stopwatch stopwatch = new Stopwatch();
         public HttpClientService(ILogService log, IErrorRateService errorRateService, IBotConfigSettings settings)
         {
             this.log = log;
@@ -29,18 +30,47 @@ namespace KHLBotSharp.Services
                 BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
             };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
-            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
-            client.DefaultRequestHeaders.Add("Keep-Alive", "600");
+            client.Timeout = new TimeSpan(0, 0, 2);
+            this.settings = settings;
         }
         public async Task<T> GetAsync<T>(string url)
         {
-            log.Write("GET " + url);
-            var result = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-            result.EnsureSuccessStatusCode();
-            var json = await result.Content.ReadAsStringAsync();
-            result.Dispose();
-            var data = JsonConvert.DeserializeObject<T>(json);
-            return data;
+            stopwatch.Start();
+            try
+            {
+                log.Write("GET " + url);
+                using (var result = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    result.EnsureSuccessStatusCode();
+                    using (var stream = await result.Content.ReadAsStreamAsync())
+                    {
+                        using (StreamReader r = new StreamReader(stream))
+                        {
+                            using (JsonReader jr = new JsonTextReader(r))
+                            {
+                                JsonSerializer s = new JsonSerializer();
+                                var data = s.Deserialize<T>(jr);
+                                stopwatch.Stop();
+                                log.Write("GET " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
+                                return data;
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                if (e is OperationCanceledException)
+                {
+                    log.Error("Connection Timeout for " + url);
+                }
+                else
+                {
+                    log.Error(e.ToString());
+                }
+                return await GetAsync<T>(url);
+            }
+            
         }
 
         public Task<T> GetAsync<T>(string url, object data)
@@ -62,7 +92,6 @@ namespace KHLBotSharp.Services
                 }
             }
             var finalurl = sb.ToString();
-            log.Write("GET "+finalurl);
             if (finalurl.EndsWith("&"))
             {
                 finalurl.Remove(finalurl.Length - 2);
@@ -74,17 +103,29 @@ namespace KHLBotSharp.Services
         {
             try
             {
-                var json = JObject.FromObject(data).ToString();
-                log.Write("POST " + url + "\n" + json);
+                stopwatch.Start();
+                var json = JsonConvert.SerializeObject(data);
+                log.Write("POST " + url + " : " + json);
                 var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
                 var result = await client.PostAsync(url, stringContent);
-                result.EnsureSuccessStatusCode();
-                var content = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(content);
+                using (var stream = await result.Content.ReadAsStreamAsync())
+                {
+                    using (StreamReader r = new StreamReader(stream))
+                    {
+                        using (JsonReader jr = new JsonTextReader(r))
+                        {
+                            JsonSerializer s = new JsonSerializer();
+                            var resultdata = s.Deserialize<T>(jr);
+                            stopwatch.Stop();
+                            log.Write("POST " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
+                            return resultdata;
+                        }
+                    }
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                if(e is OperationCanceledException)
+                if (e is OperationCanceledException)
                 {
                     log.Error("Connection Timeout for " + url);
                 }
@@ -105,6 +146,12 @@ namespace KHLBotSharp.Services
                 var requestContent = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(ReadFully(File.OpenRead(file)));
                 requestContent.Add(fileContent, "file", file.Substring(file.LastIndexOf("\\")));
+                var client = new HttpClient
+                {
+                    BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
+                };
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
+                client.Timeout = new TimeSpan(0, 0, 5);
                 var result = await client.PostAsync("asset/create", requestContent);
                 if (!result.IsSuccessStatusCode)
                 {
@@ -117,7 +164,7 @@ namespace KHLBotSharp.Services
                 }
                 return data.Data.Url;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e is OperationCanceledException)
                 {
@@ -144,6 +191,12 @@ namespace KHLBotSharp.Services
                 var requestContent = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(ReadFully(file));
                 requestContent.Add(fileContent, "file");
+                var client = new HttpClient
+                {
+                    BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
+                };
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
+                client.Timeout = new TimeSpan(0, 0, 5);
                 var result = await client.PostAsync("asset/create", requestContent);
                 if (!result.IsSuccessStatusCode)
                 {

@@ -6,7 +6,7 @@ namespace KHLBotSharp.Models.EventsMessage
     public class EventMessage<T> : EventMessage where T : AbstractExtra
     {
         [JsonProperty("d")]
-        public ReceiveMessageData<T> Data { get; set; }
+        public new ReceiveMessageData<T> Data { get; set; }
     }
 
     public class EventMessage
@@ -15,6 +15,7 @@ namespace KHLBotSharp.Models.EventsMessage
         public int MessageType { get; set; }
         [JsonProperty("sn")]
         public int SerialNumber { get; set; }
+        public object Data { get; set; }
     }
 
     public class ReceiveMessageData<T> : ReceiveMessageData where T : AbstractExtra

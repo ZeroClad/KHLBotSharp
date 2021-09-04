@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace KHLBotSharp.Core.BotHost
 {
@@ -32,10 +30,8 @@ namespace KHLBotSharp.Core.BotHost
             var logService = new LogService();
             logService.Init("Bot", settings);
             service.AddSingleton(typeof(ILogService), logService);
-            var errorRate = new ErrorRateService(logService);
             service.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
-            var httpservice = new HttpClientService(logService, errorRate, settings);
-            service.AddSingleton(typeof(IHttpClientService), httpservice);
+            service.AddScoped(typeof(IHttpClientService), typeof(HttpClientService));
             return service;
         }
     }
