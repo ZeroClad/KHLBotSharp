@@ -37,7 +37,7 @@ namespace KHLBotSharp.Services
 
         public void CheckResetError()
         {
-            if (ResetError > 10)
+            if (ResetError > 15)
             {
                 Errors = 0;
             }

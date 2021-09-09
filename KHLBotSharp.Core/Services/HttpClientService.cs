@@ -21,11 +21,12 @@ namespace KHLBotSharp.Services
         private readonly IErrorRateService errorRateService;
         private readonly IBotConfigSettings settings;
         private readonly Stopwatch stopwatch = new Stopwatch();
+        private readonly HttpClientHandler handler = new HttpClientHandler { UseProxy = false, UseCookies = false, AllowAutoRedirect = false, UseDefaultCredentials = false };
         public HttpClientService(ILogService log, IErrorRateService errorRateService, IBotConfigSettings settings)
         {
             this.log = log;
             this.errorRateService = errorRateService;
-            client = new HttpClient
+            client = new HttpClient(handler)
             {
                 BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
             };
@@ -50,6 +51,7 @@ namespace KHLBotSharp.Services
                             {
                                 JsonSerializer s = new JsonSerializer();
                                 var data = s.Deserialize<T>(jr);
+                                result.Dispose();
                                 stopwatch.Stop();
                                 log.Write("GET " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
                                 return data;
@@ -116,6 +118,7 @@ namespace KHLBotSharp.Services
                         {
                             JsonSerializer s = new JsonSerializer();
                             var resultdata = s.Deserialize<T>(jr);
+                            result.Dispose();
                             stopwatch.Stop();
                             log.Write("POST " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
                             return resultdata;
@@ -146,23 +149,27 @@ namespace KHLBotSharp.Services
                 var requestContent = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(ReadFully(File.OpenRead(file)));
                 requestContent.Add(fileContent, "file", file.Substring(file.LastIndexOf("\\")));
-                var client = new HttpClient
+                using (var client = new HttpClient
                 {
                     BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
-                };
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
-                client.Timeout = new TimeSpan(0, 0, 5);
-                var result = await client.PostAsync("asset/create", requestContent);
-                if (!result.IsSuccessStatusCode)
+                })
                 {
-                    throw new HttpRequestException(result.StatusCode.ToString());
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
+                    client.Timeout = new TimeSpan(0, 0, 5);
+                    var result = await client.PostAsync("asset/create", requestContent);
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        throw new HttpRequestException(result.StatusCode.ToString());
+                    }
+                    var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+                    result.Dispose();
+                    if (data.Data.Url == null)
+                    {
+                        throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                    }
+                    return data.Data.Url;
                 }
-                var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
-                if (data.Data.Url == null)
-                {
-                    throw new HttpRequestException("Upload file failed.\n" + data.Message);
-                }
-                return data.Data.Url;
+
             }
             catch (Exception e)
             {
@@ -191,23 +198,28 @@ namespace KHLBotSharp.Services
                 var requestContent = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(ReadFully(file));
                 requestContent.Add(fileContent, "file");
+                using (
                 var client = new HttpClient
                 {
                     BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
-                };
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
-                client.Timeout = new TimeSpan(0, 0, 5);
-                var result = await client.PostAsync("asset/create", requestContent);
-                if (!result.IsSuccessStatusCode)
+                })
                 {
-                    throw new HttpRequestException(result.StatusCode.ToString());
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
+                    client.Timeout = new TimeSpan(0, 0, 5);
+                    var result = await client.PostAsync("asset/create", requestContent);
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        throw new HttpRequestException(result.StatusCode.ToString());
+                    }
+                    var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+                    result.Dispose();
+                    if (data.Data.Url == null)
+                    {
+                        throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                    }
+                    return data.Data.Url;
                 }
-                var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
-                if (data.Data.Url == null)
-                {
-                    throw new HttpRequestException("Upload file failed.\n" + data.Message);
-                }
-                return data.Data.Url;
+                   
             }
             catch (Exception e)
             {
