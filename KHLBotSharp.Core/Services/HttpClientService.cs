@@ -36,6 +36,7 @@ namespace KHLBotSharp.Services
         }
         public async Task<T> GetAsync<T>(string url)
         {
+            stopwatch.Reset();
             stopwatch.Start();
             try
             {
@@ -105,6 +106,7 @@ namespace KHLBotSharp.Services
         {
             try
             {
+                stopwatch.Reset();
                 stopwatch.Start();
                 var json = JsonConvert.SerializeObject(data);
                 log.Write("POST " + url + " : " + json);
