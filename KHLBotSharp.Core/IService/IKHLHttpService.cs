@@ -254,6 +254,6 @@ namespace KHLBotSharp.IService
         /// </summary>
         /// <param name="GuildId"></param>
         /// <returns></returns>
-        Task<KHLResponseMessage<Emoji>> GetEmojiList(string GuildId);
+        Task<KHLResponseMessage<EmojiList>> GetEmojiList(string GuildId);
     }
 }

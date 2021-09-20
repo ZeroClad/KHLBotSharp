@@ -1,4 +1,5 @@
-﻿using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
+﻿using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
+using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
@@ -34,6 +35,8 @@ namespace KHLBotSharp.Models.Objects
         public string Nick { get; set; }
         [JsonProperty("roles")]
         public IList<uint> Roles { get; set; }
+        [JsonIgnore]
+        public IList<ServerRole> ParsedRoles { get; set; }
     }
 
     public enum Status

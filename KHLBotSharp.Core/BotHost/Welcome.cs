@@ -51,7 +51,7 @@ namespace KHLBotSharp.Core.BotHost
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             AnsiConsole.MarkupLine("[grey42][[" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "]]: [/][red][[Err]]: [/][underline green1][[Global]][/]: [underline cyan1][[BotService]][/]: [white]" + e.ToString().Replace("[", "[[").Replace("]", "]]") + "[/]");
-            File.WriteAllText("error.log", e.ToString());
+            File.WriteAllText("error.log", e.ExceptionObject.ToString());
             Process.Start(Process.GetCurrentProcess().MainModule.FileName);
             Environment.Exit(0);
             //Exit and restart

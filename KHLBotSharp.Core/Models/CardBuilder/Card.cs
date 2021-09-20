@@ -43,6 +43,20 @@ namespace KHLBotSharp.Core.Models
             Modules.AddRange(cardComponents);
             return this;
         }
+
+        public ActionGroupModule AddActionGroup()
+        {
+            var action = new ActionGroupModule();
+            Modules.Add(action);
+            return action;
+        }
+
+        public SectionModule AddSection()
+        {
+            var section = new SectionModule();
+            Modules.Add(section);
+            return section;
+        }
     }
 
     public class CardBuilder : List<Card>

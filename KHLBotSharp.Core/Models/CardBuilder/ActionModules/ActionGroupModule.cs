@@ -17,5 +17,12 @@ namespace KHLBotSharp.Core.Models
             Elements.AddRange(buttonComponents);
             return this;
         }
+
+        public ButtonModule AddButton(string text, string value, CardTheme theme = CardTheme.Secondary)
+        {
+            var button = new ButtonModule { Text = new TextModule { Content = text }, Value = value, Theme = theme };
+            Elements.Add(button);
+            return button;
+        }
     }
 }

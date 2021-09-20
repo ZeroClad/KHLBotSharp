@@ -4,8 +4,10 @@ using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
+using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using KHLBotSharp.Models.Objects;
 using KHLBotSharp.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -37,6 +39,7 @@ namespace KHLBotSharp.BotHost
         private readonly BotConfigSettings settings;
         private readonly IHttpClientService hc;
         private Stopwatch pingTime;
+        private readonly IMemoryCache Cache;
         public BotService(string bot)
         {
             var serviceCollection = new ServiceCollection();
@@ -44,6 +47,7 @@ namespace KHLBotSharp.BotHost
             serviceCollection.AddScoped(typeof(IHttpClientService), typeof(HttpClientService));
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             serviceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
+            serviceCollection.AddMemoryCache();
             ws = new ClientWebSocket();
             pluginLoader = new PluginLoaderService();
             pluginLoader.LoadPlugin(bot, serviceCollection);
@@ -57,6 +61,7 @@ namespace KHLBotSharp.BotHost
             pluginLoader.Init(provider);
             logService = provider.GetService<ILogService>();
             hc = provider.GetService<IHttpClientService>();
+            Cache = provider.GetService<IMemoryCache>();
             timer.Interval = 30000;
             timer.Elapsed += Timer_Elapsed;
             //Yeah we just don't want any plugin programmer call this so thats why
@@ -147,7 +152,7 @@ namespace KHLBotSharp.BotHost
                 };
                 timeoutTimer.Elapsed += TimeoutTimer_Elapsed;
             }
-            if(pingTime == null)
+            if (pingTime == null)
             {
                 pingTime = new Stopwatch();
             }
@@ -197,7 +202,7 @@ namespace KHLBotSharp.BotHost
             }
         }
 
-        private Task ParseEvent(MemoryStream ms)
+        private async Task ParseEvent(MemoryStream ms)
         {
             Stopwatch speedTest = Stopwatch.StartNew();
             int decompressedLength = 0;
@@ -212,7 +217,6 @@ namespace KHLBotSharp.BotHost
             {
                 speedTest.Stop();
                 logService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
-                return Task.CompletedTask;
             }
             switch (eventMsg.Value<string>("s"))
             {
@@ -233,6 +237,12 @@ namespace KHLBotSharp.BotHost
                                         {
                                             if (!groupText.Data.Extra.Author.IsBot)
                                             {
+                                                if (!Cache.TryGetValue("Role_" + groupText.Data.Extra.GuildId, out KHLResponseMessage<GetServerRoleList> roles))
+                                                {
+                                                    roles = await hc.GetAsync<KHLResponseMessage<GetServerRoleList>>("guild-role/list", new { guild_id = groupText.Data.Extra.GuildId });
+                                                    Cache.Set("Role_" + groupText.Data.Extra.GuildId, roles);
+                                                }
+                                                groupText.Data.Extra.Author.ParsedRoles = roles.Data.Items.Where(x => groupText.Data.Extra.Author.Roles.Any(y => y == x.RoleId)).ToList();
                                                 logService.Debug("Received Group Text Event, Triggering Plugins");
                                                 pluginLoader.HandleMessage(groupText);
                                             }
@@ -315,13 +325,34 @@ namespace KHLBotSharp.BotHost
                                         pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerMemberOfflineEvent>>>());
                                         break;
                                     case "added_role":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleAddEvent>>>());
+                                        var addRole = eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleAddEvent>>>();
+                                        if (Cache.TryGetValue("Role_" + addRole.Data.TargetId, out KHLResponseMessage<GetServerRoleList> dummy1))
+                                        {
+                                            Cache.Remove("Role_" + addRole.Data.TargetId);
+                                        }
+                                        dummy1 = await hc.GetAsync<KHLResponseMessage<GetServerRoleList>>("guild-role/list", new { guild_id = addRole.Data.TargetId });
+                                        Cache.Set("Role_" + addRole.Data.TargetId, dummy1);
+                                        pluginLoader.HandleMessage(addRole);
                                         break;
                                     case "deleted_role":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleRemoveEvent>>>());
+                                        var delRole = eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleRemoveEvent>>>();
+                                        if (Cache.TryGetValue("Role_" + delRole.Data.TargetId, out KHLResponseMessage<GetServerRoleList> dummy2))
+                                        {
+                                            Cache.Remove("Role_" + delRole.Data.TargetId);
+                                        }
+                                        dummy2 = await hc.GetAsync<KHLResponseMessage<GetServerRoleList>>("guild-role/list", new { guild_id = delRole.Data.TargetId });
+                                        Cache.Set("Role_" + delRole.Data.TargetId, dummy2);
+                                        pluginLoader.HandleMessage(delRole);
                                         break;
                                     case "updated_role":
-                                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleModifyEvent>>>());
+                                        var updRole = eventMsg.ToObject<EventMessage<SystemExtra<ServerRoleModifyEvent>>>();
+                                        if (Cache.TryGetValue("Role_" + updRole.Data.TargetId, out KHLResponseMessage<GetServerRoleList> dummy3))
+                                        {
+                                            Cache.Remove("Role_" + updRole.Data.TargetId);
+                                        }
+                                        dummy3 = await hc.GetAsync<KHLResponseMessage<GetServerRoleList>>("guild-role/list", new { guild_id = updRole.Data.TargetId });
+                                        Cache.Set("Role_" + updRole.Data.TargetId, dummy3);
+                                        pluginLoader.HandleMessage(updRole);
                                         break;
                                     case "updated_guild":
                                         pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<SystemExtra<ServerUpdateEvent>>>());
@@ -418,7 +449,6 @@ namespace KHLBotSharp.BotHost
             }
             speedTest.Stop();
             logService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
-            return Task.CompletedTask;
         }
 
         private async Task RestartSocket()

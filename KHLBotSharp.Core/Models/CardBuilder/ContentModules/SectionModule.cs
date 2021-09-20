@@ -63,6 +63,20 @@ namespace KHLBotSharp.Core.Models
             Accessory.AddRange(cardComponents);
             return this;
         }
+
+        public TextModule AddText(string content)
+        {
+            var text = new TextModule { Content = content };
+            Text = text;
+            return text;
+        }
+
+        public KMarkdownModule AddKMarkdown(string kmarkdown)
+        {
+            var text = new KMarkdownModule { Content = kmarkdown };
+            Text = text;
+            return text;
+        }
     }
 
     public enum Direction

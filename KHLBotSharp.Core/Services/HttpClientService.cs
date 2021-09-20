@@ -61,7 +61,7 @@ namespace KHLBotSharp.Services
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e is OperationCanceledException)
                 {
@@ -73,7 +73,7 @@ namespace KHLBotSharp.Services
                 }
                 return await GetAsync<T>(url);
             }
-            
+
         }
 
         public Task<T> GetAsync<T>(string url, object data)
@@ -221,7 +221,7 @@ namespace KHLBotSharp.Services
                     }
                     return data.Data.Url;
                 }
-                   
+
             }
             catch (Exception e)
             {

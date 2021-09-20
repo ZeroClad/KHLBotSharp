@@ -3,6 +3,7 @@ using KHLBotSharp.Models.MessageHttps.RequestMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using KHLBotSharp.Models.Objects;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -13,7 +14,7 @@ namespace KHLBotSharp.Common.Request
     public class KHLHttpService : IKHLHttpService
     {
         private readonly IHttpClientService httpApi;
-        public KHLHttpService(IHttpClientService httpApiBaseRequestService)
+        public KHLHttpService(IHttpClientService httpApiBaseRequestService, IMemoryCache cache)
         {
             httpApi = httpApiBaseRequestService;
         }
@@ -73,9 +74,9 @@ namespace KHLBotSharp.Common.Request
             return httpApi.GetAsync<KHLResponseMessage<User>>("user/view?user_id=" + UserId + "&guild_id=" + GuildId);
         }
 
-        public Task<KHLResponseMessage<Emoji>> GetEmojiList(string GuildId)
+        public Task<KHLResponseMessage<EmojiList>> GetEmojiList(string GuildId)
         {
-            return httpApi.GetAsync<KHLResponseMessage<Emoji>>("guild-emoji/list?guild_id=" + GuildId);
+            return httpApi.GetAsync<KHLResponseMessage<EmojiList>>("guild-emoji/list?guild_id=" + GuildId);
         }
 
         public Task<KHLResponseMessage<Guild>> GetGuild(string GuildId)

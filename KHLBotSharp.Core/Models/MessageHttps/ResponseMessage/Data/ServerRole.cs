@@ -1,5 +1,7 @@
-﻿using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
+﻿using KHLBotSharp.Common.Permission;
+using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
@@ -24,5 +26,13 @@ namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
         public bool Mentionable { get; set; }
         [JsonProperty("permissions")]
         public uint Permissions { get; set; }
+        [JsonIgnore]
+        public IEnumerable<Permission> ParsedPermission
+        {
+            get
+            {
+                return Permissions.ParsePermissions();
+            }
+        }
     }
 }
