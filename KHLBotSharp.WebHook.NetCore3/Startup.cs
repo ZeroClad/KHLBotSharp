@@ -1,4 +1,5 @@
 using KHLBotSharp.Core.BotHost;
+using KHLBotSharp.WebHook.NetCore3.Middleware;
 using KHLBotSharp.WebHook.NetCore3.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,9 +34,9 @@ namespace KHLBotSharp.WebHook.NetCore3
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRouting();
+            app.UseMiddleware<DecompressMiddleware>();
 
-            app.UseAuthorization();
+            app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {

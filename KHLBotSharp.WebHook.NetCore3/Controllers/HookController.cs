@@ -16,14 +16,13 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
         private ILogService logService;
         private IDecoderService decoderService;
         private IBotConfigSettings config;
-        private IServiceProvider provider;
         public HookController(IBotConfigSettings config, IPluginLoaderService pluginLoaderService, ILogService logService, IDecoderService decoderService, IServiceProvider provider)
         {
             this.pluginLoaderService = pluginLoaderService;
+            this.pluginLoaderService.Init(provider);
             this.logService = logService;
             this.decoderService = decoderService;
             this.config = config;
-            this.provider = provider;
         }
 
         [Route("{**catchAll}")]
@@ -34,15 +33,19 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
 
         [HttpPost]
         [Route("/hook")]
-        public async Task<IActionResult> Index(int Compress = 1)
+        public async Task<IActionResult> Index()
         {
-            if(Compress != 0)
+            /*if(Compress != 0)
             {
                 return Json(new { Error = "Please disable compress to use this or wait for the damn lazy dev to add this decoding function" });
-            }
+            }*/
             try
             {
-                string json = await HttpContext.Request.Body.GetJson();
+                string json = HttpContext.Items[config.BotToken].ToString();
+                if (string.IsNullOrEmpty(json) || string.IsNullOrWhiteSpace(json))
+                {
+                    return new EmptyResult();
+                }
                 JToken jtoken = JToken.Parse(json);
                 var decoded = decoderService.DecodeEncrypt(jtoken);
                 if(decoded == null)
@@ -70,7 +73,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                     case "9":
                     case "10":
                     case "255":
-                        _ = decoded.ParseEvent(pluginLoaderService, config, logService, provider);
+                        _ = decoded.ParseEvent(pluginLoaderService, config, logService);
                         break;
                     default:
                         return StatusCode(403);

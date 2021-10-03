@@ -24,17 +24,14 @@ namespace KHLBotSharp.WebHook.NetCore3.Services
                 var obj = code as JObject;
                 if (obj.ContainsKey("encrypt"))
                 {
-                    log.Debug(code.ToString());
                     //decode start
                     byte[] data = Convert.FromBase64String(obj.Value<string>("encrypt"));
                     string decoded = Encoding.UTF8.GetString(data);
-                    log.Debug(decoded);
                     string iv = decoded.Substring(0, 16);
                     var aesEncrypted = decoded.Substring(16);
                     var key = config.EncryptKey.PadRight(32, '\0');
                     var result = Decrypt(aesEncrypted, key, iv);
                     result = result.Substring(0, result.LastIndexOf("}") + 1);
-                    log.Debug(result);
                     return JObject.Parse(result);
                 }
                 //not encrypted

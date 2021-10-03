@@ -2,7 +2,6 @@
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,7 +10,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Helper
     public static class ParseMessage
     {
         
-        public static Task ParseEvent(this JObject eventMsg, IPluginLoaderService pluginLoader, IBotConfigSettings settings, ILogService logService, IServiceProvider provider)
+        public static Task ParseEvent(this JObject eventMsg, IPluginLoaderService pluginLoader, IBotConfigSettings settings, ILogService logService)
         {
             var channelType = eventMsg.Value<JToken>("d").Value<string>("channel_type");
             if (channelType == "GROUP")

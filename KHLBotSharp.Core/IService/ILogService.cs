@@ -1,4 +1,5 @@
 ﻿using KHLBotSharp.Core.Models.Config;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.CompilerServices;
 
