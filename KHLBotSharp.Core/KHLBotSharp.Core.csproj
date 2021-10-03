@@ -8,7 +8,7 @@
     <Version>1.0.0</Version>
     <RepositoryUrl>https://github.com/PoH98/KHLBotSharp</RepositoryUrl>
     <PackageTags>KHLSharp.Core</PackageTags>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
