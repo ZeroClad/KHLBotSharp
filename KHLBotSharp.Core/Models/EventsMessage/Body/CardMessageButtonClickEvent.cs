@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.EventsMessage
 {
+    /// <summary>
+    /// 卡片消息按钮点击事件
+    /// </summary>
     public class CardMessageButtonClickEvent : AbstractBody
     {
         [JsonProperty("value")]

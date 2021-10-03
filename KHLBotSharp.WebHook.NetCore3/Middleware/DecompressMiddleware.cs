@@ -18,11 +18,9 @@ namespace KHLBotSharp.WebHook.NetCore3.Middleware
         }
         public async Task InvokeAsync(HttpContext context, IBotConfigSettings configuration)
         {
-            if (context.Request.Query.ContainsKey(CompressKey) &&
-                context.Request.Query[CompressKey] == "0")
+            if (context.Request.Query.ContainsKey(CompressKey) && context.Request.Query[CompressKey] == "0")
             {
                 context.Items[configuration.BotToken] = await context.Request.Body.GetJson();
-
                 await _next(context);
                 return;
             }

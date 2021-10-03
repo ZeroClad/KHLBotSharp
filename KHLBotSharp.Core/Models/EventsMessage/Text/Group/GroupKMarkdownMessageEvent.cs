@@ -3,9 +3,11 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.EventsMessage
 {
-    public class GroupKMarkdownMessageEvent : PrivateTextMessageEvent
+    /// <summary>
+    /// 群KMarkdown消息
+    /// </summary>
+    public class GroupKMarkdownMessageEvent : PrivateKMarkdownMessageEvent
     {
-        [JsonProperty("kmarkdown")]
-        public KMarkdown KMarkdown { get; set; }
+
     }
 }

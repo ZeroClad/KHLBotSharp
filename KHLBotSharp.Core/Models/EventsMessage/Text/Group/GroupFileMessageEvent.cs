@@ -4,21 +4,11 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.EventsMessage
 {
-    public class GroupFileMessageEvent : AbstractExtra
+    /// <summary>
+    /// 群文件消息
+    /// </summary>
+    public class GroupFileMessageEvent : PrivateFileMessageEvent
     {
-        [JsonProperty("guild_id")]
-        public string GuildId { get; set; }
-        [JsonProperty("code")]
-        public string Code { get; set; }
-        [JsonProperty("attachments")]
-        public GroupFileAttachment Attachments { get; set; }
-        [JsonProperty("author")]
-        public User Author { get; set; }
-    }
 
-    public class GroupFileAttachment : Attachments
-    {
-        [JsonProperty("size")]
-        public long Size { get; set; }
     }
 }

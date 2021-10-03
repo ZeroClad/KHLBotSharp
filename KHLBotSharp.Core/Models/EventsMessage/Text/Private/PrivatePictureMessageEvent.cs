@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.EventsMessage
 {
+    /// <summary>
+    /// 私聊图片消息
+    /// </summary>
     public class PrivatePictureMessageEvent : AbstractExtra
     {
         [JsonProperty("guild_id")]
@@ -16,7 +19,9 @@ namespace KHLBotSharp.Models.EventsMessage
         public User Author { get; set; }
 
     }
-
+    /// <summary>
+    /// 图片文件资料
+    /// </summary>
     public class PictureAttachments : Attachments
     {
 

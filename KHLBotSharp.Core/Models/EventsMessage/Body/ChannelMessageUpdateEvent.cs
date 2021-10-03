@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.EventsMessage
 {
+    /// <summary>
+    /// 频道消息更新事件
+    /// </summary>
     public class ChannelMessageUpdateEvent : AbstractBody
     {
         [JsonProperty("channel_id")]

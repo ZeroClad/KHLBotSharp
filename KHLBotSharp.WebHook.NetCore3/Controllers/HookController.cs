@@ -33,12 +33,8 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
 
         [HttpPost]
         [Route("/hook")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            /*if(Compress != 0)
-            {
-                return Json(new { Error = "Please disable compress to use this or wait for the damn lazy dev to add this decoding function" });
-            }*/
             try
             {
                 string json = HttpContext.Items[config.BotToken].ToString();
