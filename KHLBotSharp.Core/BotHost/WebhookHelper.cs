@@ -14,18 +14,28 @@ namespace KHLBotSharp.Core.BotHost
         public static IServiceCollection RegisterKHLBot(this IServiceCollection service)
         {
             var pluginLoader = new PluginLoaderService();
-            if (!Directory.Exists("Plugins"))
+            if (!Directory.Exists("Profiles\\Bot\\Plugins"))
             {
-                Directory.CreateDirectory("Plugins");
+                Directory.CreateDirectory("Profiles\\Bot\\Plugins");
             }
-            pluginLoader.LoadPlugin(Environment.CurrentDirectory, service);
+            if (!Directory.Exists("Profiles\\Bot\\Log"))
+            {
+                Directory.CreateDirectory("Profiles\\Bot\\Log");
+            }
+            pluginLoader.LoadPlugin("Profiles\\Bot", service);
+            service.AddMemoryCache();
             service.AddSingleton(typeof(IPluginLoaderService), pluginLoader);
             service.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
-            if (!File.Exists("config.json"))
+            if (!File.Exists("Profiles\\Bot\\config.json"))
             {
-                File.WriteAllText("config.json", JsonConvert.SerializeObject(new BotConfigSettings(), Formatting.Indented));
+                var config = new BotConfigSettings()
+                {
+                    EncryptKey = "SampleKey",
+                    VerifyToken = "SampleToken"
+                };
+                File.WriteAllText("Profiles\\Bot\\config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
             }
-            var settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText("config.json"));
+            var settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText("Profiles\\Bot\\config.json"));
             service.AddSingleton(typeof(IBotConfigSettings), settings);
             var logService = new LogService();
             logService.Init("Bot", settings);

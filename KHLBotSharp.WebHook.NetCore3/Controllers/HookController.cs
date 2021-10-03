@@ -7,22 +7,19 @@ using KHLBotSharp.WebHook.NetCore3.Helper;
 using Newtonsoft.Json.Linq;
 using KHLBotSharp.WebHook.NetCore3.Services;
 using KHLBotSharp.Core.Models.Config;
-using KHLBotSharp.Models.EventsMessage;
 
 namespace KHLBotSharp.WebHook.NetCore3.Controllers
 {
     public class HookController : Controller
     {
         private IPluginLoaderService pluginLoaderService;
-        private IKHLHttpService khlHttpService;
         private ILogService logService;
         private IDecoderService decoderService;
         private IBotConfigSettings config;
         private IServiceProvider provider;
-        public HookController(IBotConfigSettings config, IPluginLoaderService pluginLoaderService, IKHLHttpService khlHttpService, ILogService logService, IDecoderService decoderService, IServiceProvider provider)
+        public HookController(IBotConfigSettings config, IPluginLoaderService pluginLoaderService, ILogService logService, IDecoderService decoderService, IServiceProvider provider)
         {
             this.pluginLoaderService = pluginLoaderService;
-            this.khlHttpService = khlHttpService;
             this.logService = logService;
             this.decoderService = decoderService;
             this.config = config;
