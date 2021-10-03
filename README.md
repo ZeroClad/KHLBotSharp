@@ -30,8 +30,7 @@
 > 欢迎各路大神fork以及修改代码
 
 ## 即将出现的更新:
-- 添加Webhook支持，依旧是直接支持多个机器人在一个Webhook上运行
-- 完整所有KHLHttp
+- 添加Webhook支持多个机器人同时间在一个进程上运行 **（当前顶多运行一个）**
 
 ## 文档
 > 创建插件之前，需要先知道插件监听的事件，框架会自动根据你监听的事件进行自动分类和整合数据。下列是插件可加载的列表:-
@@ -91,6 +90,9 @@
 |`ILogService`|日志Service|
 |`IKHLHttpService`|开黑啦的Http请求指令，例如可发群聊消息，私聊消息等等，属于重要的Service，务必GetService时获取|
 |`IBotConfigSettings`|获取在当前Profile内的config.ini设置|
+
+---
+> 接下来就是自主编写插件，而插件将会使用到的Http请求则往下看
 
 ---
 
