@@ -97,4 +97,4 @@
 ---
 
 > 开黑啦Http请求（撤回消息，发消息，等等功能）
-[例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/Services/KHLHttpService.cs)
+[例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/IService/IKHLHttpService.cs)
