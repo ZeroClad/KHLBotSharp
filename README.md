@@ -23,8 +23,7 @@
 - 暂时不支持Docker以及非Windows，不过如果你想要使用，都可以自行下载源代码Publish
 
 ### 下载
-- [.NET Core 3.1 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.2/netcore3.1.zip)
-- [.NET 6 启动器 + KHLBotSharp.Core](https://github.com/PoH98/KHLBotSharp/releases/download/v0.2/net6.zip)
+- [可以到这里浏览所有可下载的zip包](https://github.com/PoH98/KHLBotSharp/releases/latest)
 
 ### 到此一游
 ![:KHLBotSharp](https://count.getloli.com/get/@:KHLBotSharp?theme=rule34)
