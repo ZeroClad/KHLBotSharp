@@ -16,11 +16,11 @@ namespace KHLBotSharp.WebHook.NetCore3.Middleware
         {
             _next = next;
         }
-        public async Task InvokeAsync(HttpContext context, IBotConfigSettings configuration)
+        public async Task InvokeAsync(HttpContext context)
         {
             if (context.Request.Query.ContainsKey(CompressKey) && context.Request.Query[CompressKey] == "0")
             {
-                context.Items[configuration.BotToken] = await context.Request.Body.GetJson();
+                context.Items["Content"] = await context.Request.Body.GetJson();
                 await _next(context);
                 return;
             }
@@ -49,7 +49,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Middleware
             string result = await reader.ReadToEndAsync();
             await resultStream.DisposeAsync();
 
-            context.Items[configuration.BotToken] = result;
+            context.Items["Content"] = result;
             reader.Dispose();
 
             await _next(context);

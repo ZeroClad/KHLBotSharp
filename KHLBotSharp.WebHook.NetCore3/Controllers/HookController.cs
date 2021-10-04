@@ -12,32 +12,34 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
 {
     public class HookController : Controller
     {
-        private IPluginLoaderService pluginLoaderService;
-        private ILogService logService;
-        private IDecoderService decoderService;
-        private IBotConfigSettings config;
-        public HookController(IBotConfigSettings config, IPluginLoaderService pluginLoaderService, ILogService logService, IDecoderService decoderService, IServiceProvider provider)
+        private readonly IWebhookInstanceManagerService instanceManagerService;
+        private readonly ILogService logService;
+        public HookController(IWebhookInstanceManagerService webhookManager, ILogService logService)
         {
-            this.pluginLoaderService = pluginLoaderService;
-            this.pluginLoaderService.Init(provider);
+            instanceManagerService = webhookManager;
             this.logService = logService;
-            this.decoderService = decoderService;
-            this.config = config;
         }
 
         [Route("{**catchAll}")]
         public IActionResult Fuck()
         {
+            logService.Warning(HttpContext.Connection.RemoteIpAddress.ToString() + " had accessed our bot illegally, lets send him to Tong Shen Serving Hot Pot");
             return RedirectPermanent("https://www.bilibili.com/video/BV1FZ4y1P7Wk/");
         }
 
         [HttpPost]
         [Route("/hook")]
-        public IActionResult Index()
+        public IActionResult Index(string botName = null)
         {
             try
             {
-                string json = HttpContext.Items[config.BotToken].ToString();
+                var instance = instanceManagerService.Get(botName);
+                var config = (IBotConfigSettings)instance.ServiceProvider.GetService(typeof(IBotConfigSettings));
+                var pluginLoaderService = (IPluginLoaderService)instance.ServiceProvider.GetService(typeof(IPluginLoaderService));
+                pluginLoaderService.Init(instance.ServiceProvider);
+                var logService = (ILogService)instance.ServiceProvider.GetService(typeof(ILogService));
+                var decoderService = (IDecoderService)instance.ServiceProvider.GetService(typeof(IDecoderService));
+                string json = HttpContext.Items["Content"].ToString();
                 if (string.IsNullOrEmpty(json) || string.IsNullOrWhiteSpace(json))
                 {
                     return new EmptyResult();
@@ -53,15 +55,14 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                 //Check if token is correct
                 if (!decoded.Value<JObject>("d").ContainsKey("verify_token") || decoded.Value<JObject>("d").Value<string>("verify_token") != config.VerifyToken)
                 {
-                    logService.Error("Invalid Token. Verification failed!" + decoded.Value<JObject>("d").Value<string>("verify_token"));
-                    return StatusCode(403);
+                    logService.Error("Invalid Token. Verification failed! Lets send him to Tong Shen Serving Hot Pot!");
+                    return RedirectPermanent("https://www.bilibili.com/video/BV1FZ4y1P7Wk/");
                 }
                 switch (type)
                 {
                     case "Challenge":
-                        System.IO.File.WriteAllText("test.json", jtoken.ToString());
                         var result = JObject.FromObject(new { challenge = decoded.Value<JObject>("d").Value<string>("challenge") }).ToString();
-                        logService.Debug("Returning Result: "+result);
+                        logService.Info("Challenge resolved successfully");
                         return Content(result, "application/json", Encoding.UTF8);
                     case "1":
                     case "2":

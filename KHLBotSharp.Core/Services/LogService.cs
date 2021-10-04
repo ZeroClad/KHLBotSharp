@@ -64,6 +64,10 @@ namespace KHLBotSharp.Services
             logColor = colorCodes[selectColor];
             showDebug = configSettings.Debug;
             var path = Path.Combine(Environment.CurrentDirectory, "Profiles", botName, "Log");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
             foreach (var file in Directory.GetFiles(path))
             {
                 try

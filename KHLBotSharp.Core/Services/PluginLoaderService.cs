@@ -163,7 +163,10 @@ namespace KHLBotSharp.Services
         public void Init(IServiceProvider provider)
         {
             this.provider = provider;
-            errorRate = provider.GetService<IErrorRateService>();
+            if(errorRate == null)
+            {
+                errorRate = provider.GetService<IErrorRateService>();
+            }
         }
     }
 }

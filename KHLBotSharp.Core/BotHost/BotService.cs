@@ -11,6 +11,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -56,6 +57,11 @@ namespace KHLBotSharp.BotHost
                 File.WriteAllText(Path.Combine(bot, "config.json"), JsonConvert.SerializeObject(new BotConfigSettings(), Formatting.Indented));
             }
             settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(bot, "config.json")));
+            if (string.IsNullOrEmpty(settings.BotToken))
+            {
+                settings.BotToken = AnsiConsole.Ask<string>("Input BotToken");
+                File.WriteAllText(Path.Combine(bot, "config.json"), JsonConvert.SerializeObject(settings));
+            }
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
             pluginLoader.Init(provider);

@@ -20,7 +20,9 @@ namespace KHLBotSharp.Core.Models.Config
         public bool Debug { get; set; } = false;
         public string DisableBotCommand { get; set; } = "";
     }
-
+    /// <summary>
+    /// 机器人config
+    /// </summary>
     public interface IBotConfigSettings
     {
         string BotToken { get; set; }

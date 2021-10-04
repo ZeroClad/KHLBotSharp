@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace KHLBotSharp.Services
 {
-    internal class ErrorRateService : IErrorRateService
+    public class ErrorRateService : IErrorRateService
     {
         private int Errors = 0;
         private readonly int ErrorThreehold = 20;

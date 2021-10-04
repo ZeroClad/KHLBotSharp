@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace KHLBotSharp.IService
 {
+    /// <summary>
+    /// 日志输出
+    /// </summary>
     public interface ILogService
     {
         [Obsolete]
