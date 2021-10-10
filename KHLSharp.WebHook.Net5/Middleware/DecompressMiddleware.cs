@@ -1,12 +1,12 @@
 ﻿using KHLBotSharp.IService;
-using KHLBotSharp.WebHook.NetCore3.Helper;
+using KHLBotSharp.WebHook.Net5.Helper;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
 
-namespace KHLBotSharp.WebHook.NetCore3.Middleware
+namespace KHLBotSharp.WebHook.Net5.Middleware
 {
     //Copy from https://github.com/kaiheila-community/kaiheila-dotnet/blob/master/src/core/Client/WebHook/WebHookClient.cs
     public class DecompressMiddleware

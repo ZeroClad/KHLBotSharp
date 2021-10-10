@@ -1,0 +1,15 @@
+{
+  "BotToken": null,
+  "EncryptKey": "SampleKey",
+  "VerifyToken": "SampleToken",
+  "Active": true,
+  "Settings": {},
+  "APIVersion": 3,
+  "AtMe": true,
+  "ProcessChar": [
+    ".",
+    "。"
+  ],
+  "Debug": false,
+  "DisableBotCommand": ""
+}

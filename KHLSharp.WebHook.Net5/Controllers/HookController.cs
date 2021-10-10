@@ -2,12 +2,12 @@
 using KHLBotSharp.IService;
 using System;
 using System.Text;
-using KHLBotSharp.WebHook.NetCore3.Helper;
+using KHLBotSharp.WebHook.Net5.Helper;
 using Newtonsoft.Json.Linq;
-using KHLBotSharp.WebHook.NetCore3.Services;
+using KHLBotSharp.WebHook.Net5.Services;
 using KHLBotSharp.Core.Models.Config;
 
-namespace KHLBotSharp.WebHook.NetCore3.Controllers
+namespace KHLBotSharp.WebHook.Net5.Controllers
 {
     public class HookController : Controller
     {
