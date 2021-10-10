@@ -1,36 +1,34 @@
 # KHLBotSharp
 开黑啦机器人运行器，支持多机器人以及插件模式运行
 
-## 插件开发
-- 插件需要添加KHLBotSharp.Core作为Dependency，打包后此dll不需要复制
-- 当前只测试过了IGroupTextMessageHandler，因此将会使用这个作为例子
-- 点击这里查看[插件的例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/PluginSample.cs)，这个插件是复读机
-- `Ctor`为插件的初始化，在这里你会获得IServiceProvider，源自于Dependency Injection(DI)，因此可以进行`GetService`获取你想使用的东西，但是还请注意，这里并不能让你注册DI，只能获取
-- `Handle`则是插件的真正运行位置，当收到特定的Event后将会传输到这，再进行处理即可
-- 你可以拥有多个处理相同事件的插件
-- 插件完成后，在启动器文件夹内的`Profiles\<你的Profile名字>\Plugins`内创建一个与你插件名字一样的文件夹，并且把插件丢到文件夹内，包含你所有其他的Dependency，无需复制KHLBotSharp.Core
-- 打开启动器即可
+## 下载
+- [可以到这里浏览所有可下载的zip包](https://github.com/PoH98/KHLBotSharp/releases/latest)
 
-## 启动器选择
-- 目前启动器支持俩选择: .NET 6以及.NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6
-- 启动器也可以自主添加或者修改，只需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.NETCore3)并且打包为你想要的.NET版本即可，相同插件可支持的范围内
-
-## 使用
-- 启动过一次启动器后，在`Profiles\<你的Profile名字>`内会拥有一个config.json, 里面将会需要填写BotToken，而BotToken还请自行到[开黑啦开发者网页](https://developer.kaiheila.cn/bot/index)注册
+## Websocket使用
+如果你的机器人单纯是小型使用，可考虑使用Websocket
+- 启动过一次启动器后，在`Profiles\<你的Profile名字>`内会拥有一个config.json
+- 还请自行到[开黑啦开发者网页](https://developer.kaiheila.cn/bot/index)注册机器人，选择使用Websocket
+- 回到config.json, 把`BotToken`粘贴上
 - 保存config.json后，打开启动器即可
+- 可开始测试机器人是否运行正常
 - 如果需要多个机器人运行，则可使用cmd cd到启动器文件夹内，输入下列指令`KHLBotSharp -c 你的Profile名字`
 - 如果需要只单独运行一个特定的Profile，则使用cmd cd到启动器文件夹内，输入下列指令`KHLBotSharp -r 你的Profile名字`
 - 暂时不支持Docker以及非Windows，不过如果你想要使用，都可以自行下载源代码Publish
 
-### 下载
-- [可以到这里浏览所有可下载的zip包](https://github.com/PoH98/KHLBotSharp/releases/latest)
+## WebHook使用
+如果你的机器人可能会大量用户使用，可考虑使用Webhook
+- 启动过一次启动器后，在`Profiles\<你的Profile名字>`内会拥有一个config.json
+- 还请自行到[开黑啦开发者网页](https://developer.kaiheila.cn/bot/index)注册机器人，选择使用Webhook
+- 回到config.json，把`EncryptKey`和`VerifyToken`粘贴上
+- 保存config.json后，打开启动器即可
+- 回到[开黑啦开发者网页](https://developer.kaiheila.cn/bot/index)，在你的机器人`Callback Url`下粘贴`http://你的域名/hook?botName=<你的Profile名字>`, 并且上线机器人
+- 可开始测试机器人是否运行正常
+- 暂时不支持Docker以及非Windows，不过如果你想要使用，都可以自行下载源代码Publish
 
-### 到此一游
-![:KHLBotSharp](https://count.getloli.com/get/@:KHLBotSharp?theme=rule34)
 > 欢迎各路大神fork以及修改代码
 
 ## 即将出现的更新:
-- 添加Webhook支持多个机器人同时间在一个进程上运行 **（当前顶多运行一个）**
+- 持续优化以及跟进开黑啦文档
 
 ## 文档
 > 创建插件之前，需要先知道插件监听的事件，框架会自动根据你监听的事件进行自动分类和整合数据。下列是插件可加载的列表:-
@@ -92,9 +90,17 @@
 |`IBotConfigSettings`|获取在当前Profile内的config.ini设置|
 
 ---
-> 接下来就是自主编写插件，而插件将会使用到的Http请求则往下看
+> 接下来就是自主编写插件，而插件将会使用到的Http请求则可[在这里查看interface代码](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/IService/IKHLHttpService.cs)
+- 插件需要添加KHLBotSharp.Core作为Dependency，打包后此dll不需要复制
+- 当前将会使用`IGroupTextMessageHandler`作为例子
+- 点击这里查看[插件的例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/PluginSample.cs)，这个插件是复读机
+- `Ctor`为插件的初始化，在这里你会获得IServiceProvider，源自于Dependency Injection(DI)，因此可以进行`GetService`获取你想使用的东西，但是还请注意，这里并不能让你注册DI，只能获取
+- `Handle`则是插件的真正运行位置，当收到特定的Event后将会传输到这，再进行处理即可
+- 你可以拥有多个处理相同事件的插件
+- 插件完成后，在启动器文件夹内的`Profiles\<你的Profile名字>\Plugins`内创建一个与你插件名字一样的文件夹，并且把插件丢到文件夹内，包含你所有其他的Dependency，无需复制KHLBotSharp.Core
+- 打开启动器即可
 
----
-
-> 开黑啦Http请求（撤回消息，发消息，等等功能）
-[例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/IService/IKHLHttpService.cs)
+## 启动器选择
+- 目前启动器支持俩选择: .NET 6以及.NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6
+- Websocket启动器也可以自主添加或者修改，只需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.NETCore3)并且打包为你想要的.NET版本即可，相同插件可支持
+- Webhook启动器也可自主添加或者修改，但是会比较麻烦，需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.WebHook.NetCore3)并且打包为你想要的.NET版本即可，相同插件可支持
