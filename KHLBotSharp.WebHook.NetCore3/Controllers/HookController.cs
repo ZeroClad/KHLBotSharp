@@ -4,8 +4,8 @@ using System;
 using System.Text;
 using KHLBotSharp.WebHook.NetCore3.Helper;
 using Newtonsoft.Json.Linq;
-using KHLBotSharp.WebHook.NetCore3.Services;
 using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.Services;
 
 namespace KHLBotSharp.WebHook.NetCore3.Controllers
 {

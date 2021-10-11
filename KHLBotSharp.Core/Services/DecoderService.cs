@@ -6,7 +6,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace KHLBotSharp.WebHook.NetCore3.Services
+namespace KHLBotSharp.Services
 {
     public class DecoderService : IDecoderService
     {

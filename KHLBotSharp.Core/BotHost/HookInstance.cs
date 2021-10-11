@@ -2,12 +2,12 @@
 using System;
 
 
-namespace KHLBotSharp.WebHook.NetCore3.Models.Webhook
+namespace KHLBotSharp.Core.BotHost
 {
     /// <summary>
     /// Webhook专用，区分机器人进程
     /// </summary>
-    public class HookInstance
+    public class WebHookInstance
     {
         public string Name { get; set; }
         public IServiceCollection ServiceCollection { get; set; }

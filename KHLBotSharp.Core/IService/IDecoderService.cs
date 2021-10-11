@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace KHLBotSharp.WebHook.NetCore3.Services
+namespace KHLBotSharp.Services
 {
     public interface IDecoderService
     {

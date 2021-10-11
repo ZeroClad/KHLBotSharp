@@ -4,8 +4,8 @@ using System;
 using System.Text;
 using KHLBotSharp.WebHook.Net5.Helper;
 using Newtonsoft.Json.Linq;
-using KHLBotSharp.WebHook.Net5.Services;
 using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.Services;
 
 namespace KHLBotSharp.WebHook.Net5.Controllers
 {

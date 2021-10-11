@@ -1,7 +1,6 @@
 using KHLBotSharp.Core.BotHost;
 using KHLBotSharp.WebHook.Net5.Helper;
 using KHLBotSharp.WebHook.Net5.Middleware;
-using KHLBotSharp.WebHook.Net5.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

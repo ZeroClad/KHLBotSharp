@@ -1,20 +1,20 @@
-﻿using KHLBotSharp.WebHook.Net5.Models.Webhook;
+﻿using KHLBotSharp.Core.BotHost;
 using System.Collections.Generic;
 using System.Linq;
 
 
-namespace KHLBotSharp.WebHook.Net5.Services
+namespace KHLBotSharp.Services
 {
     public class WebhookInstanceManagerService : IWebhookInstanceManagerService
     {
-        private readonly IList<HookInstance> hookInstances = new List<HookInstance>();
-        public IWebhookInstanceManagerService Add(HookInstance obj)
+        private readonly IList<WebHookInstance> hookInstances = new List<WebHookInstance>();
+        public IWebhookInstanceManagerService Add(WebHookInstance obj)
         {
             hookInstances.Add(obj);
             return this;
         }
 
-        public HookInstance Get(string name)
+        public WebHookInstance Get(string name)
         {
             if(name == null)
             {
@@ -26,7 +26,7 @@ namespace KHLBotSharp.WebHook.Net5.Services
             }
         }
 
-        public IList<HookInstance> HookInstances
+        public IList<WebHookInstance> HookInstances
         {
             get
             {

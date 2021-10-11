@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace KHLSharp.WebHook.Net5
+namespace KHLBotSharp.WebHook.Net5
 {
     public class Program
     {
