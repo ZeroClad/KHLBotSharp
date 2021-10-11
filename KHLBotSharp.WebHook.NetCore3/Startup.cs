@@ -23,7 +23,6 @@ namespace KHLBotSharp.WebHook.NetCore3
         {
             services.AddControllers();
             services.RegisterKHLBot();
-            services.RegisterWebhook();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

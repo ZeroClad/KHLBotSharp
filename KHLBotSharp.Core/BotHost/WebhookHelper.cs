@@ -5,13 +5,20 @@ using KHLBotSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Spectre.Console;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
 namespace KHLBotSharp.Core.BotHost
 {
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class WebhookHelper
     {
+        /// <summary>
+        /// WebHook DI 注册，内部使用一般插件无需知道
+        /// </summary>
+        /// <param name="service"></param>
+        /// <returns></returns>
         public static IServiceCollection RegisterKHLBot(this IServiceCollection service)
         {
             if (!Directory.Exists("Profiles"))

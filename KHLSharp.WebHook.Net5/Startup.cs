@@ -1,5 +1,4 @@
 using KHLBotSharp.Core.BotHost;
-using KHLBotSharp.WebHook.Net5.Helper;
 using KHLBotSharp.WebHook.Net5.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,7 +22,6 @@ namespace KHLBotSharp.WebHook.Net5
         {
             services.AddControllers();
             services.RegisterKHLBot();
-            services.RegisterWebhook();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
