@@ -34,6 +34,9 @@ namespace KHLBotSharp.Services
             client.Timeout = new TimeSpan(0, 0, 2);
             this.settings = settings;
         }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public async Task<T> GetAsync<T>(string url)
         {
             stopwatch.Reset();
@@ -75,7 +78,9 @@ namespace KHLBotSharp.Services
             }
 
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public Task<T> GetAsync<T>(string url, object data)
         {
             StringBuilder sb = new StringBuilder();
@@ -101,7 +106,9 @@ namespace KHLBotSharp.Services
             }
             return GetAsync<T>(finalurl);
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public async Task<T> PostAsync<T>(string url, object data)
         {
             try
@@ -142,7 +149,9 @@ namespace KHLBotSharp.Services
                 return await PostAsync<T>(url, data);
             }
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public async Task<string> UploadFileAsync(string file)
         {
             log.Write("UploadFile " + file);
@@ -192,7 +201,9 @@ namespace KHLBotSharp.Services
             }
 
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public async Task<string> UploadFileAsync(Stream file)
         {
             try

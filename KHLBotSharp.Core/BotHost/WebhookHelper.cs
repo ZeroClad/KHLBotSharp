@@ -11,6 +11,9 @@ using System.Linq;
 
 namespace KHLBotSharp.Core.BotHost
 {
+    /// <summary>
+    /// WebHook DI帮助
+    /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class WebhookHelper
     {

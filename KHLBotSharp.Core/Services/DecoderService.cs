@@ -8,6 +8,9 @@ using System.Text;
 
 namespace KHLBotSharp.Services
 {
+    /// <summary>
+    /// Webhook解析encrypt用
+    /// </summary>
     public class DecoderService : IDecoderService
     {
         private IBotConfigSettings config;
@@ -17,6 +20,9 @@ namespace KHLBotSharp.Services
             this.config = config;
             this.log = log;
         }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public JObject DecodeEncrypt(JToken code)
         {
             if (code is JObject)
@@ -39,7 +45,9 @@ namespace KHLBotSharp.Services
             }
             return null;
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public string GetEventType(JToken code)
         {
             if (code is JObject)

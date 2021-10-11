@@ -5,8 +5,8 @@ namespace KHLBotSharp
     public interface IServiceRegister
     {
         /// <summary>
-        /// Register DI here. Please do not register any kind of IPlugin! We will handle it automatically! 
-        /// WARNING! Register what you need IN your plugin, NOT YOUR PLUGIN ITSELF!
+        /// 在这里注册DI
+        /// 注意！别TM在这里注册你的插件！！而是注册你插件需要用到的Service!!
         /// </summary>
         /// <param name="services"></param>
         void Register(IServiceCollection services);

@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -23,8 +24,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Timer = System.Timers.Timer;
 
-namespace KHLBotSharp.BotHost
+namespace KHLBotSharp.Core.BotHost
 {
+    /// <summary>
+    /// WebSocket专用，区分机器人进程
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class BotService
     {
         private ClientWebSocket ws;
@@ -80,7 +85,11 @@ namespace KHLBotSharp.BotHost
             }
             logService.Info("Completed init bot");
         }
-
+       /// <summary>
+       /// 运行机器人
+       /// </summary>
+       /// <param name="atMe"></param>
+       /// <returns></returns>
         public async Task Run(bool? atMe = null)
         {
             if (!settings.Active)

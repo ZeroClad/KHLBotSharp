@@ -4,6 +4,9 @@ using System.Diagnostics;
 
 namespace KHLBotSharp.Services
 {
+    /// <summary>
+    /// 内置版本的IErrorRateService
+    /// </summary>
     public class ErrorRateService : IErrorRateService
     {
         private int Errors = 0;
@@ -14,13 +17,17 @@ namespace KHLBotSharp.Services
         {
             this.logService = logService;
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public void AddError()
         {
             Errors++;
             ResetError = 0;
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public void ReportStatus()
         {
             if (ResetError % 20 == 0)
@@ -34,7 +41,9 @@ namespace KHLBotSharp.Services
                 Environment.Exit(0);
             }
         }
-
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public void CheckResetError()
         {
             if (ResetError > 15)

@@ -4,8 +4,15 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Common.Permission
 {
+    /// <summary>
+    /// 角色权限解析用
+    /// </summary>
     public static class PermissionConverter
     {
+        /// <summary>
+        /// 从uint中解析出Permissions表示该角色可做的事情
+        /// </summary>
+        /// <returns>角色权限列表</returns>
         public static IList<Permission> ParsePermissions(this uint num)
         {
             List<Permission> permissions = new List<Permission>();
@@ -20,7 +27,9 @@ namespace KHLBotSharp.Common.Permission
             return permissions;
         }
     }
-
+    /// <summary>
+    /// 权限列表
+    /// </summary>
     public enum Permission
     {
         Admin,

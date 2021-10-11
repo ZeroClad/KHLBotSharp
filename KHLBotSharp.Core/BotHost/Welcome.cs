@@ -1,5 +1,6 @@
 ﻿using Spectre.Console;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -7,6 +8,10 @@ using System.Runtime.InteropServices;
 
 namespace KHLBotSharp.Core.BotHost
 {
+    /// <summary>
+    /// 欢迎词汇输出用，内置自动取消Console的快速选择避免出现Bot被选择相关文字后停止运行以及错误重启，不推荐Webhook使用
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class Welcome
     {
         private const uint ENABLE_QUICK_EDIT = 0x0040;
@@ -22,6 +27,9 @@ namespace KHLBotSharp.Core.BotHost
 
         [DllImport("kernel32.dll")]
         private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+        /// <summary>
+        /// 输出欢迎以及绑定错误重启以及取消Console快速选择
+        /// </summary>
         public static void Print()
         {
             IntPtr consoleHandle = GetStdHandle(STD_INPUT_HANDLE);
@@ -45,7 +53,7 @@ namespace KHLBotSharp.Core.BotHost
             }
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            AnsiConsole.Render(new FigletText("KHLBot v" + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion).Centered().Color(Color.Aqua));
+            AnsiConsole.Write(new FigletText("KHLBot v" + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion).Centered().Color(Color.Aqua));
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

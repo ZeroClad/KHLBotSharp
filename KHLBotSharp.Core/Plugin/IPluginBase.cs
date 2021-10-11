@@ -8,7 +8,7 @@ namespace KHLBotSharp
     public interface IKHLPlugin<T> : IKHLPlugin where T : AbstractExtra
     {
         /// <summary>
-        /// Handler for <typeparamref name="T"/> Events
+        /// <typeparamref name="T"/>事件处理，插件用
         /// </summary>
         /// <returns></returns>
         Task<bool> Handle(EventMessage<T> eventArgs);
@@ -18,7 +18,7 @@ namespace KHLBotSharp
     public interface IKHLPlugin
     {
         /// <summary>
-        /// Resolve what you need in DI injection. You can also do loading configs or any preparation things here
+        /// 用于获取已注册的DI Services
         /// </summary>
         /// <returns></returns>
         Task Ctor(IServiceProvider provider);

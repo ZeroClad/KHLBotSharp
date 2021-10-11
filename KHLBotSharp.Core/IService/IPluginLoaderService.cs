@@ -3,12 +3,14 @@ using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace KHLBotSharp.IService
 {
     /// <summary>
     /// 内部使用，无需搞懂
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public interface IPluginLoaderService
     {
         void Init(IServiceProvider provider);
