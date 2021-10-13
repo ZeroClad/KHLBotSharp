@@ -74,6 +74,11 @@ namespace KHLBotSharp.Services
                 {
                     log.Error(e.ToString());
                 }
+                errorRateService.AddError();
+                if (e.Message.Contains("401") || e.Message.Contains("403"))
+                {
+                    throw new NoPermissionException();
+                }
                 return await GetAsync<T>(url);
             }
 
@@ -88,15 +93,43 @@ namespace KHLBotSharp.Services
             var proplist = data.GetType().GetProperties();
             foreach (var props in proplist)
             {
-                var value = props.GetValue(data);
-                if (value == default)
+                if(Attribute.IsDefined(props, typeof(JsonIgnoreAttribute)))
                 {
                     continue;
                 }
-                sb.Append(props.Name + "=" + value);
-                if (props != proplist.Last())
+                var value = props.GetValue(data);
+                if (value == default || value == null)
                 {
-                    sb.Append("&");
+                    continue;
+                }
+                if (Attribute.IsDefined(props, typeof(JsonPropertyAttribute)))
+                {
+                    var names = props.GetCustomAttributes(false).Select(x => x as JsonPropertyAttribute).Where(y => y != null);
+                    if(names.Count() > 0)
+                    {
+                        sb.Append(names.First().PropertyName + "=" + value);
+                        if (props != proplist.Last())
+                        {
+                            sb.Append("&");
+                        }
+                    }
+                    else
+                    {
+                        sb.Append(props.Name + "=" + value);
+                        if (props != proplist.Last())
+                        {
+                            sb.Append("&");
+                        }
+                    }
+
+                }
+                else
+                {
+                    sb.Append(props.Name + "=" + value);
+                    if (props != proplist.Last())
+                    {
+                        sb.Append("&");
+                    }
                 }
             }
             var finalurl = sb.ToString();
@@ -119,6 +152,7 @@ namespace KHLBotSharp.Services
                 log.Write("POST " + url + " : " + json);
                 var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
                 var result = await client.PostAsync(url, stringContent);
+                result.EnsureSuccessStatusCode();
                 using (var stream = await result.Content.ReadAsStreamAsync())
                 {
                     using (StreamReader r = new StreamReader(stream))
@@ -145,6 +179,10 @@ namespace KHLBotSharp.Services
                 {
                     log.Error(e.ToString());
                 }
+                if (e.Message.Contains("401") || e.Message.Contains("403"))
+                {
+                    throw new NoPermissionException();
+                }
                 errorRateService.AddError();
                 return await PostAsync<T>(url, data);
             }
@@ -168,10 +206,7 @@ namespace KHLBotSharp.Services
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
                     client.Timeout = new TimeSpan(0, 0, 5);
                     var result = await client.PostAsync("asset/create", requestContent);
-                    if (!result.IsSuccessStatusCode)
-                    {
-                        throw new HttpRequestException(result.StatusCode.ToString());
-                    }
+                    result.EnsureSuccessStatusCode();
                     var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
                     result.Dispose();
                     if (data.Data.Url == null)
@@ -195,6 +230,10 @@ namespace KHLBotSharp.Services
                 if (e is FileNotFoundException)
                 {
                     throw;
+                }
+                if (e.Message.Contains("401") || e.Message.Contains("403"))
+                {
+                    throw new NoPermissionException();
                 }
                 errorRateService.AddError();
                 return await UploadFileAsync(file);
@@ -220,10 +259,7 @@ namespace KHLBotSharp.Services
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
                     client.Timeout = new TimeSpan(0, 0, 5);
                     var result = await client.PostAsync("asset/create", requestContent);
-                    if (!result.IsSuccessStatusCode)
-                    {
-                        throw new HttpRequestException(result.StatusCode.ToString());
-                    }
+                    result.EnsureSuccessStatusCode();
                     var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
                     result.Dispose();
                     if (data.Data.Url == null)
@@ -247,6 +283,10 @@ namespace KHLBotSharp.Services
                 if (e is FileNotFoundException)
                 {
                     throw;
+                }
+                if (e.Message.Contains("401") || e.Message.Contains("403"))
+                {
+                    throw new NoPermissionException();
                 }
                 errorRateService.AddError();
                 return await UploadFileAsync(file);
@@ -273,5 +313,10 @@ namespace KHLBotSharp.Services
         {
             client.Dispose();
         }
+    }
+
+    public class NoPermissionException : Exception
+    {
+        public override string Message => "机器人没有权限进行相关操作，请给予相应的权限后再继续使用指令！";
     }
 }
