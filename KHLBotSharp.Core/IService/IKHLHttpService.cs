@@ -248,7 +248,7 @@ namespace KHLBotSharp.IService
         /// <param name="UserId"></param>
         /// <param name="GuildId"></param>
         /// <returns></returns>
-        Task<KHLResponseMessage<User>> GetDetail(string UserId, string GuildId);
+        Task<KHLResponseMessage<User>> GetUserDetail(string UserId, string GuildId);
         /// <summary>
         /// 获取服务器的表情列表
         /// </summary>

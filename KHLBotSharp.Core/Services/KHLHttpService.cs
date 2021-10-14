@@ -69,7 +69,7 @@ namespace KHLBotSharp.Common.Request
             return httpApi.GetAsync<KHLResponseMessage<GetChannelList>>("channel/list?guild_id=" + GuildId);
         }
 
-        public Task<KHLResponseMessage<User>> GetDetail(string UserId, string GuildId)
+        public Task<KHLResponseMessage<User>> GetUserDetail(string UserId, string GuildId)
         {
             return httpApi.GetAsync<KHLResponseMessage<User>>("user/view?user_id=" + UserId + "&guild_id=" + GuildId);
         }
