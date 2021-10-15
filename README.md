@@ -3,6 +3,7 @@
 
 ## 下载
 - [可以到这里浏览所有可下载的zip包](https://github.com/PoH98/KHLBotSharp/releases/latest)
+- [Nuget 链接](https://www.nuget.org/packages/KHLBotSharp.Core)
 
 ## Websocket使用
 如果你的机器人单纯是小型使用，可考虑使用Websocket
