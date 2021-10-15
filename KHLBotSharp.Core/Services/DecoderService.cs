@@ -13,8 +13,8 @@ namespace KHLBotSharp.Services
     /// </summary>
     public class DecoderService : IDecoderService
     {
-        private IBotConfigSettings config;
-        private ILogService log;
+        private readonly IBotConfigSettings config;
+        private readonly ILogService log;
         public DecoderService(IBotConfigSettings config, ILogService log)
         {
             this.config = config;
@@ -58,7 +58,7 @@ namespace KHLBotSharp.Services
                     if (data is JObject)
                     {
                         //No Encrypt Challenge
-                        if((data as JObject).ContainsKey("challenge"))
+                        if ((data as JObject).ContainsKey("challenge"))
                         {
                             log.Debug("Challenge Received");
                             return "Challenge";
@@ -96,8 +96,10 @@ namespace KHLBotSharp.Services
                     aes.Mode = CipherMode.CBC;
                     using (var memoryStream = new MemoryStream(Convert.FromBase64String(cipherData)))
                     using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(key, iv), CryptoStreamMode.Read))
-                    using(var s = new StreamReader(cryptoStream))
+                    using (var s = new StreamReader(cryptoStream))
+                    {
                         return s.ReadToEnd();
+                    }
                 }
             }
             catch (CryptographicException e)

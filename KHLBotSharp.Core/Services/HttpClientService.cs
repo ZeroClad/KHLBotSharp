@@ -93,7 +93,7 @@ namespace KHLBotSharp.Services
             var proplist = data.GetType().GetProperties();
             foreach (var props in proplist)
             {
-                if(Attribute.IsDefined(props, typeof(JsonIgnoreAttribute)))
+                if (Attribute.IsDefined(props, typeof(JsonIgnoreAttribute)))
                 {
                     continue;
                 }
@@ -105,7 +105,7 @@ namespace KHLBotSharp.Services
                 if (Attribute.IsDefined(props, typeof(JsonPropertyAttribute)))
                 {
                     var names = props.GetCustomAttributes(false).Select(x => x as JsonPropertyAttribute).Where(y => y != null);
-                    if(names.Count() > 0)
+                    if (names.Count() > 0)
                     {
                         sb.Append(names.First().PropertyName + "=" + value);
                         if (props != proplist.Last())

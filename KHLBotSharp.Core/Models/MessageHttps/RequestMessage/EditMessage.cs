@@ -8,6 +8,7 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
         public EditMessage(string msgId, string content)
         {
             MsgId = msgId;
+            Content = content;
         }
         [JsonProperty("msg_id")]
         public string MsgId { get; set; }

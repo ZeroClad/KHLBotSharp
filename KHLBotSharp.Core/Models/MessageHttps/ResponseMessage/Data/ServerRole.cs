@@ -27,12 +27,6 @@ namespace KHLBotSharp.Models.MessageHttps.ResponseMessage.Data
         [JsonProperty("permissions")]
         public uint Permissions { get; set; }
         [JsonIgnore]
-        public IEnumerable<Permission> ParsedPermission
-        {
-            get
-            {
-                return Permissions.ParsePermissions();
-            }
-        }
+        public IEnumerable<Permission> ParsedPermission => Permissions.ParsePermissions();
     }
 }

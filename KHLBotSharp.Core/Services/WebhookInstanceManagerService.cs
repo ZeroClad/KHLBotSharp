@@ -16,7 +16,7 @@ namespace KHLBotSharp.Services
 
         public WebHookInstance Get(string name)
         {
-            if(name == null)
+            if (name == null)
             {
                 return hookInstances.First();
             }
@@ -26,12 +26,6 @@ namespace KHLBotSharp.Services
             }
         }
 
-        public IList<WebHookInstance> HookInstances
-        {
-            get
-            {
-                return hookInstances;
-            }
-        }
+        public IList<WebHookInstance> HookInstances => hookInstances;
     }
 }

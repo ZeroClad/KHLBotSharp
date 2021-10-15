@@ -35,7 +35,7 @@ namespace KHLBotSharp.Core.BotHost
         private ClientWebSocket ws;
         private readonly IServiceProvider provider;
         public User Me { get; private set; }
-        public ILogService logService { get; private set; }
+        public ILogService LogService { get; private set; }
         private long sn;
         private Timer timeoutTimer;
         private CancellationTokenSource reset = new CancellationTokenSource();
@@ -70,31 +70,31 @@ namespace KHLBotSharp.Core.BotHost
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
             pluginLoader.Init(provider);
-            logService = provider.GetService<ILogService>();
+            LogService = provider.GetService<ILogService>();
             hc = provider.GetService<IHttpClientService>();
             Cache = provider.GetService<IMemoryCache>();
             timer.Interval = 30000;
             timer.Elapsed += Timer_Elapsed;
             //Yeah we just don't want any plugin programmer call this so thats why
 #pragma warning disable CS0612
-            logService.Init(bot.Split('\\').Last(), settings);
+            LogService.Init(bot.Split('\\').Last(), settings);
 #pragma warning restore CS0612
             if (settings.Debug)
             {
-                logService.Warning("Debug activated, this will cause more logs appears!");
+                LogService.Warning("Debug activated, this will cause more logs appears!");
             }
-            logService.Info("Completed init bot");
+            LogService.Info("Completed init bot");
         }
-       /// <summary>
-       /// 运行机器人
-       /// </summary>
-       /// <param name="atMe"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// 运行机器人
+        /// </summary>
+        /// <param name="atMe"></param>
+        /// <returns></returns>
         public async Task Run(bool? atMe = null)
         {
             if (!settings.Active)
             {
-                logService.Warning("Bot is done loaded but disabled to run. Please set inside your config.json to reactive it");
+                LogService.Warning("Bot is done loaded but disabled to run. Please set inside your config.json to reactive it");
                 return;
             }
             var error = provider.GetService<IErrorRateService>();
@@ -111,15 +111,15 @@ namespace KHLBotSharp.Core.BotHost
             }
             if (!settings.AtMe)
             {
-                logService.Warning("Bot don't need @ to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
+                LogService.Warning("Bot don't need @ to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
             }
             if (!(settings.ProcessChar.Contains(".") && settings.ProcessChar.Contains("。")))
             {
-                logService.Warning("Bot isn't using command '.' or '。'to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
+                LogService.Warning("Bot isn't using command '.' or '。'to trigger plugins on chat, it won't fulfill KHL Public Bot Request!");
             }
             if (settings.BotToken == null)
             {
-                logService.Error("Bot Token not found! Please set inside your config.json to let it works! Bot stopped!");
+                LogService.Error("Bot Token not found! Please set inside your config.json to let it works! Bot stopped!");
                 return;
             }
             //If we get error on here, we keep loops
@@ -128,16 +128,16 @@ namespace KHLBotSharp.Core.BotHost
                 try
                 {
                     Me = (await hc.GetAsync<KHLResponseMessage<User>>("user/me", HttpCompletionOption.ResponseHeadersRead)).Data;
-                    logService.Info("Bot ID readed as " + Me.Id + " Name: " + Me.Nick);
+                    LogService.Info("Bot ID readed as " + Me.Id + " Name: " + Me.Nick);
                     var result = await hc.GetAsync<JObject>("gateway/index", HttpCompletionOption.ResponseHeadersRead);
                     var socketUrl = result["data"]["url"].ToString();
                     await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
-                    logService.Info("WebSocket Established");
+                    LogService.Info("WebSocket Established");
                     _ = Task.Run(async () =>
                     {
                         do
                         {
-                            logService.Info("WebSocket Ready Listening for events");
+                            LogService.Info("WebSocket Ready Listening for events");
                             await ListenSocket();
                             //We should infinite retry connect socket whatever happens
                             await RestartSocket();
@@ -148,7 +148,7 @@ namespace KHLBotSharp.Core.BotHost
                 }
                 catch (Exception ex)
                 {
-                    logService.Error(ex.Message);
+                    LogService.Error(ex.Message);
                     error.AddError();
                 }
             }
@@ -157,7 +157,7 @@ namespace KHLBotSharp.Core.BotHost
 
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            logService.Debug("Sending Ping");
+            LogService.Debug("Sending Ping");
             _ = ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JObject.FromObject(new { s = 2, sn }).ToString())), WebSocketMessageType.Text, true, CancellationToken.None);
             if (timeoutTimer == null)
             {
@@ -177,7 +177,7 @@ namespace KHLBotSharp.Core.BotHost
 
         private void TimeoutTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            logService.Error("Websocket Timeout");
+            LogService.Error("Websocket Timeout");
             reset.Cancel();
             timeoutTimer.Stop();
             timer.Stop();
@@ -211,7 +211,7 @@ namespace KHLBotSharp.Core.BotHost
                 catch (Exception e)
                 {
                     //Plugin error
-                    logService.Error(e.Message + e.StackTrace);
+                    LogService.Error(e.Message + e.StackTrace);
                     break;
                 }
             }
@@ -231,7 +231,7 @@ namespace KHLBotSharp.Core.BotHost
             if (sn == eventMsg.Value<long>("sn"))
             {
                 speedTest.Stop();
-                logService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
+                LogService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
             }
             switch (eventMsg.Value<string>("s"))
             {
@@ -258,7 +258,7 @@ namespace KHLBotSharp.Core.BotHost
                                                     Cache.Set("Role_" + groupText.Data.Extra.GuildId, roles);
                                                 }
                                                 groupText.Data.Extra.Author.ParsedRoles = roles.Data.Items.Where(x => groupText.Data.Extra.Author.Roles.Any(y => y == x.RoleId)).ToList();
-                                                logService.Debug("Received Group Text Event, Triggering Plugins");
+                                                LogService.Debug("Received Group Text Event, Triggering Plugins");
                                                 pluginLoader.HandleMessage(groupText);
                                             }
                                         }
@@ -270,30 +270,30 @@ namespace KHLBotSharp.Core.BotHost
                                     {
                                         if (!groupText.Data.Extra.Author.IsBot)
                                         {
-                                            logService.Debug("Received Group Text Event, Triggering Plugins");
+                                            LogService.Debug("Received Group Text Event, Triggering Plugins");
                                             pluginLoader.HandleMessage(groupText);
                                         }
                                     }
                                 }
                                 break;
                             case 2:
-                                logService.Debug("Received Group Image Event, Triggering Plugins");
+                                LogService.Debug("Received Group Image Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupPictureMessageEvent>>());
                                 break;
                             case 3:
-                                logService.Debug("Received Group Video Event, Triggering Plugins");
+                                LogService.Debug("Received Group Video Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>());
                                 break;
                             case 9:
-                                logService.Debug("Received Group Markdown Event, Triggering Plugins");
+                                LogService.Debug("Received Group Markdown Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>());
                                 break;
                             case 10:
-                                logService.Debug("Received Group Card Event, Triggering Plugins");
+                                LogService.Debug("Received Group Card Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupCardMessageEvent>>());
                                 break;
                             case 255:
-                                logService.Debug("Received Group System Event, Triggering Plugins");
+                                LogService.Debug("Received Group System Event, Triggering Plugins");
                                 var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
                                 switch (extra)
                                 {
@@ -393,7 +393,7 @@ namespace KHLBotSharp.Core.BotHost
                     }
                     else if (channelType == "BROADCAST")
                     {
-                        logService.Info("Received system message broadcast. Skipping data process");
+                        LogService.Info("Received system message broadcast. Skipping data process");
                         break;
                     }
                     else
@@ -401,27 +401,27 @@ namespace KHLBotSharp.Core.BotHost
                         switch (eventMsg.Value<JToken>("d").Value<int>("type"))
                         {
                             case 1:
-                                logService.Debug("Received Private Text Event, Triggering Plugins");
+                                LogService.Debug("Received Private Text Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateTextMessageEvent>>());
                                 break;
                             case 2:
-                                logService.Debug("Received Private Image Event, Triggering Plugins");
+                                LogService.Debug("Received Private Image Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivatePictureMessageEvent>>());
                                 break;
                             case 3:
-                                logService.Debug("Received Private Video Event, Triggering Plugins");
+                                LogService.Debug("Received Private Video Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateVideoMessageEvent>>());
                                 break;
                             case 9:
-                                logService.Debug("Received Private Markdown Event, Triggering Plugins");
+                                LogService.Debug("Received Private Markdown Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateKMarkdownMessageEvent>>());
                                 break;
                             case 10:
-                                logService.Debug("Received Private Card Event, Triggering Plugins");
+                                LogService.Debug("Received Private Card Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<PrivateCardMessageEvent>>());
                                 break;
                             case 255:
-                                logService.Debug("Received Private System Event, Triggering Plugins");
+                                LogService.Debug("Received Private System Event, Triggering Plugins");
                                 var extra = eventMsg.Value<JToken>("d").Value<JToken>("extra").Value<string>("type");
                                 switch (extra)
                                 {
@@ -450,11 +450,11 @@ namespace KHLBotSharp.Core.BotHost
                     sn = eventMsg.Value<long>("sn");
                     break;
                 case "1":
-                    logService.Info("WebSocket Handshake Success");
+                    LogService.Info("WebSocket Handshake Success");
                     timer.Start();
                     break;
                 case "3":
-                    logService.Debug("Received Pong in " + pingTime.ElapsedMilliseconds + " ms");
+                    LogService.Debug("Received Pong in " + pingTime.ElapsedMilliseconds + " ms");
                     pingTime.Stop();
                     if (timeoutTimer != null)
                     {
@@ -463,7 +463,7 @@ namespace KHLBotSharp.Core.BotHost
                     break;
             }
             speedTest.Stop();
-            logService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
+            LogService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
         }
 
         private async Task RestartSocket()
@@ -478,7 +478,7 @@ namespace KHLBotSharp.Core.BotHost
                 reset.Cancel();
                 reset.Dispose();
                 reset = new CancellationTokenSource();
-                logService.Error("WebSocket Disconnected");
+                LogService.Error("WebSocket Disconnected");
                 try
                 {
                     //Try close again websocket first
@@ -498,7 +498,7 @@ namespace KHLBotSharp.Core.BotHost
             catch (Exception ex)
             {
                 //Socket restart failed
-                logService.Error(ex.Message + ex.StackTrace);
+                LogService.Error(ex.Message + ex.StackTrace);
             }
             try
             {
@@ -510,7 +510,7 @@ namespace KHLBotSharp.Core.BotHost
             catch (Exception ex)
             {
                 //Socket restart failed
-                logService.Error(ex.Message + ex.StackTrace);
+                LogService.Error(ex.Message + ex.StackTrace);
             }
         }
     }

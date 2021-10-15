@@ -14,7 +14,7 @@ namespace KHLBotSharp.Common.Request
     public class KHLHttpService : IKHLHttpService
     {
         private readonly IHttpClientService httpApi;
-        public KHLHttpService(IHttpClientService httpApiBaseRequestService, IMemoryCache cache)
+        public KHLHttpService(IHttpClientService httpApiBaseRequestService)
         {
             httpApi = httpApiBaseRequestService;
         }

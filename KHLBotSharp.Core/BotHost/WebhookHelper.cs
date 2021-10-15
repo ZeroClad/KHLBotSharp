@@ -51,8 +51,10 @@ namespace KHLBotSharp.Core.BotHost
                 {
                     continue;
                 }
-                var hookInstance = new WebHookInstance();
-                hookInstance.Name = bot.Split('\\').Last();
+                var hookInstance = new WebHookInstance
+                {
+                    Name = bot.Split('\\').Last()
+                };
                 var pluginLoader = new PluginLoaderService();
 
                 hookInstance.ServiceCollection = new ServiceCollection();
