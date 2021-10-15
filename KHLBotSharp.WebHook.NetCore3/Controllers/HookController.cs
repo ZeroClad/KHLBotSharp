@@ -43,9 +43,19 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                 {
                     return new EmptyResult();
                 }
+                logService.Debug("Received call in webhook as url " + $"{ Request.Scheme }://{ Request.Host }{ Request.Path }{ Request.QueryString }");
                 JToken jtoken = JToken.Parse(json);
-                var decoded = decoderService.DecodeEncrypt(jtoken);
-                if(decoded == null)
+                JObject decoded;
+                try
+                {
+                    decoded = decoderService.DecodeEncrypt(jtoken);
+                }
+                catch(Exception ex)
+                {
+                    logService.Error("Decrypt failed with " + ex.ToString());
+                    decoded = null;
+                }
+                if (decoded == null)
                 {
                     logService.Error("Invalid Json!");
                     return StatusCode(403);
