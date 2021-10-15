@@ -101,6 +101,9 @@
 - 插件完成后，在启动器文件夹内的`Profiles\<你的Profile名字>\Plugins`内创建一个与你插件名字一样的文件夹，并且把插件丢到文件夹内，包含你所有其他的Dependency，无需复制KHLBotSharp.Core
 - 打开启动器即可
 
+---
+> 如果想要注册自己想在Ctor的时候用的一些Service，可以尝试使用`IServiceRegister` Interface，只需要创建新的class (尽量别跟原本的消息处理事件放一起) 加上interface后，就可以获取个`void Register(IServiceCollection services)`功能进行注册DI
+
 ## 启动器选择
 - 目前启动器支持俩选择: .NET 6以及.NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6
 - Websocket启动器也可以自主添加或者修改，只需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.NETCore3)并且打包为你想要的.NET版本即可，相同插件可支持
