@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KHLBotSharp.Services
 {
@@ -23,7 +24,7 @@ namespace KHLBotSharp.Services
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public JObject DecodeEncrypt(JToken code)
+        public async Task<JObject> DecodeEncrypt(JToken code)
         {
             if (code is JObject)
             {
@@ -36,51 +37,54 @@ namespace KHLBotSharp.Services
                     string iv = decoded.Substring(0, 16);
                     var aesEncrypted = decoded.Substring(16);
                     var key = config.EncryptKey.PadRight(32, '\0');
-                    var result = Decrypt(aesEncrypted, key, iv);
+                    var result = await Decrypt(aesEncrypted, key, iv);
                     result = result.Substring(0, result.LastIndexOf("}") + 1);
                     return JObject.Parse(result);
                 }
                 //not encrypted
                 return obj;
             }
-            return null;
+            throw new ArgumentException("Invalid json received. Expected Object get Array");
         }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public string GetEventType(JToken code)
+        public Task<string> GetEventType(JToken code)
         {
-            if (code is JObject)
+            return Task.Run(() =>
             {
-                var obj = code.ToObject<JObject>();
-                if (obj.TryGetValue("d", out JToken data))
+                if (code is JObject)
                 {
-                    if (data is JObject)
+                    var obj = code.ToObject<JObject>();
+                    if (obj.TryGetValue("d", out JToken data))
                     {
-                        //No Encrypt Challenge
-                        if ((data as JObject).ContainsKey("challenge"))
+                        if (data is JObject)
+                        {
+                            //No Encrypt Challenge
+                            if ((data as JObject).ContainsKey("challenge"))
+                            {
+                                log.Debug("Challenge Received");
+                                return "Challenge";
+                            }
+                        }
+                        //Default Type
+                        return data.Value<string>("type");
+                    }
+                    else
+                    {
+                        //Encrypted Challenge
+                        if (obj.ContainsKey("encrypt"))
                         {
                             log.Debug("Challenge Received");
                             return "Challenge";
                         }
                     }
-                    //Default Type
-                    return data.Value<string>("type");
                 }
-                else
-                {
-                    //Encrypted Challenge
-                    if (obj.ContainsKey("encrypt"))
-                    {
-                        log.Debug("Challenge Received");
-                        return "Challenge";
-                    }
-                }
-            }
-            return null;
+                return null;
+            });
         }
 
-        private string Decrypt(string cipherData, string keyString, string ivString)
+        private async Task<string> Decrypt(string cipherData, string keyString, string ivString)
         {
             byte[] key = Encoding.UTF8.GetBytes(keyString);
             byte[] iv = Encoding.UTF8.GetBytes(ivString);
@@ -98,7 +102,7 @@ namespace KHLBotSharp.Services
                     using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(key, iv), CryptoStreamMode.Read))
                     using (var s = new StreamReader(cryptoStream))
                     {
-                        return s.ReadToEnd();
+                        return await s.ReadToEndAsync();
                     }
                 }
             }

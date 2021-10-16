@@ -17,6 +17,10 @@ namespace KHLBotSharp.WebHook.NetCore3
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                }).UseDefaultServiceProvider((context, options) =>
+                {
+                    options.ValidateScopes = true;
+                    options.ValidateOnBuild = true;
                 });
     }
 }

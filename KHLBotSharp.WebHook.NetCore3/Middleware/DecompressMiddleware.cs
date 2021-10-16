@@ -40,7 +40,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Middleware
             // 78 DA - Best Compression
             stream.Position = 2;
 
-            DeflateStream deflateStream = new DeflateStream(stream, CompressionMode.Decompress, true);
+            DeflateStream deflateStream = new DeflateStream(stream, CompressionMode.Decompress);
             MemoryStream resultStream = new MemoryStream();
             await deflateStream.CopyToAsync(resultStream);
             await deflateStream.DisposeAsync();
@@ -55,8 +55,8 @@ namespace KHLBotSharp.WebHook.NetCore3.Middleware
 
             context.Items["Content"] = result;
             reader.Dispose();
-
             await _next(context);
+            await deflateStream.DisposeAsync();
             s.Stop();
             logService.Write("Message processed in " + s.ElapsedMilliseconds + " ms");
         }

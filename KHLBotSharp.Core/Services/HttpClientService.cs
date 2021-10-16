@@ -46,19 +46,25 @@ namespace KHLBotSharp.Services
                 log.Write("GET " + url);
                 using (var result = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
                 {
-                    result.EnsureSuccessStatusCode();
                     using (var stream = await result.Content.ReadAsStreamAsync())
                     {
                         using (StreamReader r = new StreamReader(stream))
                         {
-                            using (JsonReader jr = new JsonTextReader(r))
+                            if (result.IsSuccessStatusCode)
                             {
-                                JsonSerializer s = new JsonSerializer();
-                                var data = s.Deserialize<T>(jr);
-                                result.Dispose();
-                                stopwatch.Stop();
-                                log.Write("GET " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
-                                return data;
+                                using (JsonReader jr = new JsonTextReader(r))
+                                {
+                                    JsonSerializer s = new JsonSerializer();
+                                    var data = s.Deserialize<T>(jr);
+                                    result.Dispose();
+                                    stopwatch.Stop();
+                                    log.Write("GET " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
+                                    return data;                                }
+                            }
+                            else
+                            {
+                                log.Write(await r.ReadToEndAsync());
+                                throw new HttpRequestException(((int)result.StatusCode).ToString());
                             }
                         }
                     }
@@ -78,6 +84,14 @@ namespace KHLBotSharp.Services
                 if (e.Message.Contains("401") || e.Message.Contains("403"))
                 {
                     throw new NoPermissionException();
+                }
+                if (e.Message.Contains("400"))
+                {
+                    throw new MessageInvalidException();
+                }
+                if (e.Message.Contains("429"))
+                {
+                    throw new RateLimitException();
                 }
                 return await GetAsync<T>(url);
             }
@@ -152,19 +166,26 @@ namespace KHLBotSharp.Services
                 log.Write("POST " + url + " : " + json);
                 var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
                 var result = await client.PostAsync(url, stringContent);
-                result.EnsureSuccessStatusCode();
                 using (var stream = await result.Content.ReadAsStreamAsync())
                 {
                     using (StreamReader r = new StreamReader(stream))
                     {
-                        using (JsonReader jr = new JsonTextReader(r))
+                        if (result.IsSuccessStatusCode)
                         {
-                            JsonSerializer s = new JsonSerializer();
-                            var resultdata = s.Deserialize<T>(jr);
-                            result.Dispose();
-                            stopwatch.Stop();
-                            log.Write("POST " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
-                            return resultdata;
+                            using (JsonReader jr = new JsonTextReader(r))
+                            {
+                                JsonSerializer s = new JsonSerializer();
+                                var resultdata = s.Deserialize<T>(jr);
+                                result.Dispose();
+                                stopwatch.Stop();
+                                log.Write("POST " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
+                                return resultdata;
+                            }
+                        }
+                        else
+                        {
+                            log.Write(await r.ReadToEndAsync());
+                            throw new HttpRequestException(((int)result.StatusCode).ToString());
                         }
                     }
                 }
@@ -182,6 +203,14 @@ namespace KHLBotSharp.Services
                 if (e.Message.Contains("401") || e.Message.Contains("403"))
                 {
                     throw new NoPermissionException();
+                }
+                if (e.Message.Contains("400"))
+                {
+                    throw new MessageInvalidException();
+                }
+                if (e.Message.Contains("429"))
+                {
+                    throw new RateLimitException();
                 }
                 errorRateService.AddError();
                 return await PostAsync<T>(url, data);
@@ -206,14 +235,21 @@ namespace KHLBotSharp.Services
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
                     client.Timeout = new TimeSpan(0, 0, 5);
                     var result = await client.PostAsync("asset/create", requestContent);
-                    result.EnsureSuccessStatusCode();
-                    var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
-                    result.Dispose();
-                    if (data.Data.Url == null)
+                    if (result.IsSuccessStatusCode)
                     {
-                        throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                        var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+                        result.Dispose();
+                        if (data.Data.Url == null)
+                        {
+                            throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                        }
+                        return data.Data.Url;
                     }
-                    return data.Data.Url;
+                    else
+                    {
+                        log.Write(await result.Content.ReadAsStringAsync());
+                        throw new HttpRequestException(((int)result.StatusCode).ToString());
+                    }
                 }
 
             }
@@ -234,6 +270,14 @@ namespace KHLBotSharp.Services
                 if (e.Message.Contains("401") || e.Message.Contains("403"))
                 {
                     throw new NoPermissionException();
+                }
+                if (e.Message.Contains("400"))
+                {
+                    throw new MessageInvalidException();
+                }
+                if (e.Message.Contains("429"))
+                {
+                    throw new RateLimitException();
                 }
                 errorRateService.AddError();
                 return await UploadFileAsync(file);
@@ -259,16 +303,22 @@ namespace KHLBotSharp.Services
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
                     client.Timeout = new TimeSpan(0, 0, 5);
                     var result = await client.PostAsync("asset/create", requestContent);
-                    result.EnsureSuccessStatusCode();
-                    var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
-                    result.Dispose();
-                    if (data.Data.Url == null)
+                    if (result.IsSuccessStatusCode)
                     {
-                        throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                        var data = JsonConvert.DeserializeObject<KHLResponseMessage<UploadFileResponse>>(await result.Content.ReadAsStringAsync());
+                        result.Dispose();
+                        if (data.Data.Url == null)
+                        {
+                            throw new HttpRequestException("Upload file failed.\n" + data.Message);
+                        }
+                        return data.Data.Url;
                     }
-                    return data.Data.Url;
+                    else
+                    {
+                        log.Write(await result.Content.ReadAsStringAsync());
+                        throw new HttpRequestException(((int)result.StatusCode).ToString());
+                    }
                 }
-
             }
             catch (Exception e)
             {
@@ -287,6 +337,14 @@ namespace KHLBotSharp.Services
                 if (e.Message.Contains("401") || e.Message.Contains("403"))
                 {
                     throw new NoPermissionException();
+                }
+                if (e.Message.Contains("400"))
+                {
+                    throw new MessageInvalidException();
+                }
+                if (e.Message.Contains("429"))
+                {
+                    throw new RateLimitException();
                 }
                 errorRateService.AddError();
                 return await UploadFileAsync(file);
@@ -318,5 +376,14 @@ namespace KHLBotSharp.Services
     public class NoPermissionException : Exception
     {
         public override string Message => "机器人没有权限进行相关操作，请给予相应的权限后再继续使用指令！";
+    }
+
+    public class RateLimitException : Exception
+    {
+        public override string Message => "机器人已被限速！将会自动取消所有正在发送的请求！";
+    }
+    public class MessageInvalidException : Exception
+    {
+        public override string Message => "机器人发送的数据不被服务器接受！";
     }
 }

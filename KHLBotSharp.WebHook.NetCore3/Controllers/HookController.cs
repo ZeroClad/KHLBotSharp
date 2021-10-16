@@ -6,6 +6,8 @@ using KHLBotSharp.WebHook.NetCore3.Helper;
 using Newtonsoft.Json.Linq;
 using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Services;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KHLBotSharp.WebHook.NetCore3.Controllers
 {
@@ -28,16 +30,19 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
 
         [HttpPost]
         [Route("/hook")]
-        public IActionResult Index(string botName = null)
+        public async Task<IActionResult> Index(string botName = null)
         {
             try
             {
                 var instance = instanceManagerService.Get(botName);
-                var config = (IBotConfigSettings)instance.ServiceProvider.GetService(typeof(IBotConfigSettings));
-                var pluginLoaderService = (IPluginLoaderService)instance.ServiceProvider.GetService(typeof(IPluginLoaderService));
-                pluginLoaderService.Init(instance.ServiceProvider);
-                var logService = (ILogService)instance.ServiceProvider.GetService(typeof(ILogService));
-                var decoderService = (IDecoderService)instance.ServiceProvider.GetService(typeof(IDecoderService));
+                var config = instance.ServiceProvider.GetRequiredService<IBotConfigSettings>();
+                var pluginLoaderService = instance.ServiceProvider.GetRequiredService<IPluginLoaderService>();
+                var logService = instance.ServiceProvider.GetRequiredService<ILogService>();
+                var decoderService = instance.ServiceProvider.GetRequiredService<IDecoderService>();
+                if (!pluginLoaderService.Inited)
+                {
+                    pluginLoaderService.Init(instance.ServiceProvider);
+                }
                 string json = HttpContext.Items["Content"].ToString();
                 if (string.IsNullOrEmpty(json) || string.IsNullOrWhiteSpace(json))
                 {
@@ -48,22 +53,25 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                 JObject decoded;
                 try
                 {
-                    decoded = decoderService.DecodeEncrypt(jtoken);
+                    decoded = await decoderService.DecodeEncrypt(jtoken);
                 }
                 catch(Exception ex)
                 {
                     logService.Error("Decrypt failed with " + ex.ToString());
-                    decoded = null;
-                }
-                if (decoded == null)
-                {
-                    logService.Error("Invalid Json!");
                     return StatusCode(403);
                 }
-                var type = decoderService.GetEventType(decoded);
+                var type = await decoderService.GetEventType(decoded);
                 //Check if token is correct
                 if (!decoded.Value<JObject>("d").ContainsKey("verify_token") || decoded.Value<JObject>("d").Value<string>("verify_token") != config.VerifyToken)
                 {
+                    if (decoded.Value<JObject>("d").ContainsKey("verify_token"))
+                    {
+                        logService.Write("Received verify_token as " + decoded.Value<JObject>("d").Value<string>("verify_token"));
+                    }
+                    else
+                    {
+                        logService.Write("No verify_token found");
+                    }
                     logService.Error("Invalid Token. Verification failed! Lets send him to Tong Shen Serving Hot Pot!");
                     return RedirectPermanent("https://www.bilibili.com/video/BV1FZ4y1P7Wk/");
                 }
@@ -79,7 +87,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                     case "9":
                     case "10":
                     case "255":
-                        _ = decoded.ParseEvent(pluginLoaderService, config, logService);
+                        await decoded.ParseEvent(pluginLoaderService, config, logService);
                         break;
                     default:
                         return StatusCode(403);

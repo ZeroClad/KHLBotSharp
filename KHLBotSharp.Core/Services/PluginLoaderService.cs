@@ -9,63 +9,76 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace KHLBotSharp.Services
 {
     public class PluginLoaderService : IPluginLoaderService
     {
-        private IEnumerable<IKHLPlugin> plugins;
-        private ILogService logService;
-        private IKHLHttpService httpService;
-        private bool _initialized;
         private IServiceProvider provider;
         private IErrorRateService errorRate;
+        private bool _Inited = false;
+        public bool Inited => _Inited;
+        private string currentPlugin;
         public void LoadPlugin(string bot, IServiceCollection services)
         {
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Changed += Watcher_Changed;
+            watcher.Path = Path.Combine(bot, "Plugins");
+            watcher.Filter = "*.dll";
+            watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+            watcher.EnableRaisingEvents = true;
+            watcher.IncludeSubdirectories = true;
             /*加载所有文件夹内的插件文件夹*/
             foreach (var plugin in Directory.GetDirectories(Path.Combine(bot, "Plugins")))
             {
+                currentPlugin = plugin;
                 var pluginDll = plugin.Substring(plugin.LastIndexOf("\\") + 1) + ".dll";
                 var pluginFullPath = Path.Combine(plugin, pluginDll);
                 var pluginBytes = File.ReadAllBytes(pluginFullPath);
-                FileSystemWatcher watcher = new FileSystemWatcher();
-                watcher.Changed += Watcher_Changed;
-                watcher.Path = plugin;
-                watcher.Filter = "*.dll";
-                watcher.EnableRaisingEvents = true;
-                AppDomain.CurrentDomain.AssemblyResolve += (sender, e) =>
-                {
-                    try
-                    {
-                        var assemblyDetails = e.Name.Split(',').Where(x => !string.IsNullOrEmpty(x));
-                        var file = assemblyDetails.First();
-                        var dependencyDll = Path.Combine(Environment.CurrentDirectory, plugin, file + ".dll");
-                        if (!File.Exists(dependencyDll))
-                        {
-                            return null;
-                        }
-                        var result = Assembly.LoadFrom(dependencyDll);
-                        return result;
-                    }
-                    catch (Exception ex)
-                    {
-                        File.WriteAllText("error.log", ex.ToString());
-                        Environment.Exit(1);
-                        return null;
-                    }
-
-                };
+                AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
                 Assembly pluginAssembly = AppDomain.CurrentDomain.Load(pluginBytes);
+                var diregister = pluginAssembly.GetTypes().Where(x => typeof(IServiceRegister).IsAssignableFrom(x) && !x.IsAbstract);
+                foreach (var type in diregister)
+                {
+                    var instance = Activator.CreateInstance(type, null);
+                    if(instance is IServiceRegister)
+                    {
+                        (instance as IServiceRegister).Register(services);
+                    }
+                    else
+                    {
+                        File.WriteAllText("error.log", type.FullName + " DI failed");
+                    }
+                }
                 var Iplugins = pluginAssembly.GetTypes().Where(x => typeof(IKHLPlugin).IsAssignableFrom(x) && !x.IsAbstract);
                 foreach (var type in Iplugins)
                 {
                     var implementedInterfaces = type.GetInterfaces();
                     if (implementedInterfaces.Any())
                     {
+                        RegisterType? regType = null;
+                        if (implementedInterfaces.Any(x => x is IPluginType))
+                        {
+                            var instance = Activator.CreateInstance(type, null);
+                            regType = (instance as IPluginType).RegisterType;
+                        }
                         foreach (var interfaceType in implementedInterfaces)
                         {
-                            services.AddScoped(interfaceType, type);
+                            if (regType.HasValue)
+                            {
+                                if (regType == RegisterType.Singleton)
+                                {
+                                    services.AddSingleton(interfaceType, type);
+                                }
+                                else
+                                {
+                                    services.AddTransient(interfaceType, type);
+                                }
+                            }
+                            else
+                            {
+                                services.AddScoped(interfaceType, type);
+                            }
                         }
                     }
                     else
@@ -74,15 +87,32 @@ namespace KHLBotSharp.Services
                         services.AddScoped(type);
                     }
                 }
-                var diregister = pluginAssembly.GetTypes().Where(x => typeof(IServiceRegister).IsAssignableFrom(x) && !x.IsAbstract);
-                foreach (var type in diregister)
-                {
-                    (type as IServiceRegister).Register(services);
-                }
             }
         }
 
-        private static void Watcher_Changed(object sender, FileSystemEventArgs e)
+        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            try
+            {
+                var assemblyDetails = args.Name.Split(',').Where(x => !string.IsNullOrEmpty(x));
+                var file = assemblyDetails.First();
+                var dependencyDll = Path.Combine(Environment.CurrentDirectory, currentPlugin, file + ".dll");
+                if (!File.Exists(dependencyDll))
+                {
+                    return null;
+                }
+                var result = Assembly.LoadFrom(dependencyDll);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText("error.log", currentPlugin + ex.ToString());
+                Environment.Exit(1);
+                return null;
+            }
+        }
+
+        private void Watcher_Changed(object sender, FileSystemEventArgs e)
         {
             Process.Start(Process.GetCurrentProcess().MainModule.FileName);
             Environment.Exit(0);
@@ -90,27 +120,12 @@ namespace KHLBotSharp.Services
 
         public virtual IEnumerable<IKHLPlugin> ResolvePlugin()
         {
-            logService = provider.GetService<ILogService>();
-            httpService = provider.GetService<IKHLHttpService>();
-            if (plugins == null)
-            {
-                plugins = provider.GetServices<IKHLPlugin>();
-            }
-            if (!_initialized)
-            {
-                foreach (var plug in plugins)
-                {
-                    plug.Ctor(provider);
-                }
-                _initialized = true;
-            }
-            return plugins;
+            return provider.GetServices<IKHLPlugin>();
         }
 
         public virtual IEnumerable<T> ResolvePlugin<T>() where T : IKHLPlugin
         {
-            var pluginList = ResolvePlugin();
-            return pluginList.Where(x => x is T).Select(y => (T)y);
+            return provider.GetServices<T>();
         }
 
         public virtual async void HandleMessage<T, T2>(EventMessage<T> input, IEnumerable<T2> plugins)
@@ -118,37 +133,58 @@ namespace KHLBotSharp.Services
             where T2 : IKHLPlugin<T>
         {
             Stopwatch speedTest = Stopwatch.StartNew();
+            var logService = provider.GetService<ILogService>();
             foreach (var plugin in plugins)
             {
                 try
                 {
-                    if (await plugin.Handle(input))
+                    Stopwatch pluginExecuteTime = Stopwatch.StartNew();
+                    await plugin.Ctor(provider);
+                    var completed = await plugin.Handle(input);
+                    pluginExecuteTime.Stop();
+                    if(pluginExecuteTime.ElapsedMilliseconds >= 1500)
+                    {
+                        var httpService = provider.GetService<IKHLHttpService>();
+                        //The plugin is too low performance!
+                        logService.Warning(plugin.GetType().FullName + " is too slow! Used " + pluginExecuteTime.ElapsedMilliseconds + " ms to process a single fucking message?");
+                        await httpService.SendGroupMessage(new SendMessage() { Content = "警告: \n" + plugin.GetType().FullName + "运行速度太过缓慢，已使用"+ pluginExecuteTime.ElapsedMilliseconds +"ms处理一条消息，请确保联络插件开发者禁止运行大量操作，并且善用IServiceRegister注册需要长时间加载大量数据的Service为Singleton!", TargetId = input.Data.TargetId });
+                    }
+                    if(plugin is IDisposable)
+                    {
+                        if(plugin is IPluginType)
+                        {
+                            if((plugin as IPluginType).RegisterType != RegisterType.Singleton)
+                            {
+                                (plugin as IDisposable).Dispose();
+                            }
+                        }
+                        else
+                        {
+                            (plugin as IDisposable).Dispose();
+                        }
+                    }
+                    if (completed)
                     {
                         break;
-                    }
-                    else
-                    {
-                        //Slow things down abit
-                        await Task.Delay(50);
                     }
                 }
                 catch (Exception ex)
                 {
+                    var httpService = provider.GetService<IKHLHttpService>();
                     errorRate.AddError();
                     if (input.MessageType.ToString() == "0")
                     {
                         try
                         {
-                            await httpService.SendGroupMessage(new SendMessage() { Content = "错误报告: " + ex.Message, TargetId = input.Data.TargetId });
+                            await httpService.SendGroupMessage(new SendMessage() { Content = "错误报告: \n" + plugin.GetType().FullName + "触发了" + ex.Message, TargetId = input.Data.TargetId });
                         }
                         catch
                         {
                             //Ignore send as we can't even send the message out
                         }
                     }
-                    logService.Error(plugin.GetType().Name + ":-" + ex.ToString());
+                    logService.Error(plugin.GetType().FullName + ":-" + ex.ToString());
                 }
-
             }
             speedTest.Stop();
             logService.Debug("Plugin process success in " + speedTest.ElapsedMilliseconds + " ms");
@@ -167,6 +203,7 @@ namespace KHLBotSharp.Services
             {
                 errorRate = provider.GetService<IErrorRateService>();
             }
+            _Inited = true;
         }
     }
 }

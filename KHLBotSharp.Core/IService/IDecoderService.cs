@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace KHLBotSharp.Services
 {
@@ -12,12 +13,12 @@ namespace KHLBotSharp.Services
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        JObject DecodeEncrypt(JToken code);
+        Task<JObject> DecodeEncrypt(JToken code);
         /// <summary>
         /// 获取事件类型
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        string GetEventType(JToken code);
+        Task<string> GetEventType(JToken code);
     }
 }

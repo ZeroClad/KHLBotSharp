@@ -6,6 +6,7 @@ using KHLBotSharp.WebHook.Net5.Helper;
 using Newtonsoft.Json.Linq;
 using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Services;
+using System.Threading.Tasks;
 
 namespace KHLBotSharp.WebHook.Net5.Controllers
 {
@@ -28,7 +29,7 @@ namespace KHLBotSharp.WebHook.Net5.Controllers
 
         [HttpPost]
         [Route("/hook")]
-        public IActionResult Index(string botName = null)
+        public async Task<IActionResult> Index(string botName = null)
         {
             try
             {
@@ -44,13 +45,13 @@ namespace KHLBotSharp.WebHook.Net5.Controllers
                     return new EmptyResult();
                 }
                 JToken jtoken = JToken.Parse(json);
-                var decoded = decoderService.DecodeEncrypt(jtoken);
+                var decoded = await decoderService.DecodeEncrypt(jtoken);
                 if(decoded == null)
                 {
                     logService.Error("Invalid Json!");
                     return StatusCode(403);
                 }
-                var type = decoderService.GetEventType(decoded);
+                var type = await decoderService .GetEventType(decoded);
                 //Check if token is correct
                 if (!decoded.Value<JObject>("d").ContainsKey("verify_token") || decoded.Value<JObject>("d").Value<string>("verify_token") != config.VerifyToken)
                 {
