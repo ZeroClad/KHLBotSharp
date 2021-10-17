@@ -17,8 +17,8 @@ namespace KHLBotSharp.IService
         void LoadPlugin(string bot, IServiceCollection services);
         IEnumerable<IKHLPlugin> ResolvePlugin();
         IEnumerable<T> ResolvePlugin<T>() where T : IKHLPlugin;
-        void HandleMessage<T, T2>(EventMessage<T> input, IEnumerable<T2> plugins) where T : AbstractExtra where T2 : IKHLPlugin<T>;
-        void HandleMessage<T>(EventMessage<T> input) where T : AbstractExtra;
+        void HandleMessage<T, T2>(EventMessage<T> input, IEnumerable<T2> plugins) where T : Extra where T2 : IKHLPlugin<T>;
+        void HandleMessage<T>(EventMessage<T> input) where T : Extra;
         bool Inited { get; }
     }
 }

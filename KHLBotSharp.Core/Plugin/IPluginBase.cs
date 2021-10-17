@@ -9,7 +9,7 @@ namespace KHLBotSharp
     /// 插件interface
     /// </summary>
     /// <typeparam name="T">事件class</typeparam>
-    public interface IKHLPlugin<T> : IKHLPlugin where T : AbstractExtra
+    public interface IKHLPlugin<T> : IKHLPlugin where T : Extra
     {
         /// <summary>
         /// <typeparamref name="T"/>事件处理，插件用

@@ -8,6 +8,8 @@ using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Services;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using KHLBotSharp.Common.MessageParser;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace KHLBotSharp.WebHook.NetCore3.Controllers
 {
@@ -15,10 +17,14 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
     {
         private readonly IWebhookInstanceManagerService instanceManagerService;
         private readonly ILogService logService;
-        public HookController(IWebhookInstanceManagerService webhookManager, ILogService logService)
+        private readonly IMemoryCache memoryCache;
+        private readonly IHttpClientService httpClient;
+        public HookController(IWebhookInstanceManagerService webhookManager, ILogService logService, IMemoryCache memoryCache, IHttpClientService httpClient)
         {
             instanceManagerService = webhookManager;
             this.logService = logService;
+            this.memoryCache = memoryCache;
+            this.httpClient = httpClient;
         }
 
         [Route("{**catchAll}")]
@@ -87,7 +93,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                     case "9":
                     case "10":
                     case "255":
-                        await decoded.ParseEvent(pluginLoaderService, config, logService);
+                        await decoded.ParseEvent(pluginLoaderService, config, logService, memoryCache, httpClient);
                         break;
                     default:
                         return StatusCode(403);

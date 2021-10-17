@@ -1,4 +1,5 @@
-﻿using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
+﻿using KHLBotSharp.Core.Models.Objects;
+using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
 using Newtonsoft.Json;
 
 namespace KHLBotSharp.Models.EventsMessage
@@ -7,7 +8,7 @@ namespace KHLBotSharp.Models.EventsMessage
     /// <inheritdoc/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class EventMessage<T> : EventMessage where T : AbstractExtra
+    public class EventMessage<T> : EventMessage where T : Extra
     {
         /// <summary>
         /// 事件数据
@@ -36,7 +37,7 @@ namespace KHLBotSharp.Models.EventsMessage
         public object Data { get; set; }
     }
 
-    public class ReceiveMessageData<T> : ReceiveMessageData where T : AbstractExtra
+    public class ReceiveMessageData<T> : ReceiveMessageData where T : Extra
     {
         /// <summary>
         /// 不同的消息类型，结构不一致
@@ -57,7 +58,7 @@ namespace KHLBotSharp.Models.EventsMessage
         /// 消息种类，1:文字消息, 2:图片消息，3:视频消息，4:文件消息， 8:音频消息，9:KMarkdown，10:card消息，255:系统消息
         /// </summary>
         [JsonProperty("type")]
-        public int Type { get; set; }
+        public MessageType Type { get; set; }
         /// <summary>
         /// 发送目的 id，如果为是 GROUP 消息，则 target_id 代表频道 id
         /// </summary>

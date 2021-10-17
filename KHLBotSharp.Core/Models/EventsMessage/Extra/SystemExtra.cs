@@ -8,12 +8,13 @@ namespace KHLBotSharp.Models.EventsMessage
     /// 系统消息
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SystemExtra<T> : AbstractExtra where T : AbstractBody
+    public class SystemExtra<T> : Extra where T : AbstractBody
     {
         /// <summary>
         /// 系统消息详情
         /// </summary>
         [JsonProperty("body")]
         public T Body { get; set; }
+        public string Type { get; set; }
     }
 }

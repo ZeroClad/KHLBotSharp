@@ -3,8 +3,14 @@ using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.Objects
 {
+    /// <summary>
+    /// KMarkdown
+    /// </summary>
     public class KMarkdown
     {
+        /// <summary>
+        /// KMarkdown文本内容
+        /// </summary>
         [JsonProperty("raw_content")]
         public string RawContent { get; set; }
         /// <summary>

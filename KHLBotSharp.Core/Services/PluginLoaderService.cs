@@ -129,7 +129,7 @@ namespace KHLBotSharp.Services
         }
 
         public virtual async void HandleMessage<T, T2>(EventMessage<T> input, IEnumerable<T2> plugins)
-            where T : AbstractExtra
+            where T : Extra
             where T2 : IKHLPlugin<T>
         {
             Stopwatch speedTest = Stopwatch.StartNew();
@@ -191,7 +191,7 @@ namespace KHLBotSharp.Services
         }
 
         public virtual void HandleMessage<T>(EventMessage<T> input)
-            where T : AbstractExtra
+            where T : Extra
         {
             HandleMessage(input, ResolvePlugin<IKHLPlugin<T>>());
         }
