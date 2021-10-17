@@ -61,11 +61,12 @@ namespace KHLBotSharp.Core.BotHost
             {
                 File.WriteAllText(Path.Combine(bot, "config.json"), JsonConvert.SerializeObject(new BotConfigSettings(), Formatting.Indented));
             }
-            settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(bot, "config.json")));
+            settings = new BotConfigSettings();
+            settings.Load(bot);
             if (string.IsNullOrEmpty(settings.BotToken))
             {
                 settings.BotToken = AnsiConsole.Ask<string>("Input BotToken");
-                File.WriteAllText(Path.Combine(bot, "config.json"), JsonConvert.SerializeObject(settings));
+                settings.Save();
             }
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();

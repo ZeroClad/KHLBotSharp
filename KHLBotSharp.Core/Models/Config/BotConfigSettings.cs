@@ -2,11 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace KHLBotSharp.Core.Models.Config
 {
     public class BotConfigSettings : IBotConfigSettings
     {
+        [JsonIgnore]
+        protected string BotName { get; set; }
         public string BotToken { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string EncryptKey { get; set; }
@@ -19,6 +23,37 @@ namespace KHLBotSharp.Core.Models.Config
         public string[] ProcessChar { get; set; } = new string[] { ".", "。" };
         public bool Debug { get; set; } = false;
         public string DisableBotCommand { get; set; } = "";
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void Save()
+        {
+            if (!BotName.Contains("Profiles"))
+            {
+                BotName = Path.Combine("Profiles", BotName);
+            }
+            File.WriteAllText(Path.Combine(BotName, "config.json"), JsonConvert.SerializeObject(this));
+        }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void Load(string botName = null)
+        {
+            if(botName == null)
+            {
+                BotName = botName;
+            }
+            if (!BotName.Contains("Profiles"))
+            {
+                BotName = Path.Combine("Profiles", BotName);
+            }
+            var settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(BotName, "config.json")));
+            var t = this.GetType();
+            foreach (var prop in t.GetProperties())
+            {
+                prop.SetValue(this, prop.GetValue(settings));
+            }
+        }
     }
     /// <summary>
     /// 机器人config
@@ -35,6 +70,15 @@ namespace KHLBotSharp.Core.Models.Config
         string[] ProcessChar { get; set; }
         bool Debug { get; set; }
         string DisableBotCommand { get; set; }
+        /// <summary>
+        /// 保存BotCOnfig，作出特定修改后可以直接保存起来下次打开Bot自动加载使用
+        /// </summary>
+        void Save();
+        /// <summary>
+        /// 重载BotConfig，botName留空就会自动加载正确的config因此无需担心
+        /// </summary>
+        /// <param name="botName"></param>
+        void Load(string botName = null);
     }
 
     public class AppSettings : Dictionary<string, PluginSettings>

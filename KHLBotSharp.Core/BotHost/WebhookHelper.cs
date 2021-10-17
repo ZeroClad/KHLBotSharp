@@ -51,16 +51,6 @@ namespace KHLBotSharp.Core.BotHost
                 {
                     continue;
                 }
-                var hookInstance = new WebHookInstance
-                {
-                    Name = bot.Split('\\').Last()
-                };
-                var pluginLoader = new PluginLoaderService();
-
-                hookInstance.ServiceCollection = new ServiceCollection();
-                pluginLoader.LoadPlugin(bot, hookInstance.ServiceCollection);
-                hookInstance.ServiceCollection.AddSingleton(typeof(IPluginLoaderService), pluginLoader);
-                hookInstance.ServiceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
                 if (!File.Exists(bot + "\\config.json"))
                 {
                     var config = new BotConfigSettings()
@@ -70,7 +60,22 @@ namespace KHLBotSharp.Core.BotHost
                     };
                     File.WriteAllText(bot + "\\config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
                 }
-                var settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(bot + "\\config.json"));
+                var settings = new BotConfigSettings();
+                settings.Load(bot);
+                if (!settings.Active)
+                {
+                    //Skip load
+                    continue;
+                }
+                var hookInstance = new WebHookInstance
+                {
+                    Name = bot.Split('\\').Last()
+                };
+                var pluginLoader = new PluginLoaderService();
+                hookInstance.ServiceCollection = new ServiceCollection();
+                pluginLoader.LoadPlugin(bot, hookInstance.ServiceCollection);
+                hookInstance.ServiceCollection.AddSingleton(typeof(IPluginLoaderService), pluginLoader);
+                hookInstance.ServiceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
                 if (string.IsNullOrEmpty(settings.EncryptKey))
                 {
                     settings.EncryptKey = AnsiConsole.Ask<string>("Input EncryptKey");

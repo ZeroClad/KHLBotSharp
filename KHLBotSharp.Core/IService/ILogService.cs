@@ -1,5 +1,6 @@
 ﻿using KHLBotSharp.Core.Models.Config;
 using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace KHLBotSharp.IService
@@ -9,6 +10,7 @@ namespace KHLBotSharp.IService
     /// </summary>
     public interface ILogService
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
         void Init(string bot, IBotConfigSettings configSettings);
         /// <summary>

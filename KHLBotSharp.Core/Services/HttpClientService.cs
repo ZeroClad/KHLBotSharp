@@ -87,7 +87,11 @@ namespace KHLBotSharp.Services
                 }
                 if (e.Message.Contains("400"))
                 {
-                    throw new MessageInvalidException();
+                    settings.Active = false;
+                    log.Error("机器人已被封禁，自动取消Bot运行");
+                    settings.Save();
+                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                    Environment.Exit(0);
                 }
                 if (e.Message.Contains("429"))
                 {
@@ -206,7 +210,11 @@ namespace KHLBotSharp.Services
                 }
                 if (e.Message.Contains("400"))
                 {
-                    throw new MessageInvalidException();
+                    settings.Active = false;
+                    log.Error("机器人已被封禁，自动取消Bot运行");
+                    settings.Save();
+                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                    Environment.Exit(0);
                 }
                 if (e.Message.Contains("429"))
                 {
@@ -273,7 +281,11 @@ namespace KHLBotSharp.Services
                 }
                 if (e.Message.Contains("400"))
                 {
-                    throw new MessageInvalidException();
+                    settings.Active = false;
+                    log.Error("机器人已被封禁，自动取消Bot运行");
+                    settings.Save();
+                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                    Environment.Exit(0);
                 }
                 if (e.Message.Contains("429"))
                 {
@@ -340,7 +352,11 @@ namespace KHLBotSharp.Services
                 }
                 if (e.Message.Contains("400"))
                 {
-                    throw new MessageInvalidException();
+                    settings.Active = false;
+                    log.Error("机器人已被封禁，自动取消Bot运行");
+                    settings.Save();
+                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                    Environment.Exit(0);
                 }
                 if (e.Message.Contains("429"))
                 {
@@ -382,8 +398,9 @@ namespace KHLBotSharp.Services
     {
         public override string Message => "机器人已被限速！将会自动取消所有正在发送的请求！";
     }
-    public class MessageInvalidException : Exception
+
+    public class BannedException: Exception
     {
-        public override string Message => "机器人发送的数据不被服务器接受！";
+        public override string Message => "机器人已被封禁！请取消机器人的运行！";
     }
 }
