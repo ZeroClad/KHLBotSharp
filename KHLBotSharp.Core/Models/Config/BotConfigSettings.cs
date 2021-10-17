@@ -39,7 +39,7 @@ namespace KHLBotSharp.Core.Models.Config
         /// </summary>
         public void Load(string botName = null)
         {
-            if(botName == null)
+            if(botName != null)
             {
                 BotName = botName;
             }

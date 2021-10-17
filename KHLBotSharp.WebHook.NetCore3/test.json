@@ -1,5 +1,0 @@
-System.InvalidOperationException: Synchronous operations are disallowed. Call ReadAsync or set AllowSynchronousIO to true instead.
-   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpRequestStream.Read(Byte[] buffer, Int32 offset, Int32 count)
-   at System.IO.StreamReader.ReadBuffer()
-   at System.IO.StreamReader.ReadToEnd()
-   at KHLBotSharp.WebHook.NetCore3.Controllers.HookController.Index(String botName) in D:\Repos\KHLBotSharp\KHLBotSharp.WebHook.NetCore3\Controllers\HookController.cs:line 28
