@@ -3,6 +3,7 @@ using KHLBotSharp.Models.MessageHttps.RequestMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using KHLBotSharp.Models.Objects;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -13,9 +14,12 @@ namespace KHLBotSharp.Common.Request
     public class KHLHttpService : IKHLHttpService
     {
         private readonly IHttpClientService httpApi;
-        public KHLHttpService(IHttpClientService httpApiBaseRequestService)
+        private readonly IMemoryCache cache;
+
+        public KHLHttpService(IHttpClientService httpApiBaseRequestService, IMemoryCache memoryCache)
         {
             httpApi = httpApiBaseRequestService;
+            cache = memoryCache;
         }
 
         public Task AddChannelRoles(string ChannelId, bool IsUser, string UserIdOrRoleId)
@@ -53,38 +57,65 @@ namespace KHLBotSharp.Common.Request
             return httpApi.PostAsync<object>("guild-role/delete", new { guild_id = GuildId, role_id = RoleId });
         }
 
-        public Task<KHLResponseMessage<Channel>> GetChannelDetail(string ChannelId)
+        public async Task<KHLResponseMessage<Channel>> GetChannelDetail(string ChannelId)
         {
-            return httpApi.PostAsync<KHLResponseMessage<Channel>>("channel/view", new { target_id = ChannelId });
+            if (!cache.TryGetValue("channel/view/" + ChannelId, out KHLResponseMessage<Channel> result))
+            {
+                result = await httpApi.PostAsync<KHLResponseMessage<Channel>>("channel/view", new { target_id = ChannelId });
+                cache.Set("channel/view/" + ChannelId, result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
-        public Task<KHLResponseMessage<GetChannelRoleList>> GetChannelRoles(string ChannelId)
+        public async Task<KHLResponseMessage<GetChannelRoleList>> GetChannelRoles(string ChannelId)
         {
-            return httpApi.GetAsync<KHLResponseMessage<GetChannelRoleList>>("channel-role/index?channel_id=" + ChannelId);
+            if (!cache.TryGetValue("channel/role/view/" + ChannelId, out KHLResponseMessage<GetChannelRoleList> result))
+            {
+                result = await httpApi.GetAsync<KHLResponseMessage<GetChannelRoleList>>("channel-role/index?channel_id=" + ChannelId);
+                cache.Set("channel/role/view/" + ChannelId, result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
-        public Task<KHLResponseMessage<GetChannelList>> GetChannels(string GuildId)
+        public async Task<KHLResponseMessage<GetChannelList>> GetChannels(string GuildId)
         {
-            return httpApi.GetAsync<KHLResponseMessage<GetChannelList>>("channel/list?guild_id=" + GuildId);
+            if (!cache.TryGetValue("channel/list/" + GuildId, out KHLResponseMessage<GetChannelList> result))
+            {
+                result = await httpApi.GetAsync<KHLResponseMessage<GetChannelList>>("channel/list?guild_id=" + GuildId);
+                cache.Set("channel/list/" + GuildId, result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
         public Task<KHLResponseMessage<User>> GetUserDetail(string UserId, string GuildId)
         {
+            //考虑可能会太多数据因此不缓存
             return httpApi.GetAsync<KHLResponseMessage<User>>("user/view?user_id=" + UserId + "&guild_id=" + GuildId);
         }
 
-        public Task<KHLResponseMessage<EmojiList>> GetEmojiList(string GuildId)
+        public async Task<KHLResponseMessage<EmojiList>> GetEmojiList(string GuildId)
         {
-            return httpApi.GetAsync<KHLResponseMessage<EmojiList>>("guild-emoji/list?guild_id=" + GuildId);
+            if (!cache.TryGetValue("emoji/list/" + GuildId, out KHLResponseMessage<EmojiList> result))
+            {
+                result = await httpApi.GetAsync<KHLResponseMessage<EmojiList>>("guild-emoji/list?guild_id=" + GuildId);
+                cache.Set("emoji/list/" + GuildId, result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
-        public Task<KHLResponseMessage<Guild>> GetGuild(string GuildId)
+        public async Task<KHLResponseMessage<Guild>> GetGuild(string GuildId)
         {
-            return httpApi.GetAsync<KHLResponseMessage<Guild>>("guild/view?guild_id=" + GuildId);
+            if (!cache.TryGetValue("guild/view/" + GuildId, out KHLResponseMessage<Guild> result))
+            {
+                result = await httpApi.GetAsync<KHLResponseMessage<Guild>>("guild/view?guild_id=" + GuildId);
+                cache.Set("guild/view/" + GuildId, result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
         public Task<KHLResponseMessage<GetGuildMemberList>> GetGuildUser(GetServerMember Request)
         {
+            //考虑可能会太多数据因此不缓存
             return httpApi.GetAsync<KHLResponseMessage<GetGuildMemberList>>("guild/user-list", Request);
         }
 
@@ -93,18 +124,29 @@ namespace KHLBotSharp.Common.Request
             return httpApi.GetAsync<KHLResponseMessage<GetGuildMuteListDetail>>("guild-mute/list", new { guild_id = GuildId });
         }
 
-        public Task<KHLResponseMessage<User>> GetMyself()
+        public async Task<KHLResponseMessage<User>> GetMyself()
         {
-            return httpApi.GetAsync<KHLResponseMessage<User>>("user/me");
+            if (!cache.TryGetValue("me", out KHLResponseMessage<User> result))
+            {
+                result = await httpApi.GetAsync<KHLResponseMessage<User>>("user/me");
+                cache.Set("me", result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
-        public Task<KHLResponseMessage<PrivateMessageDetail>> GetPrivateChatDetail(string ChatCode)
+        public async Task<KHLResponseMessage<PrivateMessageDetail>> GetPrivateChatDetail(string ChatCode)
         {
-            return httpApi.GetAsync<KHLResponseMessage<PrivateMessageDetail>>("user-chat/view", new { chat_code = ChatCode });
+            if (!cache.TryGetValue("private/view/" + ChatCode, out KHLResponseMessage<PrivateMessageDetail> result))
+            {
+                result = await httpApi.GetAsync<KHLResponseMessage<PrivateMessageDetail>>("user-chat/view", new { chat_code = ChatCode });
+                cache.Set("private/view/" + ChatCode, result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
         public Task<KHLResponseMessage<PrivateMessageList>> GetPrivateMessageList()
         {
+            //考虑到可能会一直频繁更改，因此不作缓存
             return httpApi.GetAsync<KHLResponseMessage<PrivateMessageList>>("user-chat/list");
         }
 
@@ -113,9 +155,14 @@ namespace KHLBotSharp.Common.Request
             return httpApi.GetAsync<KHLResponseMessage<GetServerRoleList>>("guild-role/list", new { guild_id = GuildId });
         }
 
-        public Task<KHLResponseMessage<GetServerList>> GetServers()
+        public async Task<KHLResponseMessage<GetServerList>> GetServers()
         {
-            return httpApi.GetAsync<KHLResponseMessage<GetServerList>>("guild/list");
+            if (!cache.TryGetValue("servers/list/", out KHLResponseMessage<GetServerList> result))
+            {
+                result = await httpApi.GetAsync<KHLResponseMessage<GetServerList>>("guild/list");
+                cache.Set("servers/list/" , result, DateTimeOffset.Now.AddHours(1));
+            }
+            return result;
         }
 
         public Task GrantServerRole(string GuildId, string UserId, uint RoleId)
@@ -215,6 +262,11 @@ namespace KHLBotSharp.Common.Request
         public Task<string> UploadFile(Stream stream)
         {
             return httpApi.UploadFileAsync(stream);
+        }
+
+        public async Task OfflineBot()
+        {
+            await httpApi.PostAsync<dynamic>("user/offline", new { });
         }
     }
 }

@@ -32,7 +32,8 @@ namespace KHLBotSharp.Core.BotHost
             publicLog.Init("Public", new BotConfigSettings { Debug = false });
             service.AddSingleton<ILogService>(publicLog);
             var botInstances = Directory.GetDirectories("Profiles");
-            if (botInstances.Length < 1)
+            //1 is Public, we can't count that as valid bot!
+            if (botInstances.Length < 2)
             {
                 if (!Directory.Exists("Profiles\\Bot\\Plugins"))
                 {

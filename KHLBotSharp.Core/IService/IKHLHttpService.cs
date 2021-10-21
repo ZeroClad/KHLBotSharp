@@ -255,5 +255,10 @@ namespace KHLBotSharp.IService
         /// <param name="GuildId"></param>
         /// <returns></returns>
         Task<KHLResponseMessage<EmojiList>> GetEmojiList(string GuildId);
+        /// <summary>
+        /// 下线机器人
+        /// </summary>
+        /// <returns></returns>
+        Task OfflineBot();
     }
 }
