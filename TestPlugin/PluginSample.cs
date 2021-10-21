@@ -1,5 +1,4 @@
-﻿using KHLBotSharp;
-using KHLBotSharp.Core.Models.Config;
+﻿using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.EventHandlers.TextEvents;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;

@@ -1,7 +1,7 @@
 ﻿using KHLBotSharp.Core.BotHost;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 
 namespace KHLBotSharp.Services
 {
@@ -16,9 +16,9 @@ namespace KHLBotSharp.Services
 
         public WebHookInstance Get(string name)
         {
-            if(hookInstances.Count < 1)
+            if (hookInstances.Count < 1)
             {
-                throw new ArgumentNullException("No Bot Instance was loaded. Please get one before start using WebHook function!");
+                throw new ArgumentException("No Bot Instance was loaded. Please get one before start using WebHook function!");
             }
             if (name == null)
             {
@@ -26,7 +26,12 @@ namespace KHLBotSharp.Services
             }
             else
             {
-                return hookInstances.Where(x => x.Name == name).First();
+                var botList = hookInstances.Where(x => x.Name == name);
+                if (botList.Count() < 1)
+                {
+                    throw new ArgumentException("No Bot Instance named as " + name + " was found! Did you disabled the bot?");
+                }
+                return botList.First();
             }
         }
 

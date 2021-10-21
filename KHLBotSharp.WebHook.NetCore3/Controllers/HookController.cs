@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using KHLBotSharp.Common.MessageParser;
+using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.IService;
+using KHLBotSharp.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
-using KHLBotSharp.WebHook.NetCore3.Helper;
-using Newtonsoft.Json.Linq;
-using KHLBotSharp.Core.Models.Config;
-using KHLBotSharp.Services;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using KHLBotSharp.Common.MessageParser;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace KHLBotSharp.WebHook.NetCore3.Controllers
 {
@@ -17,14 +16,10 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
     {
         private readonly IWebhookInstanceManagerService instanceManagerService;
         private readonly ILogService logService;
-        private readonly IMemoryCache memoryCache;
-        private readonly IHttpClientService httpClient;
-        public HookController(IWebhookInstanceManagerService webhookManager, ILogService logService, IMemoryCache memoryCache, IHttpClientService httpClient)
+        public HookController(IWebhookInstanceManagerService webhookManager, ILogService logService)
         {
             instanceManagerService = webhookManager;
             this.logService = logService;
-            this.memoryCache = memoryCache;
-            this.httpClient = httpClient;
         }
 
         [Route("{**catchAll}")]
@@ -45,6 +40,8 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                 var pluginLoaderService = instance.ServiceProvider.GetRequiredService<IPluginLoaderService>();
                 var logService = instance.ServiceProvider.GetRequiredService<ILogService>();
                 var decoderService = instance.ServiceProvider.GetRequiredService<IDecoderService>();
+                var memoryCache = instance.ServiceProvider.GetRequiredService<IMemoryCache>();
+                var httpClient = instance.ServiceProvider.GetRequiredService<IHttpClientService>();
                 if (!pluginLoaderService.Inited)
                 {
                     pluginLoaderService.Init(instance.ServiceProvider);
@@ -61,7 +58,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                 {
                     decoded = await decoderService.DecodeEncrypt(jtoken);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     logService.Error("Decrypt failed with " + ex.ToString());
                     return StatusCode(403);
@@ -100,7 +97,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                 }
                 return StatusCode(200);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logService.Error(ex.Message);
                 logService.Write(HttpContext.Items["Content"].ToString());

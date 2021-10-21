@@ -52,7 +52,7 @@ namespace KHLBotSharp.Models.MessageHttps.EventMessage.Abstract
         public User Author { get; set; }
     }
 
-    public abstract class AttachmentMessageExtra:Extra
+    public abstract class AttachmentMessageExtra : Extra
     {
         /// <summary>
         /// 服务器ID

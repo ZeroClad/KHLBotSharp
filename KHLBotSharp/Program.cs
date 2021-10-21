@@ -1,11 +1,5 @@
-﻿using KHLBotSharp.Core.Host;
-using KHLBotSharp.Host;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-
-Welcome.Print();
-if(args.Length > 1)
+﻿Welcome.Print();
+if (args.Length > 1)
 {
     var profileName = args[1];
     if (args[0] == "-c")
@@ -22,7 +16,7 @@ if(args.Length > 1)
         Console.WriteLine("Profile creation success!");
         return;
     }
-    else if(args[0] == "-r")
+    else if (args[0] == "-r")
     {
         if (!Directory.Exists("Profiles"))
         {

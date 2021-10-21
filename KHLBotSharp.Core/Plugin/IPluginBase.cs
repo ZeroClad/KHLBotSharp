@@ -33,7 +33,7 @@ namespace KHLBotSharp
     /// 如果注册在非插件的class则不会有任何反应，想要注册插件以外的请使用<seealso cref="IServiceRegister"/>。<br/>
     /// 如果无加上这个interface则默认自动注册为Scoped
     /// </summary>
-    public interface IPluginType: IDisposable
+    public interface IPluginType : IDisposable
     {
         RegisterType RegisterType { get; }
     }

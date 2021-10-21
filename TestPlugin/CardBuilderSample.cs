@@ -49,9 +49,10 @@ namespace TestPlugin
                 //Add action group
                 new ActionGroupModule().AddElements(
                     //Add button, you can add multiple buttons as well
-                    new ButtonModule {
+                    new ButtonModule
+                    {
                         //Button Text
-                        Text = new TextModule { Content = "这是按钮" }, 
+                        Text = new TextModule { Content = "这是按钮" },
                         //Button Color
                         Theme = CardTheme.Info,
                         //Value which will be sent to bot again

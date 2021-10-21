@@ -5,9 +5,9 @@ using System.Threading;
 
 namespace KHLBotSharp.NETCore3
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Welcome.Print();
             if (args.Length > 1)
@@ -39,7 +39,7 @@ namespace KHLBotSharp.NETCore3
                         Directory.CreateDirectory("Profiles\\" + profileName + "\\Plugins");
                     }
                     var bot = "Profiles\\" + profileName;
-                    var botService = new BotService( bot);
+                    var botService = new BotService(bot);
                     _ = botService.Run();
                 }
             }

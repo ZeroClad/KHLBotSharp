@@ -17,7 +17,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Middleware
         {
             _next = next;
         }
-        public async Task InvokeAsync(HttpContext context,  ILogService logService)
+        public async Task InvokeAsync(HttpContext context, ILogService logService)
         {
             Stopwatch s = Stopwatch.StartNew();
             if (context.Request.Query.ContainsKey(CompressKey) && context.Request.Query[CompressKey] == "0")

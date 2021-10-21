@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using KHLBotSharp.Common.MessageParser;
+using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.IService;
+using KHLBotSharp.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
-using KHLBotSharp.WebHook.Net5.Helper;
-using Newtonsoft.Json.Linq;
-using KHLBotSharp.Core.Models.Config;
-using KHLBotSharp.Services;
 using System.Threading.Tasks;
 
-namespace KHLBotSharp.WebHook.Net5.Controllers
+namespace KHLBotSharp.WebHook.NetCore3.Controllers
 {
     public class HookController : Controller
     {
@@ -34,27 +36,45 @@ namespace KHLBotSharp.WebHook.Net5.Controllers
             try
             {
                 var instance = instanceManagerService.Get(botName);
-                var config = (IBotConfigSettings)instance.ServiceProvider.GetService(typeof(IBotConfigSettings));
-                var pluginLoaderService = (IPluginLoaderService)instance.ServiceProvider.GetService(typeof(IPluginLoaderService));
-                pluginLoaderService.Init(instance.ServiceProvider);
-                var logService = (ILogService)instance.ServiceProvider.GetService(typeof(ILogService));
-                var decoderService = (IDecoderService)instance.ServiceProvider.GetService(typeof(IDecoderService));
+                var config = instance.ServiceProvider.GetRequiredService<IBotConfigSettings>();
+                var pluginLoaderService = instance.ServiceProvider.GetRequiredService<IPluginLoaderService>();
+                var logService = instance.ServiceProvider.GetRequiredService<ILogService>();
+                var decoderService = instance.ServiceProvider.GetRequiredService<IDecoderService>();
+                var memoryCache = instance.ServiceProvider.GetRequiredService<IMemoryCache>();
+                var httpClient = instance.ServiceProvider.GetRequiredService<IHttpClientService>();
+                if (!pluginLoaderService.Inited)
+                {
+                    pluginLoaderService.Init(instance.ServiceProvider);
+                }
                 string json = HttpContext.Items["Content"].ToString();
                 if (string.IsNullOrEmpty(json) || string.IsNullOrWhiteSpace(json))
                 {
                     return new EmptyResult();
                 }
+                logService.Debug("Received call in webhook as url " + $"{ Request.Scheme }://{ Request.Host }{ Request.Path }{ Request.QueryString }");
                 JToken jtoken = JToken.Parse(json);
-                var decoded = await decoderService.DecodeEncrypt(jtoken);
-                if(decoded == null)
+                JObject decoded;
+                try
                 {
-                    logService.Error("Invalid Json!");
+                    decoded = await decoderService.DecodeEncrypt(jtoken);
+                }
+                catch (Exception ex)
+                {
+                    logService.Error("Decrypt failed with " + ex.ToString());
                     return StatusCode(403);
                 }
-                var type = await decoderService .GetEventType(decoded);
+                var type = await decoderService.GetEventType(decoded);
                 //Check if token is correct
                 if (!decoded.Value<JObject>("d").ContainsKey("verify_token") || decoded.Value<JObject>("d").Value<string>("verify_token") != config.VerifyToken)
                 {
+                    if (decoded.Value<JObject>("d").ContainsKey("verify_token"))
+                    {
+                        logService.Write("Received verify_token as " + decoded.Value<JObject>("d").Value<string>("verify_token"));
+                    }
+                    else
+                    {
+                        logService.Write("No verify_token found");
+                    }
                     logService.Error("Invalid Token. Verification failed! Lets send him to Tong Shen Serving Hot Pot!");
                     return RedirectPermanent("https://www.bilibili.com/video/BV1FZ4y1P7Wk/");
                 }
@@ -70,14 +90,14 @@ namespace KHLBotSharp.WebHook.Net5.Controllers
                     case "9":
                     case "10":
                     case "255":
-                        _ = decoded.ParseEvent(pluginLoaderService, config, logService);
+                        await decoded.ParseEvent(pluginLoaderService, config, logService, memoryCache, httpClient);
                         break;
                     default:
                         return StatusCode(403);
                 }
                 return StatusCode(200);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logService.Error(ex.Message);
                 logService.Write(HttpContext.Items["Content"].ToString());

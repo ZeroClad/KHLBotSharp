@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KHLBotSharp.Core.Models.Objects
+﻿namespace KHLBotSharp.Core.Models.Objects
 {
     /// <summary>
     /// 消息类型
     /// </summary>
-    public enum MessageType: int
+    public enum MessageType : int
     {
         TextMessage = 1,
         ImageMessage = 2,

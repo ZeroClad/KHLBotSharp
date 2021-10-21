@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace KHLBotSharp.Core.Models.Config
 {
@@ -39,7 +38,7 @@ namespace KHLBotSharp.Core.Models.Config
         /// </summary>
         public void Load(string botName = null)
         {
-            if(botName != null)
+            if (botName != null)
             {
                 BotName = botName;
             }
@@ -48,7 +47,7 @@ namespace KHLBotSharp.Core.Models.Config
                 BotName = Path.Combine("Profiles", BotName);
             }
             var settings = JsonConvert.DeserializeObject<BotConfigSettings>(File.ReadAllText(Path.Combine(BotName, "config.json")));
-            var t = this.GetType();
+            var t = GetType();
             foreach (var prop in t.GetProperties())
             {
                 prop.SetValue(this, prop.GetValue(settings));

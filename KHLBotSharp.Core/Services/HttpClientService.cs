@@ -59,7 +59,8 @@ namespace KHLBotSharp.Services
                                     result.Dispose();
                                     stopwatch.Stop();
                                     log.Write("GET " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
-                                    return data;                                }
+                                    return data;
+                                }
                             }
                             else
                             {
@@ -399,7 +400,7 @@ namespace KHLBotSharp.Services
         public override string Message => "机器人已被限速！将会自动取消所有正在发送的请求！";
     }
 
-    public class BannedException: Exception
+    public class BannedException : Exception
     {
         public override string Message => "机器人已被封禁！请取消机器人的运行！";
     }

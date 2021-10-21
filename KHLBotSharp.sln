@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KHLBotSharp.NET5", "KHLBotS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KHLBotSharp.WebHook.NetCore3", "KHLBotSharp.WebHook.NetCore3\KHLBotSharp.WebHook.NetCore3.csproj", "{4E59DC2B-751B-4F7D-A638-0BD845A48AAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KHLSharp.WebHook.Net5", "KHLSharp.WebHook.Net5\KHLSharp.WebHook.Net5.csproj", "{5C066458-90DD-4EB2-AAD0-8229BA2E4795}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KHLSharp.WebHook.Net5", "KHLSharp.WebHook.Net5\KHLSharp.WebHook.Net5.csproj", "{5C066458-90DD-4EB2-AAD0-8229BA2E4795}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

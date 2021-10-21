@@ -3,9 +3,7 @@ using KHLBotSharp.Common.MessageParser;
 using KHLBotSharp.Common.Request;
 using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.IService;
-using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
-using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using KHLBotSharp.Models.Objects;
 using KHLBotSharp.Services;
 using Microsoft.Extensions.Caching.Memory;
@@ -78,9 +76,10 @@ namespace KHLBotSharp.Core.BotHost
             timer.Interval = 30000;
             timer.Elapsed += Timer_Elapsed;
             //Yeah we just don't want any plugin programmer call this so thats why
-#pragma warning disable CS0612
+#pragma warning disable CS0612 // Type or member is obsolete
             LogService.Init(bot.Split('\\').Last(), settings);
-#pragma warning restore CS0612
+#pragma warning restore CS0612 // Type or member is obsolete
+
             if (settings.Debug)
             {
                 LogService.Warning("Debug activated, this will cause more logs appears!");
@@ -235,6 +234,7 @@ namespace KHLBotSharp.Core.BotHost
                 speedTest.Stop();
                 LogService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
             }
+            sn = eventMsg.Value<long>("sn");
             await eventMsg.ParseEvent(pluginLoader, settings, LogService, Cache, hc);
             speedTest.Stop();
             LogService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");

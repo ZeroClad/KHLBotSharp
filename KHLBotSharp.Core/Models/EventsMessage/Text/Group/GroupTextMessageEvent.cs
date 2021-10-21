@@ -1,6 +1,4 @@
 ﻿using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
-using KHLBotSharp.Models.Objects;
-using System.Collections.Generic;
 
 namespace KHLBotSharp.Models.EventsMessage
 {

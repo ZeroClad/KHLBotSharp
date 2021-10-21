@@ -17,7 +17,7 @@ namespace KHLBotSharp.WebHook.Net5.Middleware
         {
             _next = next;
         }
-        public async Task InvokeAsync(HttpContext context,  ILogService logService)
+        public async Task InvokeAsync(HttpContext context, ILogService logService)
         {
             Stopwatch s = Stopwatch.StartNew();
             if (context.Request.Query.ContainsKey(CompressKey) && context.Request.Query[CompressKey] == "0")
@@ -30,7 +30,7 @@ namespace KHLBotSharp.WebHook.Net5.Middleware
             }
 
             // Decompress Deflate
-            MemoryStream stream = new MemoryStream();
+            MemoryStream stream = new();
             await context.Request.Body.CopyToAsync(stream);
             await context.Request.Body.DisposeAsync();
 
@@ -40,8 +40,8 @@ namespace KHLBotSharp.WebHook.Net5.Middleware
             // 78 DA - Best Compression
             stream.Position = 2;
 
-            DeflateStream deflateStream = new DeflateStream(stream, CompressionMode.Decompress, true);
-            MemoryStream resultStream = new MemoryStream();
+            DeflateStream deflateStream = new(stream, CompressionMode.Decompress, true);
+            MemoryStream resultStream = new();
             await deflateStream.CopyToAsync(resultStream);
             await deflateStream.DisposeAsync();
             await stream.DisposeAsync();
@@ -49,7 +49,7 @@ namespace KHLBotSharp.WebHook.Net5.Middleware
             // Rewind
             resultStream.Position = 0;
 
-            StreamReader reader = new StreamReader(resultStream);
+            StreamReader reader = new(resultStream);
             string result = await reader.ReadToEndAsync();
             await resultStream.DisposeAsync();
 

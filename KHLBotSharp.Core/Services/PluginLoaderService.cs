@@ -21,6 +21,10 @@ namespace KHLBotSharp.Services
         private string currentPlugin;
         public void LoadPlugin(string bot, IServiceCollection services)
         {
+            if (!Directory.Exists(Path.Combine(bot, "Plugins")))
+            {
+                Directory.CreateDirectory(Path.Combine(bot, "Plugins"));
+            }
             FileSystemWatcher watcher = new FileSystemWatcher();
             watcher.Changed += Watcher_Changed;
             watcher.Path = Path.Combine(bot, "Plugins");
@@ -41,7 +45,7 @@ namespace KHLBotSharp.Services
                 foreach (var type in diregister)
                 {
                     var instance = Activator.CreateInstance(type, null);
-                    if(instance is IServiceRegister)
+                    if (instance is IServiceRegister)
                     {
                         (instance as IServiceRegister).Register(services);
                     }
@@ -142,18 +146,18 @@ namespace KHLBotSharp.Services
                     await plugin.Ctor(provider);
                     var completed = await plugin.Handle(input);
                     pluginExecuteTime.Stop();
-                    if(pluginExecuteTime.ElapsedMilliseconds >= 1500)
+                    if (pluginExecuteTime.ElapsedMilliseconds >= 1500)
                     {
                         var httpService = provider.GetService<IKHLHttpService>();
                         //The plugin is too low performance!
                         logService.Warning(plugin.GetType().FullName + " is too slow! Used " + pluginExecuteTime.ElapsedMilliseconds + " ms to process a single fucking message?");
-                        await httpService.SendGroupMessage(new SendMessage() { Content = "警告: \n" + plugin.GetType().FullName + "运行速度太过缓慢，已使用"+ pluginExecuteTime.ElapsedMilliseconds +"ms处理一条消息，请确保联络插件开发者禁止运行大量操作，并且善用IServiceRegister注册需要长时间加载大量数据的Service为Singleton!", TargetId = input.Data.TargetId });
+                        await httpService.SendGroupMessage(new SendMessage() { Content = "警告: \n" + plugin.GetType().FullName + "运行速度太过缓慢，已使用" + pluginExecuteTime.ElapsedMilliseconds + "ms处理一条消息，请确保联络插件开发者禁止运行大量操作，并且善用IServiceRegister注册需要长时间加载大量数据的Service为Singleton!", TargetId = input.Data.TargetId });
                     }
-                    if(plugin is IDisposable)
+                    if (plugin is IDisposable)
                     {
-                        if(plugin is IPluginType)
+                        if (plugin is IPluginType)
                         {
-                            if((plugin as IPluginType).RegisterType != RegisterType.Singleton)
+                            if ((plugin as IPluginType).RegisterType != RegisterType.Singleton)
                             {
                                 (plugin as IDisposable).Dispose();
                             }

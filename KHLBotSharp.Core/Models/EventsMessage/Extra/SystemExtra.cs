@@ -15,6 +15,6 @@ namespace KHLBotSharp.Models.EventsMessage
         /// </summary>
         [JsonProperty("body")]
         public T Body { get; set; }
-        public string Type { get; set; }
+        public new string Type { get; set; }
     }
 }

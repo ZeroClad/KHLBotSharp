@@ -3,7 +3,6 @@ using KHLBotSharp.Models.MessageHttps.RequestMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
 using KHLBotSharp.Models.Objects;
-using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
 using System.Net.Http;
