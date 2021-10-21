@@ -3,6 +3,7 @@ using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
 using KHLBotSharp.Models.MessageHttps.RequestMessage.Abstract;
 using Newtonsoft.Json;
+using System;
 
 namespace KHLBotSharp.Models.MessageHttps.RequestMessage
 {
@@ -196,12 +197,12 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
         /// </summary>
         public SendMessage()
         {
-            Type = MessageType.TextMessage;
+            TypeV2 = MessageType.TextMessage;
         }
 
         private void Set<T>(ReceiveMessageData<T> request, string content, bool quote = true) where T : Extra
         {
-            Type = request.Type;
+            TypeV2 = request.Type;
             TargetId = request.TargetId;
             Content = content;
             if (quote)
@@ -212,14 +213,30 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
             //Card Message
             if (Content.StartsWith("[") && Content.EndsWith("]"))
             {
-                Type = MessageType.CardMessage;
+                TypeV2 = MessageType.CardMessage;
             }
         }
         /// <summary>
         /// 消息种类
         /// </summary>
         [JsonProperty("type")]
-        public MessageType Type { get; set; }
+        public MessageType TypeV2 { get; set; }
+        /// <summary>
+        /// 消息种类，已过时，纯属用于支持旧版本插件
+        /// </summary>
+        [JsonIgnore]
+        [Obsolete]
+        public int Type
+        {
+            get
+            {
+                return (int)TypeV2;
+            }
+            set
+            {
+                TypeV2 = (MessageType)value;
+            }
+        }
         /// <summary>
         /// 发送目标群或者私聊Id
         /// </summary>

@@ -92,7 +92,7 @@ namespace KHLBotSharp.Core.BotHost
                 logService.Init(bot.Split('\\').Last(), settings);
                 hookInstance.ServiceCollection.AddSingleton(typeof(ILogService), logService);
                 hookInstance.ServiceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
-                hookInstance.ServiceCollection.AddScoped(typeof(IHttpClientService), typeof(HttpClientService));
+                hookInstance.ServiceCollection.AddHttpClient<IHttpClientService, HttpClientService>();
                 hookInstance.ServiceCollection.AddScoped<IDecoderService, DecoderService>();
                 hookInstance.ServiceCollection.AddMemoryCache();
                 hookManager.Add(hookInstance);

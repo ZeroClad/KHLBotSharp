@@ -22,16 +22,14 @@ namespace KHLBotSharp.Services
         private readonly IBotConfigSettings settings;
         private readonly Stopwatch stopwatch = new Stopwatch();
         private readonly HttpClientHandler handler = new HttpClientHandler { UseProxy = false, UseCookies = false, AllowAutoRedirect = false, UseDefaultCredentials = false };
-        public HttpClientService(ILogService log, IErrorRateService errorRateService, IBotConfigSettings settings)
+        public HttpClientService(ILogService log, IErrorRateService errorRateService, IBotConfigSettings settings, HttpClient client)
         {
             this.log = log;
             this.errorRateService = errorRateService;
-            client = new HttpClient(handler)
-            {
-                BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/")
-            };
+            client.BaseAddress = new Uri("https://www.kaiheila.cn/api/v" + settings.APIVersion + "/");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", settings.BotToken);
             client.Timeout = new TimeSpan(0, 0, 2);
+            this.client = client;
             this.settings = settings;
         }
         /// <summary>
