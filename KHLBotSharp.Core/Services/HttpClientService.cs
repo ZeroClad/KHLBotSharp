@@ -21,7 +21,6 @@ namespace KHLBotSharp.Services
         private readonly IErrorRateService errorRateService;
         private readonly IBotConfigSettings settings;
         private readonly Stopwatch stopwatch = new Stopwatch();
-        private readonly HttpClientHandler handler = new HttpClientHandler { UseProxy = false, UseCookies = false, AllowAutoRedirect = false, UseDefaultCredentials = false };
         public HttpClientService(ILogService log, IErrorRateService errorRateService, IBotConfigSettings settings, HttpClient client)
         {
             this.log = log;

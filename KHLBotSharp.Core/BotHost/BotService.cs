@@ -6,7 +6,6 @@ using KHLBotSharp.IService;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.Objects;
 using KHLBotSharp.Services;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -44,7 +43,6 @@ namespace KHLBotSharp.Core.BotHost
         private readonly BotConfigSettings settings;
         private readonly IHttpClientService hc;
         private Stopwatch pingTime;
-        private readonly IMemoryCache Cache;
         public BotService(string bot)
         {
             var serviceCollection = new ServiceCollection();
@@ -72,7 +70,6 @@ namespace KHLBotSharp.Core.BotHost
             pluginLoader.Init(provider);
             LogService = provider.GetService<ILogService>();
             hc = provider.GetService<IHttpClientService>();
-            Cache = provider.GetService<IMemoryCache>();
             timer.Interval = 30000;
             timer.Elapsed += Timer_Elapsed;
             //Yeah we just don't want any plugin programmer call this so thats why
@@ -205,7 +202,7 @@ namespace KHLBotSharp.Core.BotHost
 
                         if (wsResult.MessageType == WebSocketMessageType.Binary)
                         {
-                            await ParseEvent(ms);
+                            ParseEvent(ms);
                         }
                     }
                 }
@@ -218,7 +215,7 @@ namespace KHLBotSharp.Core.BotHost
             }
         }
 
-        private async Task ParseEvent(MemoryStream ms)
+        private void ParseEvent(MemoryStream ms)
         {
             Stopwatch speedTest = Stopwatch.StartNew();
             int decompressedLength = 0;
@@ -235,7 +232,7 @@ namespace KHLBotSharp.Core.BotHost
                 LogService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
             }
             sn = eventMsg.Value<long>("sn");
-            await eventMsg.ParseEvent(pluginLoader, settings, LogService, Cache, hc);
+            eventMsg.ParseEvent(pluginLoader, settings, LogService);
             speedTest.Stop();
             LogService.Debug("Message Processed in " + speedTest.ElapsedMilliseconds + " ms");
         }

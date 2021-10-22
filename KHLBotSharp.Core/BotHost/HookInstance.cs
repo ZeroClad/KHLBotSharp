@@ -29,6 +29,8 @@ namespace KHLBotSharp.Core.BotHost
                 if (_serviceProvider == null)
                 {
                     _serviceProvider = ServiceCollection.BuildServiceProvider();
+                    ServiceCollection = null;
+                    GC.Collect();
                 }
                 return _serviceProvider;
             }

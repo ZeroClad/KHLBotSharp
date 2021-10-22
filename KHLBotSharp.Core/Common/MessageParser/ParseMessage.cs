@@ -1,18 +1,14 @@
 ﻿using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
-using KHLBotSharp.Models.MessageHttps.ResponseMessage;
-using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
-using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace KHLBotSharp.Common.MessageParser
 {
     public static class ParseMessage
     {
-        public static async Task ParseEvent(this JObject eventMsg, IPluginLoaderService pluginLoader, IBotConfigSettings settings, ILogService logService, IMemoryCache Cache, IHttpClientService hc)
+        public static void ParseEvent(this JObject eventMsg, IPluginLoaderService pluginLoader, IBotConfigSettings settings, ILogService logService)
         {
             var channelType = eventMsg.Value<JToken>("d").Value<string>("channel_type");
             if (channelType == "GROUP")
@@ -25,12 +21,6 @@ namespace KHLBotSharp.Common.MessageParser
                         {
                             if (!groupText.Data.Extra.Author.IsBot)
                             {
-                                if (!Cache.TryGetValue("Role_" + groupText.Data.Extra.GuildId, out KHLResponseMessage<GetServerRoleList> roles))
-                                {
-                                    roles = await hc.GetAsync<KHLResponseMessage<GetServerRoleList>>("guild-role/list", new { guild_id = groupText.Data.Extra.GuildId });
-                                    Cache.Set("Role_" + groupText.Data.Extra.GuildId, roles);
-                                }
-                                groupText.Data.Extra.Author.ParsedRoles = roles.Data.Items.Where(x => groupText.Data.Extra.Author.Roles.Any(y => y == x.RoleId)).ToList();
                                 logService.Debug("Received Group Text Event, Triggering Plugins");
                                 pluginLoader.HandleMessage(groupText);
                             }

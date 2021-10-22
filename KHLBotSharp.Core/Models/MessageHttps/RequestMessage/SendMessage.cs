@@ -228,14 +228,8 @@ namespace KHLBotSharp.Models.MessageHttps.RequestMessage
         [Obsolete]
         public int Type
         {
-            get
-            {
-                return (int)TypeV2;
-            }
-            set
-            {
-                TypeV2 = (MessageType)value;
-            }
+            get => (int)TypeV2;
+            set => TypeV2 = (MessageType)value;
         }
         /// <summary>
         /// 发送目标群或者私聊Id

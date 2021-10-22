@@ -90,7 +90,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                     case "9":
                     case "10":
                     case "255":
-                        await decoded.ParseEvent(pluginLoaderService, config, logService, memoryCache, httpClient);
+                        decoded.ParseEvent(pluginLoaderService, config, logService);
                         break;
                     default:
                         return StatusCode(403);

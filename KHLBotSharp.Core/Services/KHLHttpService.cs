@@ -160,7 +160,7 @@ namespace KHLBotSharp.Common.Request
             if (!cache.TryGetValue("servers/list/", out KHLResponseMessage<GetServerList> result))
             {
                 result = await httpApi.GetAsync<KHLResponseMessage<GetServerList>>("guild/list");
-                cache.Set("servers/list/" , result, DateTimeOffset.Now.AddHours(1));
+                cache.Set("servers/list/", result, DateTimeOffset.Now.AddHours(1));
             }
             return result;
         }
