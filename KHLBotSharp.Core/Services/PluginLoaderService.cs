@@ -1,4 +1,5 @@
-﻿using KHLBotSharp.IService;
+﻿using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
 using KHLBotSharp.Models.MessageHttps.RequestMessage;
@@ -148,10 +149,19 @@ namespace KHLBotSharp.Services
                     pluginExecuteTime.Stop();
                     if (pluginExecuteTime.ElapsedMilliseconds >= 1500)
                     {
-                        var httpService = provider.GetService<IKHLHttpService>();
                         //The plugin is too low performance!
                         logService.Warning(plugin.GetType().FullName + " is too slow! Used " + pluginExecuteTime.ElapsedMilliseconds + " ms to process a single fucking message?");
-                        await httpService.SendGroupMessage(new SendMessage() { Content = "警告: \n" + plugin.GetType().FullName + "运行速度太过缓慢，已使用" + pluginExecuteTime.ElapsedMilliseconds + "ms处理一条消息，请确保联络插件开发者禁止运行大量操作，并且善用IServiceRegister注册需要长时间加载大量数据的Service为Singleton!", TargetId = input.Data.TargetId });
+                        var config = provider.GetRequiredService<IBotConfigSettings>();
+                        //Is it disabled warning
+                        if (config.DisableTimeWarn == null || !config.DisableTimeWarn.Value)
+                        {
+                            var httpService = provider.GetRequiredService<IKHLHttpService>();
+                            await httpService.SendGroupMessage(new SendMessage() { Content = "警告: \n" + plugin.GetType().FullName + "运行速度太过缓慢，已使用" + pluginExecuteTime.ElapsedMilliseconds + "ms处理一条消息，请确保联络插件开发者禁止运行大量操作，并且善用IServiceRegister注册需要长时间加载大量数据的Service为Singleton!", TargetId = input.Data.TargetId });
+                        }
+                        else
+                        {
+                            logService.Warning("Slow plugin warning muted! Please aware this mother fucking issue you little ass hole!");
+                        }
                     }
                     if (plugin is IDisposable)
                     {
