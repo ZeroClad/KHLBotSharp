@@ -5,6 +5,7 @@ using KHLBotSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Spectre.Console;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -77,12 +78,12 @@ namespace KHLBotSharp.Core.BotHost
                 pluginLoader.LoadPlugin(bot, hookInstance.ServiceCollection);
                 hookInstance.ServiceCollection.AddSingleton(typeof(IPluginLoaderService), pluginLoader);
                 hookInstance.ServiceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
-                if (string.IsNullOrEmpty(settings.EncryptKey))
+                if (string.IsNullOrEmpty(settings.EncryptKey)&&!Console.IsInputRedirected && Console.KeyAvailable)
                 {
                     settings.EncryptKey = AnsiConsole.Ask<string>("Input EncryptKey");
                     File.WriteAllText(bot + "\\config.json", JsonConvert.SerializeObject(settings));
                 }
-                if (string.IsNullOrEmpty(settings.VerifyToken))
+                if (string.IsNullOrEmpty(settings.VerifyToken) && !Console.IsInputRedirected && Console.KeyAvailable)
                 {
                     settings.VerifyToken = AnsiConsole.Ask<string>("Input VerifyToken");
                     File.WriteAllText(bot + "\\config.json", JsonConvert.SerializeObject(settings));

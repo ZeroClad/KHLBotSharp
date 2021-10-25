@@ -31,15 +31,23 @@ namespace KHLBotSharp.Services
                 var obj = code as JObject;
                 if (obj.ContainsKey("encrypt"))
                 {
-                    //decode start
-                    byte[] data = Convert.FromBase64String(obj.Value<string>("encrypt"));
-                    string decoded = Encoding.UTF8.GetString(data);
-                    string iv = decoded.Substring(0, 16);
-                    var aesEncrypted = decoded.Substring(16);
-                    var key = config.EncryptKey.PadRight(32, '\0');
-                    var result = await Decrypt(aesEncrypted, key, iv);
-                    result = result.Substring(0, result.LastIndexOf("}") + 1);
-                    return JObject.Parse(result);
+                    try
+                    {
+                        //decode start
+                        byte[] data = Convert.FromBase64String(obj.Value<string>("encrypt"));
+                        string decoded = Encoding.UTF8.GetString(data);
+                        string iv = decoded.Substring(0, 16);
+                        var aesEncrypted = decoded.Substring(16);
+                        var key = config.EncryptKey.PadRight(32, '\0');
+                        var result = await Decrypt(aesEncrypted, key, iv);
+                        result = result.Substring(0, result.LastIndexOf("}") + 1);
+                        return JObject.Parse(result);
+                    }
+                    catch
+                    {
+                        log.Error("Decode failed, received " + code.ToString());
+                    }
+
                 }
                 //not encrypted
                 return obj;

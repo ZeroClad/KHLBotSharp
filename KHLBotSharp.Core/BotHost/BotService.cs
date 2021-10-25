@@ -31,7 +31,7 @@ namespace KHLBotSharp.Core.BotHost
     public class BotService
     {
         private ClientWebSocket ws;
-        private readonly IServiceProvider provider;
+        public readonly IServiceProvider provider;
         public User Me { get; private set; }
         public ILogService LogService { get; private set; }
         private long sn;
@@ -47,7 +47,7 @@ namespace KHLBotSharp.Core.BotHost
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton(typeof(ILogService), typeof(LogService));
-            serviceCollection.AddScoped(typeof(IHttpClientService), typeof(HttpClientService));
+            serviceCollection.AddHttpClient<IHttpClientService, HttpClientService>();
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             serviceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
             serviceCollection.AddMemoryCache();
@@ -60,7 +60,7 @@ namespace KHLBotSharp.Core.BotHost
             }
             settings = new BotConfigSettings();
             settings.Load(bot);
-            if (string.IsNullOrEmpty(settings.BotToken))
+            if (string.IsNullOrEmpty(settings.BotToken) && !Console.IsInputRedirected && Console.KeyAvailable)
             {
                 settings.BotToken = AnsiConsole.Ask<string>("Input BotToken");
                 settings.Save();
