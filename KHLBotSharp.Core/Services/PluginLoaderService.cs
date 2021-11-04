@@ -139,14 +139,28 @@ namespace KHLBotSharp.Services
         {
             Stopwatch speedTest = Stopwatch.StartNew();
             var logService = provider.GetService<ILogService>();
+            var completed = false;
             foreach (var plugin in plugins)
             {
                 try
                 {
                     Stopwatch pluginExecuteTime = Stopwatch.StartNew();
-                    await plugin.Ctor(provider);
-                    var completed = await plugin.Handle(input);
-                    pluginExecuteTime.Stop();
+                    if (typeof(TextMessageExtra).IsAssignableFrom(input.Data.Extra.GetType()) && typeof(IAutoCommand).IsAssignableFrom(plugin.GetType()))
+                    {
+                        var cmd = (plugin as IAutoCommand);
+                        if (input.Data.Content.Contains(cmd.Name) || cmd.Prefix.Any(x => x.Contains(input.Data.Content)))
+                        {
+                            await plugin.Ctor(provider);
+                            completed = await plugin.Handle(input);
+                            pluginExecuteTime.Stop();
+                        }
+                    }
+                    else
+                    {
+                        await plugin.Ctor(provider);
+                        completed = await plugin.Handle(input);
+                        pluginExecuteTime.Stop();
+                    }
                     if (pluginExecuteTime.ElapsedMilliseconds >= 1500)
                     {
                         //The plugin is too low performance!

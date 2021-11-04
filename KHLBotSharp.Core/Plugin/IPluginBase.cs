@@ -45,4 +45,18 @@ namespace KHLBotSharp
         Singleton,
         Transient
     }
+    /// <summary>
+    /// 自动注册指令并且生成Help功能
+    /// </summary>
+    public interface IAutoCommand
+    {
+        /// <summary>
+        /// 指令名字，可选是否需要
+        /// </summary>
+        string Name { get; }
+        /// <summary>
+        /// 其他指令，用于运行相同的功能
+        /// </summary>
+        string[] Prefix { get; }
+    }
 }
