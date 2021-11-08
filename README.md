@@ -94,7 +94,8 @@
 > 接下来就是自主编写插件，而插件将会使用到的Http请求则可[在这里查看interface代码](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/IService/IKHLHttpService.cs)
 - 插件需要添加KHLBotSharp.Core作为Dependency，打包后此dll不需要复制
 - 当前将会使用`IGroupTextMessageHandler`作为例子
-- 点击这里查看[插件的例子文件](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/PluginSample.cs)，这个插件是复读机
+- 点击这里查看[一般插件的例子文件(v1 SDK都支持)](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/PluginSample.cs)，这个插件是复读机
+- 点击这里查看[新版本插件的例子文件(v1.0.0.6 SDK 开始支持)](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/NewPluginSample.cs)，这个插件是复读机
 - `Ctor`为插件的初始化，在这里你会获得IServiceProvider，源自于Dependency Injection(DI)，因此可以进行`GetService`获取你想使用的东西，但是还请注意，这里并不能让你注册DI，只能获取
 - `Handle`则是插件的真正运行位置，当收到特定的Event后将会传输到这，再进行处理即可
 - 你可以拥有多个处理相同事件的插件
@@ -105,6 +106,6 @@
 > 如果想要注册自己想在Ctor的时候用的一些Service，可以尝试使用`IServiceRegister` Interface，只需要创建新的class (尽量别跟原本的消息处理事件放一起) 加上interface后，就可以获取个`void Register(IServiceCollection services)`功能进行注册DI
 
 ## 启动器选择
-- 目前启动器支持俩选择: .NET 6以及.NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6
+- 目前启动器支持俩选择: .NET 5，.NET 6以及.NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6
 - Websocket启动器也可以自主添加或者修改，只需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.NETCore3)并且打包为你想要的.NET版本即可，相同插件可支持
 - Webhook启动器也可自主添加或者修改，但是会比较麻烦，需要复制[这个Repos里的所有文件](https://github.com/PoH98/KHLBotSharp/tree/master/KHLBotSharp.WebHook.NetCore3)并且打包为你想要的.NET版本即可，相同插件可支持
