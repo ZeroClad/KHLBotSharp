@@ -58,5 +58,13 @@ namespace KHLBotSharp
         /// 其他指令，用于运行相同的功能
         /// </summary>
         string[] Prefix { get; }
+        /// <summary>
+        /// 指令帮助，用于生成help功能
+        /// </summary>
+        string Description { get; }
+        /// <summary>
+        /// 指令分类，用于生成help功能
+        /// </summary>
+        string Group { get; }
     }
 }

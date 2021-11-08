@@ -1,4 +1,5 @@
 ﻿using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.Core.Models.Objects;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
@@ -10,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace KHLBotSharp.Services
 {
@@ -218,9 +220,33 @@ namespace KHLBotSharp.Services
             logService.Debug("Plugin process success in " + speedTest.ElapsedMilliseconds + " ms");
         }
 
-        public virtual void HandleMessage<T>(EventMessage<T> input)
+        public virtual async void HandleMessage<T>(EventMessage<T> input)
             where T : Extra
         {
+            if (typeof(T).IsAssignableFrom(typeof(GroupTextMessageEvent)))
+            {
+                var converted = input as EventMessage<GroupTextMessageEvent>;
+                if(converted.Data.Content.EndsWith("help"))
+                {
+                    var khtp = provider.GetRequiredService<IKHLHttpService>();
+                    StringBuilder sb = new StringBuilder();
+                    foreach(var g in ResolvePlugin().Where(y => y.GetType().IsAssignableFrom(typeof(IAutoCommand))).Select(z => z as IAutoCommand).GroupBy(x => x.Group).ToDictionary(g => g.Key, g => g.ToList()))
+                    {
+                        sb.AppendLine("---");
+                        sb.AppendLine("**"+g.Key + "**\n");
+                        foreach(var p in g.Value)
+                        {
+                            sb.AppendLine("`" + p.Name+ "` - " + p.Description);
+                        }
+                    }
+                    if (sb.Length < 1)
+                    {
+                        sb.AppendLine("No auto registered command is found");
+                    }
+                    await khtp.SendGroupMessage(new SendMessage(converted.Data, sb.ToString(), false, true) { TypeV2 = MessageType.KMarkdownMessage });
+                    return;
+                }
+            }
             HandleMessage(input, ResolvePlugin<IKHLPlugin<T>>());
         }
 
