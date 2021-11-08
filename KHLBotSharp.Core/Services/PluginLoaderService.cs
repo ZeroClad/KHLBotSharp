@@ -150,7 +150,9 @@ namespace KHLBotSharp.Services
                     if (typeof(TextMessageExtra).IsAssignableFrom(input.Data.Extra.GetType()) && typeof(IAutoCommand).IsAssignableFrom(plugin.GetType()))
                     {
                         var cmd = (plugin as IAutoCommand);
-                        if (input.Data.Content.Contains(cmd.Name) || cmd.Prefix.Any(x => x.Contains(input.Data.Content)))
+                        var settings = provider.GetRequiredService<IBotConfigSettings>();
+                        var prefix = cmd.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y+x)));
+                        if (settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y+cmd.Name)) || ((prefix == null)?false:prefix.Value))
                         {
                             await plugin.Ctor(provider);
                             completed = await plugin.Handle(input);
@@ -226,22 +228,29 @@ namespace KHLBotSharp.Services
             if (typeof(T).IsAssignableFrom(typeof(GroupTextMessageEvent)))
             {
                 var converted = input as EventMessage<GroupTextMessageEvent>;
-                if(converted.Data.Content.EndsWith("help"))
+                var settings = provider.GetRequiredService<IBotConfigSettings>();
+                if(settings.ProcessChar.Any(x => converted.Data.Content == (x + "help")))
                 {
                     var khtp = provider.GetRequiredService<IKHLHttpService>();
                     StringBuilder sb = new StringBuilder();
-                    foreach(var g in ResolvePlugin().Where(y => y.GetType().IsAssignableFrom(typeof(IAutoCommand))).Select(z => z as IAutoCommand).GroupBy(x => x.Group).ToDictionary(g => g.Key, g => g.ToList()))
+                    var iauto = ResolvePlugin().Where(y => typeof(IAutoCommand).IsAssignableFrom(y.GetType())).Select(z => z as IAutoCommand).GroupBy(x => x.Group);
+                    foreach (var g in iauto.ToDictionary(g => g.Key, g => g.ToList()))
                     {
                         sb.AppendLine("---");
-                        sb.AppendLine("**"+g.Key + "**\n");
-                        foreach(var p in g.Value)
+                        sb.AppendLine("**"+g.Key + "**");
+                        sb.AppendLine("---");
+                        foreach (var p in g.Value)
                         {
-                            sb.AppendLine("`" + p.Name+ "` - " + p.Description);
+                            sb.AppendLine("`" + settings.ProcessChar.First() + p.Name+ "` - " + p.Description);
                         }
                     }
-                    if (sb.Length < 1)
+                    if (sb.Length < 1 && iauto.Count() < 1)
                     {
                         sb.AppendLine("No auto registered command is found");
+                    }
+                    else if(sb.Length < 1)
+                    {
+                        sb.AppendLine("Weird error happend. Unable to read plugin settings");
                     }
                     await khtp.SendGroupMessage(new SendMessage(converted.Data, sb.ToString(), false, true) { TypeV2 = MessageType.KMarkdownMessage });
                     return;
