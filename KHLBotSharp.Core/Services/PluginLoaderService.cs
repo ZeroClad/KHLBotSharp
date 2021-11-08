@@ -229,7 +229,7 @@ namespace KHLBotSharp.Services
             {
                 var converted = input as EventMessage<GroupTextMessageEvent>;
                 var settings = provider.GetRequiredService<IBotConfigSettings>();
-                if(settings.ProcessChar.Any(x => converted.Data.Content == (x + "help")))
+                if(settings.ProcessChar.Any(x => converted.Data.Content == (x + "help") || converted.Data.Content == (x + "帮助")))
                 {
                     var khtp = provider.GetRequiredService<IKHLHttpService>();
                     StringBuilder sb = new StringBuilder();
@@ -237,8 +237,11 @@ namespace KHLBotSharp.Services
                     foreach (var g in iauto.ToDictionary(g => g.Key, g => g.ToList()))
                     {
                         sb.AppendLine("---");
-                        sb.AppendLine("**"+g.Key + "**");
-                        sb.AppendLine("---");
+                        if(g.Key != null)
+                        {
+                            sb.AppendLine("**" + g.Key + "**");
+                            sb.AppendLine("---");
+                        }
                         foreach (var p in g.Value)
                         {
                             sb.AppendLine("`" + settings.ProcessChar.First() + p.Name+ "` - " + p.Description);
