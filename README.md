@@ -24,7 +24,7 @@
 - 保存config.json后，打开启动器即可
 - 回到[开黑啦开发者网页](https://developer.kaiheila.cn/bot/index)，在你的机器人`Callback Url`下粘贴`http://你的域名/hook?botName=<你的Profile名字>`, 并且上线机器人
 - 可开始测试机器人是否运行正常
-- 暂时不支持Docker以及非Windows，不过如果你想要使用，都可以自行下载源代码Publish
+- 现已支持Docker和非Windows，只需要clone下来直接使用即可
 
 > 欢迎各路大神fork以及修改代码
 
