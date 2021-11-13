@@ -142,17 +142,17 @@ namespace KHLBotSharp.Services
             Stopwatch speedTest = Stopwatch.StartNew();
             var logService = provider.GetService<ILogService>();
             var completed = false;
+            var isTextType = typeof(TextMessageExtra).IsAssignableFrom(input.Data.Extra.GetType());
+            var settings = provider.GetRequiredService<IBotConfigSettings>();
             foreach (var plugin in plugins)
             {
                 try
                 {
                     Stopwatch pluginExecuteTime = Stopwatch.StartNew();
-                    if (typeof(TextMessageExtra).IsAssignableFrom(input.Data.Extra.GetType()) && typeof(IAutoCommand).IsAssignableFrom(plugin.GetType()))
+                    if (isTextType)
                     {
-                        var cmd = (plugin as IAutoCommand);
-                        var settings = provider.GetRequiredService<IBotConfigSettings>();
-                        var prefix = cmd.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y+x)));
-                        if (settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y+cmd.Name)) || ((prefix == null)?false:prefix.Value))
+                        var prefix = plugin.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y + x)));
+                        if (settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y + plugin.Name)) || (prefix != null && prefix.Value))
                         {
                             await plugin.Ctor(provider);
                             completed = await plugin.Handle(input);
@@ -233,7 +233,7 @@ namespace KHLBotSharp.Services
                 {
                     var khtp = provider.GetRequiredService<IKHLHttpService>();
                     StringBuilder sb = new StringBuilder();
-                    var iauto = ResolvePlugin().Where(y => typeof(IAutoCommand).IsAssignableFrom(y.GetType())).Select(z => z as IAutoCommand).GroupBy(x => x.Group);
+                    var iauto = ResolvePlugin().GroupBy(x => x.Group);
                     foreach (var g in iauto.ToDictionary(g => g.Key, g => g.ToList()))
                     {
                         sb.AppendLine("---");
@@ -249,7 +249,7 @@ namespace KHLBotSharp.Services
                     }
                     if (sb.Length < 1 && iauto.Count() < 1)
                     {
-                        sb.AppendLine("No auto registered command is found");
+                        sb.AppendLine("No registered command is found");
                     }
                     else if(sb.Length < 1)
                     {
@@ -275,7 +275,7 @@ namespace KHLBotSharp.Services
                 {
                     var khtp = provider.GetRequiredService<IKHLHttpService>();
                     StringBuilder sb = new StringBuilder();
-                    var iauto = ResolvePlugin().Where(y => typeof(IAutoCommand).IsAssignableFrom(y.GetType())).Select(z => z as IAutoCommand).GroupBy(x => x.Group);
+                    var iauto = ResolvePlugin().GroupBy(x => x.Group);
                     foreach (var g in iauto.ToDictionary(g => g.Key, g => g.ToList()))
                     {
                         sb.AppendLine("---");

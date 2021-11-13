@@ -12,7 +12,7 @@ namespace TestPlugin
     /// <summary>
     /// 新版本插件写法，推荐用这个，在这里假设<seealso cref="IBotConfigSettings.ProcessChar"/>为"."
     /// </summary>
-    public class NewPluginSample : IGroupTextMessageHandler, IAutoCommand
+    public class NewPluginSample : IGroupTextMessageHandler
     {
         /// <summary>
         /// 在config.json内设置的<seealso cref="IBotConfigSettings.ProcessChar"/>加这个就是主要指令，因此根据假设将会是".测试"
@@ -30,6 +30,7 @@ namespace TestPlugin
         /// 用于分类指令，可设置为null
         /// </summary>
         public string Group => "测试指令组";
+
         private ILogService logService;
         private IKHLHttpService requestFactory;
         private IBotConfigSettings botConfigSettings;

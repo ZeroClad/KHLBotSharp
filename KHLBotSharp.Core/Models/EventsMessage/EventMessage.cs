@@ -18,7 +18,7 @@ namespace KHLBotSharp.Models.EventsMessage
         [JsonProperty("d")]
         public new ReceiveMessageData<T> Data { get; set; }
         /// <summary>
-        /// 创建回复用SendMessage
+        /// 创建回复用SendMessage, CardMessage会自动检测无需设置type(想设置也可以)
         /// </summary>
         /// <param name="content"></param>
         /// <param name="type"></param>
@@ -50,7 +50,10 @@ namespace KHLBotSharp.Models.EventsMessage
         /// </summary>
         public object Data { get; set; }
     }
-
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ReceiveMessageData<T> : ReceiveMessageData where T : Extra
     {
         /// <summary>
@@ -58,7 +61,7 @@ namespace KHLBotSharp.Models.EventsMessage
         /// </summary>
         public T Extra { get; set; }
         /// <summary>
-        /// 创建回复用SendMessage
+        /// 创建回复用SendMessage, CardMessage会自动检测无需设置type(想设置也可以)
         /// </summary>
         /// <param name="content"></param>
         /// <param name="type"></param>

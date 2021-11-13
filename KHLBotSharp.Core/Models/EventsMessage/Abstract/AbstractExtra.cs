@@ -16,12 +16,12 @@ namespace KHLBotSharp.Models.MessageHttps.EventMessage.Abstract
     public abstract class TextMessageExtra : Extra
     {
         /// <summary>
-        /// 私聊服务器ID
+        /// 服务器ID
         /// </summary>
         [JsonProperty("guild_id")]
         public string GuildId { get; set; }
         /// <summary>
-        /// 私聊频道名字
+        /// 频道名字
         /// </summary>
         [JsonProperty("channel_name")]
         public string ChannelName { get; set; }

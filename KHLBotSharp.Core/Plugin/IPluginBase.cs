@@ -27,6 +27,22 @@ namespace KHLBotSharp
         /// </summary>
         /// <returns></returns>
         Task Ctor(IServiceProvider provider);
+        /// <summary>
+        /// 指令名字，可选是否需要
+        /// </summary>
+        string Name { get; }
+        /// <summary>
+        /// 其他指令，用于运行相同的功能
+        /// </summary>
+        string[] Prefix { get; }
+        /// <summary>
+        /// 指令帮助，用于生成help功能
+        /// </summary>
+        string Description { get; }
+        /// <summary>
+        /// 指令分类，用于生成help功能
+        /// </summary>
+        string Group { get; }
     }
     /// <summary>
     /// 注册插件为特定DI方式，当前支持Singleton和Transient。<br/>
@@ -44,27 +60,5 @@ namespace KHLBotSharp
     {
         Singleton,
         Transient
-    }
-    /// <summary>
-    /// 自动注册指令并且生成Help功能
-    /// </summary>
-    public interface IAutoCommand
-    {
-        /// <summary>
-        /// 指令名字，可选是否需要
-        /// </summary>
-        string Name { get; }
-        /// <summary>
-        /// 其他指令，用于运行相同的功能
-        /// </summary>
-        string[] Prefix { get; }
-        /// <summary>
-        /// 指令帮助，用于生成help功能
-        /// </summary>
-        string Description { get; }
-        /// <summary>
-        /// 指令分类，用于生成help功能
-        /// </summary>
-        string Group { get; }
     }
 }
