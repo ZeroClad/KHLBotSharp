@@ -79,7 +79,7 @@ namespace TestPlugin
             */
             //*********************************************************
             //示范Card消息，SendMessage会自动检测Json后进行切换成为Card消息因此无需手动输入Type, false为无需回复指令消息，正常默认都会自动回复
-            await requestFactory.SendGroupMessage(eventArgs.CreateReply(CardBuilderSample.GetCard()));
+            await requestFactory.SendGroupMessage(eventArgs.CreateReply(CardBuilderSample.GetCard(), false));
             //我们使用已经注册过的DI
             testDI.HelloWorld();
             //停止后面插件的运行，表示这个指令我们已经完成了，后面的无需跟上
