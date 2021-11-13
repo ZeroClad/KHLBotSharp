@@ -120,6 +120,12 @@ namespace KHLBotSharp.IService
         /// <returns></returns>
         Task<string> SendGroupMessage(SendMessage Request);
         /// <summary>
+        /// 发送私聊消息
+        /// </summary>
+        /// <param name="Request"></param>
+        /// <returns></returns>
+        Task<string> SendPrivateMessage(SendMessage Request);
+        /// <summary>
         /// 修改群消息
         /// </summary>
         /// <param name="Request"></param>

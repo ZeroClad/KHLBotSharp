@@ -268,5 +268,10 @@ namespace KHLBotSharp.Common.Request
         {
             await httpApi.PostAsync<dynamic>("user/offline", new { });
         }
+
+        public Task<string> SendPrivateMessage(SendMessage Request)
+        {
+            return SendGroupMessage(Request);
+        }
     }
 }

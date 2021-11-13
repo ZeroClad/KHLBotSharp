@@ -1,6 +1,8 @@
 ﻿using KHLBotSharp.Core.Models.Objects;
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
+using KHLBotSharp.Models.MessageHttps.RequestMessage;
 using Newtonsoft.Json;
+using System;
 
 namespace KHLBotSharp.Models.EventsMessage
 {
@@ -15,6 +17,18 @@ namespace KHLBotSharp.Models.EventsMessage
         /// </summary>
         [JsonProperty("d")]
         public new ReceiveMessageData<T> Data { get; set; }
+        /// <summary>
+        /// 创建回复用SendMessage
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="type"></param>
+        /// <param name="reply"></param>
+        /// <param name="tempMessage"></param>
+        /// <returns></returns>
+        public SendMessage CreateReply(string content, bool reply = true, bool tempMessage = false, MessageType type = Core.Models.Objects.MessageType.TextMessage)
+        {
+            return Data.CreateReply(content, reply, tempMessage, type);
+        }
     }
     /// <summary>
     /// 事件消息
@@ -43,6 +57,66 @@ namespace KHLBotSharp.Models.EventsMessage
         /// 不同的消息类型，结构不一致
         /// </summary>
         public T Extra { get; set; }
+        /// <summary>
+        /// 创建回复用SendMessage
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="type"></param>
+        /// <param name="reply"></param>
+        /// <param name="tempMessage"></param>
+        /// <returns></returns>
+        public SendMessage CreateReply(string content, bool reply = true, bool tempMessage = false, MessageType type = MessageType.TextMessage)
+        {
+            if (typeof(GroupTextMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<GroupTextMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(GroupCardMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<GroupCardMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(GroupFileMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<GroupFileMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(GroupKMarkdownMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<GroupKMarkdownMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(GroupPictureMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<GroupPictureMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(GroupVideoMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<GroupVideoMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(PrivateCardMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<PrivateCardMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(PrivateFileMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<PrivateFileMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(PrivateKMarkdownMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<PrivateKMarkdownMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(PrivatePictureMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<PrivatePictureMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(PrivateTextMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<PrivateTextMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            else if (typeof(PrivateVideoMessageEvent).IsAssignableFrom(typeof(T)))
+            {
+                return new SendMessage(this as ReceiveMessageData<PrivateVideoMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+            }
+            throw new InvalidOperationException("Not supported object type for creating reply. Only commands (text, card, kmarkdown, file, picture or video message) are available");
+        }
     }
     /// <summary>
     /// 收到的消息资料
@@ -89,7 +163,9 @@ namespace KHLBotSharp.Models.EventsMessage
         /// </summary>
         [JsonProperty("nonce")]
         public string Nonce { get; set; }
-
+        /// <summary>
+        /// 不知道干啥用的
+        /// </summary>
         [JsonProperty("verify_token")]
         public string VerifyToken { get; set; }
     }

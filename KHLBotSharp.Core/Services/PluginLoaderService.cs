@@ -255,6 +255,56 @@ namespace KHLBotSharp.Services
                     {
                         sb.AppendLine("Weird error happend. Unable to read plugin settings");
                     }
+                    try
+                    {
+                        await khtp.RemoveGroupMessage(converted.Data.MsgId);
+                    }
+                    catch
+                    {
+                        //Unable revoke message, ignore
+                    }
+                    await khtp.SendGroupMessage(new SendMessage(converted.Data, sb.ToString(), false, true) { TypeV2 = MessageType.KMarkdownMessage });
+                    return;
+                }
+            }
+            else if (typeof(T).IsAssignableFrom(typeof(PrivateTextMessageEvent)))
+            {
+                var converted = input as EventMessage<PrivateTextMessageEvent>;
+                var settings = provider.GetRequiredService<IBotConfigSettings>();
+                if (settings.ProcessChar.Any(x => converted.Data.Content == (x + "help") || converted.Data.Content == (x + "帮助")))
+                {
+                    var khtp = provider.GetRequiredService<IKHLHttpService>();
+                    StringBuilder sb = new StringBuilder();
+                    var iauto = ResolvePlugin().Where(y => typeof(IAutoCommand).IsAssignableFrom(y.GetType())).Select(z => z as IAutoCommand).GroupBy(x => x.Group);
+                    foreach (var g in iauto.ToDictionary(g => g.Key, g => g.ToList()))
+                    {
+                        sb.AppendLine("---");
+                        if (g.Key != null)
+                        {
+                            sb.AppendLine("**" + g.Key + "**");
+                            sb.AppendLine("---");
+                        }
+                        foreach (var p in g.Value)
+                        {
+                            sb.AppendLine("`" + settings.ProcessChar.First() + p.Name + "` - " + p.Description);
+                        }
+                    }
+                    if (sb.Length < 1 && iauto.Count() < 1)
+                    {
+                        sb.AppendLine("No auto registered command is found");
+                    }
+                    else if (sb.Length < 1)
+                    {
+                        sb.AppendLine("Weird error happend. Unable to read plugin settings");
+                    }
+                    try
+                    {
+                        await khtp.RemovePrivateMessage(converted.Data.MsgId);
+                    }
+                    catch
+                    {
+                        //Unable revoke message, ignore
+                    }
                     await khtp.SendGroupMessage(new SendMessage(converted.Data, sb.ToString(), false, true) { TypeV2 = MessageType.KMarkdownMessage });
                     return;
                 }
