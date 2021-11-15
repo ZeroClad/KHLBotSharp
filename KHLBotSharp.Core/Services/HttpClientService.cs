@@ -297,13 +297,21 @@ namespace KHLBotSharp.Services
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public async Task<string> UploadFileAsync(Stream file)
+        public async Task<string> UploadFileAsync(Stream file, string fileName)
         {
             try
             {
                 var requestContent = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(ReadFully(file));
-                requestContent.Add(fileContent, "file");
+                if (fileName.Contains("\\"))
+                {
+                    fileName = fileName.Substring(fileName.LastIndexOf("\\"));
+                }
+                else if (fileName.Contains("/"))
+                {
+                    fileName = fileName.Substring(fileName.LastIndexOf("/"));
+                }
+                requestContent.Add(fileContent, "file", fileName);
                 using (
                 var client = new HttpClient
                 {
@@ -361,7 +369,7 @@ namespace KHLBotSharp.Services
                     throw new RateLimitException();
                 }
                 errorRateService.AddError();
-                return await UploadFileAsync(file);
+                return await UploadFileAsync(file, fileName);
             }
         }
 

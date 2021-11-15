@@ -29,7 +29,7 @@ namespace KHLBotSharp.IService
         /// 上传Stream数据作为文件到开黑服务器
         /// </summary>
         /// <returns></returns>
-        Task<string> UploadFileAsync(Stream file);
+        Task<string> UploadFileAsync(Stream file, string fileName);
         /// <summary>
         /// 上传路径中的文件到开黑服务器，可支持http链接文件
         /// </summary>

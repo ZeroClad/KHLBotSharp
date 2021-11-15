@@ -151,8 +151,8 @@ namespace KHLBotSharp.Services
                     {
                         var cmd = (plugin as IAutoCommand);
                         var settings = provider.GetRequiredService<IBotConfigSettings>();
-                        var prefix = cmd.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y+x)));
-                        if (settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y+cmd.Name)) || ((prefix == null)?false:prefix.Value))
+                        var prefix = cmd.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y+x)));
+                        if (settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y+cmd.Name)) || ((prefix == null)?false:prefix.Value))
                         {
                             await plugin.Ctor(provider);
                             completed = await plugin.Handle(input);
