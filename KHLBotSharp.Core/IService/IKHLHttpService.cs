@@ -200,7 +200,7 @@ namespace KHLBotSharp.IService
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        Task<string> UploadFile(Stream stream);
+        Task<string> UploadFile(Stream stream, string fileName);
         /// <summary>
         /// 获取服务器角色权限列表
         /// </summary>

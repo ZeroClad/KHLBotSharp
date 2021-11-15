@@ -250,8 +250,8 @@ namespace KHLBotSharp.Common.Request
             if (filePath.StartsWith("http"))
             {
                 var wc = new HttpClient();
-                var ms = new MemoryStream(await wc.GetByteArrayAsync(filePath));
-                return await httpApi.UploadFileAsync(ms);
+                var ms = new MemoryStream(await wc.GetByteArrayAsync(new Uri(filePath)));
+                return await httpApi.UploadFileAsync(ms, filePath);
             }
             else
             {
@@ -259,9 +259,9 @@ namespace KHLBotSharp.Common.Request
             }
         }
 
-        public Task<string> UploadFile(Stream stream)
+        public Task<string> UploadFile(Stream stream, string fileName)
         {
-            return httpApi.UploadFileAsync(stream);
+            return httpApi.UploadFileAsync(stream, fileName);
         }
 
         public async Task OfflineBot()

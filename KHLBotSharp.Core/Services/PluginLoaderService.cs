@@ -151,8 +151,8 @@ namespace KHLBotSharp.Services
                     Stopwatch pluginExecuteTime = Stopwatch.StartNew();
                     if (isTextType)
                     {
-                        var prefix = plugin.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y + x)));
-                        if (settings.ProcessChar.Any(y => input.Data.Content.StartsWith(y + plugin.Name)) || (prefix != null && prefix.Value))
+                        var prefix = plugin.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + x)));
+                        if (settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + plugin.Name)) || (prefix != null && prefix.Value))
                         {
                             await plugin.Ctor(provider);
                             completed = await plugin.Handle(input);

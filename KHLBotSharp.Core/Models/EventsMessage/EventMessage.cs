@@ -72,51 +72,111 @@ namespace KHLBotSharp.Models.EventsMessage
         {
             if (typeof(GroupTextMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<GroupTextMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<GroupTextMessageEvent>, content, reply, tempMessage);
+                if(!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(GroupCardMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<GroupCardMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<GroupCardMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(GroupFileMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<GroupFileMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<GroupFileMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(GroupKMarkdownMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<GroupKMarkdownMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<GroupKMarkdownMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(GroupPictureMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<GroupPictureMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<GroupPictureMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(GroupVideoMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<GroupVideoMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<GroupVideoMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(PrivateCardMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<PrivateCardMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<PrivateCardMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(PrivateFileMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<PrivateFileMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<PrivateFileMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(PrivateKMarkdownMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<PrivateKMarkdownMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<PrivateKMarkdownMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(PrivatePictureMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<PrivatePictureMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<PrivatePictureMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(PrivateTextMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<PrivateTextMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<PrivateTextMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             else if (typeof(PrivateVideoMessageEvent).IsAssignableFrom(typeof(T)))
             {
-                return new SendMessage(this as ReceiveMessageData<PrivateVideoMessageEvent>, content, reply, tempMessage) { TypeV2 = type };
+                var result = new SendMessage(this as ReceiveMessageData<PrivateVideoMessageEvent>, content, reply, tempMessage);
+                if (!(result.TypeV2 == MessageType.CardMessage && type == MessageType.TextMessage))
+                {
+                    result.TypeV2 = type;
+                }
+                return result;
             }
             throw new InvalidOperationException("Not supported object type for creating reply. Only commands (text, card, kmarkdown, file, picture or video message) are available");
         }
