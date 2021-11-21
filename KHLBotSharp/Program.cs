@@ -1,4 +1,9 @@
-﻿Welcome.Print();
+﻿using KHLBotSharp.Core.BotHost;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+
+Welcome.Print();
 if (args.Length > 1)
 {
     var profileName = args[1];
