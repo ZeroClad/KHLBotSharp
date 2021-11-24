@@ -63,29 +63,9 @@ namespace KHLBotSharp.Services
                     var implementedInterfaces = type.GetInterfaces();
                     if (implementedInterfaces.Any())
                     {
-                        RegisterType? regType = null;
-                        if (implementedInterfaces.Any(x => x is IPluginType))
-                        {
-                            var instance = Activator.CreateInstance(type, null);
-                            regType = (instance as IPluginType).RegisterType;
-                        }
                         foreach (var interfaceType in implementedInterfaces)
                         {
-                            if (regType.HasValue)
-                            {
-                                if (regType == RegisterType.Singleton)
-                                {
-                                    services.AddSingleton(interfaceType, type);
-                                }
-                                else
-                                {
-                                    services.AddTransient(interfaceType, type);
-                                }
-                            }
-                            else
-                            {
-                                services.AddScoped(interfaceType, type);
-                            }
+                            services.AddScoped(interfaceType, type);
                         }
                     }
                     else
@@ -151,17 +131,16 @@ namespace KHLBotSharp.Services
                     Stopwatch pluginExecuteTime = Stopwatch.StartNew();
                     if (isTextType)
                     {
-                        var prefix = plugin.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + x)));
-                        if (settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + plugin.Name)) || (prefix != null && prefix.Value))
+                        var plug = plugin as IKHLTextPlugin<T>;
+                        var prefix = plug.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + x)));
+                        if (settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + plug.Name)) || (prefix != null && prefix.Value))
                         {
-                            await plugin.Ctor(provider);
                             completed = await plugin.Handle(input);
                             pluginExecuteTime.Stop();
                         }
                     }
                     else
                     {
-                        await plugin.Ctor(provider);
                         completed = await plugin.Handle(input);
                         pluginExecuteTime.Stop();
                     }
@@ -183,17 +162,7 @@ namespace KHLBotSharp.Services
                     }
                     if (plugin is IDisposable)
                     {
-                        if (plugin is IPluginType)
-                        {
-                            if ((plugin as IPluginType).RegisterType != RegisterType.Singleton)
-                            {
-                                (plugin as IDisposable).Dispose();
-                            }
-                        }
-                        else
-                        {
-                            (plugin as IDisposable).Dispose();
-                        }
+                        (plugin as IDisposable).Dispose();
                     }
                     if (completed)
                     {
@@ -233,11 +202,20 @@ namespace KHLBotSharp.Services
                 {
                     var khtp = provider.GetRequiredService<IKHLHttpService>();
                     StringBuilder sb = new StringBuilder();
-                    var iauto = ResolvePlugin().GroupBy(x => x.Group);
-                    foreach (var g in iauto.ToDictionary(g => g.Key, g => g.ToList()))
+                    var iauto = provider.GetServices<IKHLTextPlugin<T>>().GroupBy(x => { try { return x.Group; } catch { return null; } });
+                    foreach (var g in iauto.ToDictionary(g => { try {
+                            if (string.IsNullOrEmpty(g.Key))
+                                return "";
+                            else
+                                return g.Key; 
+                        } 
+                        catch 
+                        { 
+                            return ""; 
+                        } }, g => g.ToList()))
                     {
                         sb.AppendLine("---");
-                        if(g.Key != null)
+                        if (!string.IsNullOrEmpty(g.Key))
                         {
                             sb.AppendLine("**" + g.Key + "**");
                             sb.AppendLine("---");
@@ -275,11 +253,23 @@ namespace KHLBotSharp.Services
                 {
                     var khtp = provider.GetRequiredService<IKHLHttpService>();
                     StringBuilder sb = new StringBuilder();
-                    var iauto = ResolvePlugin().GroupBy(x => x.Group);
-                    foreach (var g in iauto.ToDictionary(g => g.Key, g => g.ToList()))
+                    var iauto = provider.GetServices<IKHLTextPlugin<T>>().GroupBy(x => { try { return x.Group; } catch { return null; } });
+                    foreach (var g in iauto.ToDictionary(g => {
+                        try
+                        {
+                            if (string.IsNullOrEmpty(g.Key))
+                                return "";
+                            else
+                                return g.Key;
+                        }
+                        catch
+                        {
+                            return "";
+                        }
+                    }, g => g.ToList()))
                     {
                         sb.AppendLine("---");
-                        if (g.Key != null)
+                        if (!string.IsNullOrEmpty(g.Key))
                         {
                             sb.AppendLine("**" + g.Key + "**");
                             sb.AppendLine("---");

@@ -9,7 +9,7 @@ namespace KHLBotSharp.WebHook.Net5
         public static void Main(string[] args)
         {
             Welcome.Print();
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().RunBot();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)

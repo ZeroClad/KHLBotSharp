@@ -2,7 +2,7 @@
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IGroupPictureMessageHandler : IKHLPlugin<GroupPictureMessageEvent>
+    public interface IGroupPictureMessageHandler : IKHLTextPlugin<GroupPictureMessageEvent>
     {
     }
 }

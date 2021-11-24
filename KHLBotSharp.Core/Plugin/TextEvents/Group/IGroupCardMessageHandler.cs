@@ -2,7 +2,8 @@
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IGroupCardMessageHandler : IKHLPlugin<GroupCardMessageEvent>
+    public interface IGroupCardMessageHandler : IKHLTextPlugin<GroupCardMessageEvent>
     {
+
     }
 }

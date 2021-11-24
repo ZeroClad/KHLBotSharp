@@ -2,7 +2,7 @@
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IPrivatePictureMessageHandler : IKHLPlugin<PrivatePictureMessageEvent>
+    public interface IPrivatePictureMessageHandler : IKHLTextPlugin<PrivatePictureMessageEvent>
     {
     }
 }

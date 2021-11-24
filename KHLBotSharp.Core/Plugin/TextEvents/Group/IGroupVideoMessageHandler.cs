@@ -2,7 +2,7 @@
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IGroupVideoMessageHandler : IKHLPlugin<GroupVideoMessageEvent>
+    public interface IGroupVideoMessageHandler : IKHLTextPlugin<GroupVideoMessageEvent>
     {
     }
 }

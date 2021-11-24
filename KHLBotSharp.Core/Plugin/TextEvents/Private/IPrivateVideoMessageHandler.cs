@@ -2,7 +2,7 @@
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IPrivateVideoMessageHandler : IKHLPlugin<PrivateVideoMessageEvent>
+    public interface IPrivateVideoMessageHandler : IKHLTextPlugin<PrivateVideoMessageEvent>
     {
     }
 }

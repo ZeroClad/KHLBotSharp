@@ -2,7 +2,7 @@
 
 namespace KHLBotSharp.EventHandlers.TextEvents
 {
-    public interface IPrivateCardMessageHandler : IKHLPlugin<PrivateCardMessageEvent>
+    public interface IPrivateCardMessageHandler : IKHLTextPlugin<PrivateCardMessageEvent>
     {
     }
 }
