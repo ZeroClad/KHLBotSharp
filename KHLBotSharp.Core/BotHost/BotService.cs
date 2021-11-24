@@ -43,6 +43,7 @@ namespace KHLBotSharp.Core.BotHost
         private readonly BotConfigSettings settings;
         private readonly IHttpClientService hc;
         private Stopwatch pingTime;
+
         public BotService(string bot)
         {
             var serviceCollection = new ServiceCollection();
@@ -76,13 +77,16 @@ namespace KHLBotSharp.Core.BotHost
 #pragma warning disable CS0612 // Type or member is obsolete
             LogService.Init(bot.Split('\\').Last(), settings);
 #pragma warning restore CS0612 // Type or member is obsolete
-
+            var hosting = new BackgroundServiceRunner(provider);
+            hosting.RunIHostServices();
             if (settings.Debug)
             {
                 LogService.Warning("Debug activated, this will cause more logs appears!");
             }
             LogService.Info("Completed init bot");
         }
+
+       
         /// <summary>
         /// 运行机器人
         /// </summary>

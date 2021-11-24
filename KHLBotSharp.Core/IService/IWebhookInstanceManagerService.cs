@@ -1,4 +1,5 @@
 ﻿using KHLBotSharp.Core.BotHost;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace KHLBotSharp.Services
@@ -11,5 +12,6 @@ namespace KHLBotSharp.Services
     {
         IWebhookInstanceManagerService Add(WebHookInstance obj);
         WebHookInstance Get(string name);
+        IList<WebHookInstance> HookInstances { get; }
     }
 }

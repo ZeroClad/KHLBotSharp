@@ -1,14 +1,17 @@
 ﻿using KHLBotSharp.Common.Request;
 using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.Core.Plugin;
 using KHLBotSharp.IService;
 using KHLBotSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Spectre.Console;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace KHLBotSharp.Core.BotHost
 {
@@ -100,6 +103,33 @@ namespace KHLBotSharp.Core.BotHost
             }
             service.AddSingleton<IWebhookInstanceManagerService>(hookManager);
             return service;
+        }
+        /// <summary>
+        /// Execute all IBackgroundService before starting up ASP.NET
+        /// </summary>
+        /// <param name="host"></param>
+
+        public static void RunBot(this IHost host)
+        {
+            var hook = host.Services.GetServices<IWebhookInstanceManagerService>();
+            foreach(var h in hook)
+            {
+                foreach(var i in h.HookInstances)
+                {
+                    try
+                    {
+                        var hosting = new BackgroundServiceRunner(i.ServiceProvider);
+                        hosting.RunIHostServices();
+                    }
+                    catch
+                    {
+
+                    }
+
+                }
+            }
+            host.Run();
+            
         }
     }
 }

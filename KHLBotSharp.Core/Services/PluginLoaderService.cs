@@ -1,10 +1,12 @@
 ﻿using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Core.Models.Objects;
+using KHLBotSharp.Core.Plugin;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
 using KHLBotSharp.Models.MessageHttps.RequestMessage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KHLBotSharp.Services
 {
@@ -22,6 +25,7 @@ namespace KHLBotSharp.Services
         private bool _Inited = false;
         public bool Inited => _Inited;
         private string currentPlugin;
+
         public void LoadPlugin(string bot, IServiceCollection services)
         {
             if (!Directory.Exists(Path.Combine(bot, "Plugins")))
@@ -56,6 +60,11 @@ namespace KHLBotSharp.Services
                     {
                         File.WriteAllText("error.log", type.FullName + " DI failed");
                     }
+                }
+                var ihosted = pluginAssembly.GetTypes().Where(x => typeof(IBackgroundService).IsAssignableFrom(x) && !x.IsAbstract);
+                foreach (var host in ihosted)
+                {
+                    services.AddSingleton(typeof(IBackgroundService), host);
                 }
                 var Iplugins = pluginAssembly.GetTypes().Where(x => typeof(IKHLPlugin).IsAssignableFrom(x) && !x.IsAbstract);
                 foreach (var type in Iplugins)
@@ -321,5 +330,6 @@ namespace KHLBotSharp.Services
             }
             _Inited = true;
         }
+
     }
 }
