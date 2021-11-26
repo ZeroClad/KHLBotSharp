@@ -18,7 +18,7 @@ namespace KHLBotSharp
         Task<bool> Handle(EventMessage<T> eventArgs);
     }
 
-    public interface IKHLTextPlugin<T>: IKHLPlugin where T : Extra
+    public interface IKHLTextPlugin<T>: IKHLPlugin<T> where T : Extra
     {
         /// <summary>
         /// 指令名字，可选是否需要
@@ -36,11 +36,6 @@ namespace KHLBotSharp
         /// 指令分类，用于生成help功能
         /// </summary>
         string Group { get; }
-        /// <summary>
-        /// <typeparamref name="T"/>事件处理，插件用
-        /// </summary>
-        /// <returns>true 为事件处理完毕，不需要接下去尝试别的Plugin class</returns>
-        Task<bool> Handle(EventMessage<T> eventArgs);
     }
 
     /// <summary>

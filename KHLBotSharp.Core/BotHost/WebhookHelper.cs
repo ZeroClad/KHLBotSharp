@@ -124,7 +124,6 @@ namespace KHLBotSharp.Core.BotHost
                     {
 
                     }
-
                 }
             }
             host.Run();

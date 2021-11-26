@@ -51,7 +51,7 @@ namespace KHLBotSharp.WebHook.NetCore3.Controllers
                 {
                     return new EmptyResult();
                 }
-                logService.Debug("Received call in webhook as url " + $"{ Request.Scheme }://{ Request.Host }{ Request.Path }{ Request.QueryString }");
+                logService.Debug("Received call in webhook as url " + $"{ Request.Scheme }://{ Request.Host }{ Request.Path }{ Request.QueryString }\n{json}");
                 JToken jtoken = JToken.Parse(json);
                 JObject decoded;
                 try
