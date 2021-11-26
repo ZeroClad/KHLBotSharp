@@ -21,7 +21,7 @@ namespace KHLBotSharp.Core.BotHost
             {
                 // Fire IHostedService.Start
                 await hostedService.StartAsync().ConfigureAwait(false);
-                AppDomain.CurrentDomain.ProcessExit += async (sender, e) => 
+                AppDomain.CurrentDomain.ProcessExit += (sender, e) => 
                 { 
                     Task.WaitAll(hostedService.StopAsync()); 
                 };
