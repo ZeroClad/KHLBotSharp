@@ -36,7 +36,7 @@ namespace KHLBotSharp.Services
             watcher.Changed += Watcher_Changed;
             watcher.Path = Path.Combine(bot, "Plugins");
             watcher.Filter = "*.dll";
-            watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+            watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.Size;
             watcher.EnableRaisingEvents = true;
             watcher.IncludeSubdirectories = true;
             /*加载所有文件夹内的插件文件夹*/

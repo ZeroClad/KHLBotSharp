@@ -24,6 +24,9 @@ namespace KHLBotSharp.Core.Models.Config
         public string DisableBotCommand { get; set; } = "";
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? DisableTimeWarn { get; set; }
+        [JsonIgnore]
+        public string BotPath { get; set; }
+
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
@@ -72,6 +75,7 @@ namespace KHLBotSharp.Core.Models.Config
         bool Debug { get; set; }
         string DisableBotCommand { get; set; }
         bool? DisableTimeWarn { get; set; }
+        string BotPath { get; set; }
         /// <summary>
         /// 保存BotCOnfig，作出特定修改后可以直接保存起来下次打开Bot自动加载使用
         /// </summary>

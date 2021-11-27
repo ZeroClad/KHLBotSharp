@@ -67,6 +67,7 @@ namespace KHLBotSharp.Core.BotHost
                 }
                 var settings = new BotConfigSettings();
                 settings.Load(bot);
+                settings.BotPath = bot;
                 if (!settings.Active)
                 {
                     //Skip load
