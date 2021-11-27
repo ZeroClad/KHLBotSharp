@@ -91,6 +91,14 @@
 |`IBotConfigSettings`|获取在当前Profile内的config.ini设置|
 
 ---
+
+### 后台线程
+打从`v1.0.0.8`开始，如果你需要有主动发送通知的功能，可以尝试使用`IBackgroundService` interface
+所有`IBackgroundService`会在第一次触发指令后开始执行`StartAsync`，作为开始加载数据或者开启新的Task或者Timer在后台运行
+`IBackgroundService`使用的Dependency Injector，因此可以享有所有DI功能
+
+---
+
 > 接下来就是自主编写插件，而插件将会使用到的Http请求则可[在这里查看interface代码](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/IService/IKHLHttpService.cs)
 - 插件需要添加KHLBotSharp.Core作为Dependency，打包后此dll不需要复制
 - 当前将会使用`IGroupTextMessageHandler`作为例子
