@@ -12,7 +12,7 @@ namespace KHLBotSharp.Models.MessageHttps.ResponseMessage
     public class KHLResponseMessage
     {
         [JsonProperty("code")]
-        public string Code { get; set; }
+        public int Code { get; set; }
         [JsonProperty("message")]
         public string Message { get; set; }
         public override string ToString()

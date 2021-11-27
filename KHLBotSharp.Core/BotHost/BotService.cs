@@ -60,6 +60,7 @@ namespace KHLBotSharp.Core.BotHost
             }
             settings = new BotConfigSettings();
             settings.Load(bot);
+            settings.BotPath = bot;
             if (string.IsNullOrEmpty(settings.BotToken) && !Console.IsInputRedirected && Console.KeyAvailable)
             {
                 settings.BotToken = AnsiConsole.Ask<string>("Input BotToken");

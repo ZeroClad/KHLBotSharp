@@ -24,44 +24,44 @@ namespace KHLBotSharp.Common.Request
 
         public Task AddChannelRoles(string ChannelId, bool IsUser, string UserIdOrRoleId)
         {
-            return httpApi.PostAsync<object>("channel-role/create", new { channel_id = ChannelId, type = IsUser ? "user_id" : "role_id", value = UserIdOrRoleId });
+            return httpApi.PostAsync("channel-role/create", new { channel_id = ChannelId, type = IsUser ? "user_id" : "role_id", value = UserIdOrRoleId });
         }
 
         public Task ChangeNick(string GuildId, string UserId, string NickName = null)
         {
-            return httpApi.PostAsync<object>("guild/nickname", new { guild_id = GuildId, nickname = NickName, user_id = UserId });
+            return httpApi.PostAsync("guild/nickname", new { guild_id = GuildId, nickname = NickName, user_id = UserId });
         }
 
         public Task<KHLResponseMessage<Channel>> CreateChannel(CreateChannel Request)
         {
-            return httpApi.PostAsync<KHLResponseMessage<Channel>>("channel/create", Request);
+            return httpApi.PostAsync<Channel>("channel/create", Request);
         }
 
         public Task<KHLResponseMessage<PrivateMessageDetail>> CreatePrivateMessage(string TargetId)
         {
-            return httpApi.PostAsync<KHLResponseMessage<PrivateMessageDetail>>("user-chat/create", new { target_id = TargetId });
+            return httpApi.PostAsync<PrivateMessageDetail>("user-chat/create", new { target_id = TargetId });
         }
 
         public Task<KHLResponseMessage<ServerRole>> CreateServerRole(string GuildId, string Name = null)
         {
-            return httpApi.PostAsync<KHLResponseMessage<ServerRole>>("guild-role/create", new { guild_id = GuildId, name = Name });
+            return httpApi.PostAsync<ServerRole>("guild-role/create", new { guild_id = GuildId, name = Name });
         }
 
         public Task DeleteChannel(string ChannelId)
         {
-            return httpApi.PostAsync<object>("channel/delete", new { channel_id = ChannelId });
+            return httpApi.PostAsync("channel/delete", new { channel_id = ChannelId });
         }
 
         public Task DeleteServerRole(string GuildId, uint RoleId)
         {
-            return httpApi.PostAsync<object>("guild-role/delete", new { guild_id = GuildId, role_id = RoleId });
+            return httpApi.PostAsync("guild-role/delete", new { guild_id = GuildId, role_id = RoleId });
         }
 
         public async Task<KHLResponseMessage<Channel>> GetChannelDetail(string ChannelId)
         {
             if (!cache.TryGetValue("channel/view/" + ChannelId, out KHLResponseMessage<Channel> result))
             {
-                result = await httpApi.PostAsync<KHLResponseMessage<Channel>>("channel/view", new { target_id = ChannelId });
+                result = await httpApi.PostAsync<Channel>("channel/view", new { target_id = ChannelId });
                 cache.Set("channel/view/" + ChannelId, result, DateTimeOffset.Now.AddHours(1));
             }
             return result;
@@ -167,47 +167,47 @@ namespace KHLBotSharp.Common.Request
 
         public Task GrantServerRole(string GuildId, string UserId, uint RoleId)
         {
-            return httpApi.PostAsync<object>("guild-role/grant", new { guild_id = GuildId, user_id = UserId, role_id = RoleId });
+            return httpApi.PostAsync("guild-role/grant", new { guild_id = GuildId, user_id = UserId, role_id = RoleId });
         }
 
         public Task GroupMessageAddReaction(string MsgId, string Emoji)
         {
-            return httpApi.PostAsync<object>("message/add-reaction", new { msg_id = MsgId, emoji = Emoji });
+            return httpApi.PostAsync("message/add-reaction", new { msg_id = MsgId, emoji = Emoji });
         }
 
         public Task GroupMessageRemoveReaction(string MsgId, string Emoji, string UserId = null)
         {
-            return httpApi.PostAsync<object>("message/add-reaction", new { msg_id = MsgId, emoji = Emoji, user_id = UserId });
+            return httpApi.PostAsync("message/add-reaction", new { msg_id = MsgId, emoji = Emoji, user_id = UserId });
         }
 
         public Task Kick(string GuildId, string TargetId)
         {
-            return httpApi.PostAsync<object>("guild/kickout", new { guild_id = GuildId, target_id = TargetId });
+            return httpApi.PostAsync("guild/kickout", new { guild_id = GuildId, target_id = TargetId });
         }
 
         public Task LeaveGuild(string GuildId)
         {
-            return httpApi.PostAsync<object>("guild/leave", new { guild_id = GuildId });
+            return httpApi.PostAsync("guild/leave", new { guild_id = GuildId });
         }
 
         public Task MoveUserVoiceChannel(string ChannelId, params string[] UserIds)
         {
-            return httpApi.PostAsync<object>("channel/move-user", new { target_id = ChannelId, user_ids = UserIds });
+            return httpApi.PostAsync("channel/move-user", new { target_id = ChannelId, user_ids = UserIds });
         }
 
         public Task PrivateMessageAddReaction(string MsgId, string Emoji)
         {
-            return httpApi.PostAsync<object>("direct-message/add-reaction", new { msg_id = MsgId, emoji = Emoji });
+            return httpApi.PostAsync("direct-message/add-reaction", new { msg_id = MsgId, emoji = Emoji });
         }
 
         public Task PrivateMessageRemoveReaction(string MsgId, string Emoji)
         {
-            return httpApi.PostAsync<object>("direct-message/delete-reaction", new { msg_id = MsgId, emoji = Emoji });
+            return httpApi.PostAsync("direct-message/delete-reaction", new { msg_id = MsgId, emoji = Emoji });
         }
 
         public Task RemoveGroupMessage(string MsgId)
         {
-            return httpApi.PostAsync<object>("message/delete", new { msg_id = MsgId });
+            return httpApi.PostAsync("message/delete", new { msg_id = MsgId });
         }
 
         public Task RemovePrivateMessage(string ChatCode)
@@ -217,32 +217,33 @@ namespace KHLBotSharp.Common.Request
 
         public Task RevokeServerRole(string GuildId, string UserId, uint RoleId)
         {
-            return httpApi.PostAsync<object>("guild-role/revoke", new { guild_id = GuildId, user_id = UserId, role_id = RoleId });
+            return httpApi.PostAsync("guild-role/revoke", new { guild_id = GuildId, user_id = UserId, role_id = RoleId });
         }
 
         public async Task<string> SendGroupMessage(SendMessage Request)
         {
-            return (await httpApi.PostAsync<KHLResponseMessage<SendChannelMessageReply>>("message/create", Request)).Data.MessageId;
+            var msgResult = await httpApi.PostAsync<SendChannelMessageReply>("message/create", Request);
+            return msgResult.Data.MessageId;
         }
 
         public Task SetMute(SetServerMute Request)
         {
-            return httpApi.PostAsync<object>("guild-mute/create", Request);
+            return httpApi.PostAsync("guild-mute/create", Request);
         }
 
         public Task UnMute(SetServerMute Request)
         {
-            return httpApi.PostAsync<object>("guild-mute/delete", Request);
+            return httpApi.PostAsync("guild-mute/delete", Request);
         }
 
         public Task UpdateGroupMessage(UpdateMessage Request)
         {
-            return httpApi.PostAsync<KHLResponseMessage<ServerRole>>("message/update", Request);
+            return httpApi.PostAsync<ServerRole>("message/update", Request);
         }
 
         public Task<KHLResponseMessage<ServerRole>> UpdateServerRole(UpdateServerRole Request)
         {
-            return httpApi.PostAsync<KHLResponseMessage<ServerRole>>("guild-role/update", Request);
+            return httpApi.PostAsync<ServerRole>("guild-role/update", Request);
         }
 
         public async Task<string> UploadFile(string filePath)
@@ -266,7 +267,7 @@ namespace KHLBotSharp.Common.Request
 
         public async Task OfflineBot()
         {
-            await httpApi.PostAsync<dynamic>("user/offline", new { });
+            await httpApi.PostAsync("user/offline", new { });
         }
 
         public Task<string> SendPrivateMessage(SendMessage Request)
