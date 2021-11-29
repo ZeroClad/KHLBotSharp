@@ -2,6 +2,7 @@
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data;
+using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
@@ -158,7 +159,7 @@ namespace KHLBotSharp.Services
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public async Task<T> PostAsync<T>(string url, object data)
+        public async Task<KHLResponseMessage<T>> PostAsync<T>(string url, object data) where T : BaseData
         {
             try
             {
@@ -177,7 +178,11 @@ namespace KHLBotSharp.Services
                             using (JsonReader jr = new JsonTextReader(r))
                             {
                                 JsonSerializer s = new JsonSerializer();
-                                var resultdata = s.Deserialize<T>(jr);
+                                var resultdata = s.Deserialize<KHLResponseMessage<T>>(jr);
+                                if (resultdata.Code != 0)
+                                {
+                                    throw new HttpRequestException(resultdata.Message);
+                                }
                                 result.Dispose();
                                 stopwatch.Stop();
                                 log.Write("POST " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -186,8 +191,9 @@ namespace KHLBotSharp.Services
                         }
                         else
                         {
-                            log.Write(await r.ReadToEndAsync());
-                            throw new HttpRequestException(((int)result.StatusCode).ToString());
+                            var body = await r.ReadToEndAsync();
+                            log.Write(body);
+                            throw new HttpRequestException(((int)result.StatusCode).ToString() +":"+ body);
                         }
                     }
                 }
@@ -302,7 +308,7 @@ namespace KHLBotSharp.Services
             try
             {
                 var requestContent = new MultipartFormDataContent();
-                var fileContent = new ByteArrayContent(ReadFully(file));
+                var fileContent = new StreamContent(file);
                 if (fileName.Contains("\\"))
                 {
                     fileName = fileName.Substring(fileName.LastIndexOf("\\"));
@@ -386,6 +392,75 @@ namespace KHLBotSharp.Services
                     input.CopyTo(ms);
                     return ms.ToArray();
                 }
+            }
+        }
+
+        public async Task PostAsync(string url, object data)
+        {
+            try
+            {
+                stopwatch.Reset();
+                stopwatch.Start();
+                var json = JsonConvert.SerializeObject(data);
+                log.Write("POST " + url + " : " + json);
+                var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+                var result = await client.PostAsync(url, stringContent);
+                using (var stream = await result.Content.ReadAsStreamAsync())
+                {
+                    using (StreamReader r = new StreamReader(stream))
+                    {
+                        if (result.IsSuccessStatusCode)
+                        {
+                            using (JsonReader jr = new JsonTextReader(r))
+                            {
+                                JsonSerializer s = new JsonSerializer();
+                                var resultdata = s.Deserialize<KHLResponseMessage>(jr);
+                                if (resultdata.Code != 0)
+                                {
+                                    throw new HttpRequestException(resultdata.Message);
+                                }
+                                result.Dispose();
+                                stopwatch.Stop();
+                                log.Write("POST " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
+                            }
+                        }
+                        else
+                        {
+                            var body = await r.ReadToEndAsync();
+                            log.Write(body);
+                            throw new HttpRequestException(((int)result.StatusCode).ToString() + ":" + body);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is OperationCanceledException)
+                {
+                    log.Error("Connection Timeout for " + url);
+                }
+                else
+                {
+                    log.Error(e.ToString());
+                }
+                if (e.Message.Contains("401") || e.Message.Contains("403"))
+                {
+                    throw new NoPermissionException();
+                }
+                if (e.Message.Contains("400"))
+                {
+                    settings.Active = false;
+                    log.Error("机器人已被封禁，自动取消Bot运行");
+                    settings.Save();
+                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                    Environment.Exit(0);
+                }
+                if (e.Message.Contains("429"))
+                {
+                    throw new RateLimitException();
+                }
+                errorRateService.AddError();
+                await PostAsync(url, data);
             }
         }
 

@@ -25,7 +25,7 @@ namespace KHLBotSharp.Core.Models
         [JsonProperty("theme")]
         public string ThemeString { get; set; } = "primary";
         [JsonProperty("value")]
-        public string Value { get; set; }
+        public string Value { get; set; } = Guid.NewGuid().ToString();
         [JsonProperty("click")]
         public string Click { get; set; } = "return-val";
         public ICardTextComponent Text { get; set; }

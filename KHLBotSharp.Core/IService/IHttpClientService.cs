@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using KHLBotSharp.Models.MessageHttps.ResponseMessage;
+using KHLBotSharp.Models.MessageHttps.ResponseMessage.Data.Abstract;
+using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -24,7 +26,12 @@ namespace KHLBotSharp.IService
         /// 发送Post请求，并且附带数据，返回T类型请求
         /// </summary>
         /// <returns></returns>
-        Task<T> PostAsync<T>(string url, object data);
+        Task<KHLResponseMessage<T>> PostAsync<T>(string url, object data) where T : BaseData;
+        /// <summary>
+        /// 发送Post请求，并且附带数据，返回T类型请求
+        /// </summary>
+        /// <returns></returns>
+        Task PostAsync(string url, object data);
         /// <summary>
         /// 上传Stream数据作为文件到开黑服务器
         /// </summary>
