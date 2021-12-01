@@ -193,7 +193,7 @@ namespace KHLBotSharp.Services
                         {
                             var body = await r.ReadToEndAsync();
                             log.Write(body);
-                            throw new HttpRequestException(((int)result.StatusCode).ToString() +":"+ body);
+                            throw new HttpRequestException(((int)result.StatusCode).ToString());
                         }
                     }
                 }
@@ -428,7 +428,7 @@ namespace KHLBotSharp.Services
                         {
                             var body = await r.ReadToEndAsync();
                             log.Write(body);
-                            throw new HttpRequestException(((int)result.StatusCode).ToString() + ":" + body);
+                            throw new HttpRequestException(((int)result.StatusCode).ToString());
                         }
                     }
                 }

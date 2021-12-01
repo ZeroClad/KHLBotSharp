@@ -1,5 +1,6 @@
 ﻿using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Core.Models.Objects;
+using KHLBotSharp.Core.Plugin;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.EventsMessage;
 using KHLBotSharp.Models.MessageHttps.EventMessage.Abstract;
@@ -56,6 +57,11 @@ namespace KHLBotSharp.Services
                     {
                         File.WriteAllText("error.log", type.FullName + " DI failed");
                     }
+                }
+                var backgroundServices = pluginAssembly.GetTypes().Where(x => typeof(IBackgroundService).IsAssignableFrom(x));
+                foreach (var bs in backgroundServices)
+                {
+                    services.AddScoped(typeof(IBackgroundService), bs);
                 }
                 var Iplugins = pluginAssembly.GetTypes().Where(x => typeof(IKHLPlugin).IsAssignableFrom(x) && !x.IsAbstract);
                 foreach (var type in Iplugins)

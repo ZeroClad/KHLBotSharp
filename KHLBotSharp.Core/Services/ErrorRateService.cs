@@ -24,6 +24,7 @@ namespace KHLBotSharp.Services
         {
             Errors++;
             ResetError = 0;
+            CheckRestart();
         }
         /// <summary>
         /// <inheritdoc/>
@@ -34,6 +35,10 @@ namespace KHLBotSharp.Services
             {
                 logService.Debug("Detected Error Count: " + Errors);
             }
+            CheckRestart();
+        }
+        private void CheckRestart()
+        {
             if (Errors > ErrorThreehold)
             {
                 logService.Error("Too much error detected, Restarting bot!");
@@ -41,6 +46,7 @@ namespace KHLBotSharp.Services
                 Environment.Exit(0);
             }
         }
+
         /// <summary>
         /// <inheritdoc/>
         /// </summary>

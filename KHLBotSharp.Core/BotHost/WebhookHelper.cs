@@ -1,15 +1,18 @@
 ﻿using KHLBotSharp.Common.Request;
 using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.Core.Plugin;
 using KHLBotSharp.IService;
 using KHLBotSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Spectre.Console;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace KHLBotSharp.Core.BotHost
 {
@@ -109,26 +112,34 @@ namespace KHLBotSharp.Core.BotHost
         /// </summary>
         /// <param name="host"></param>
 
-        public static void RunBot(this IHost host)
+        public static async Task RunBot(this IHost host)
         {
-            var hook = host.Services.GetServices<IWebhookInstanceManagerService>();
-            foreach (var h in hook)
+            using (var scope = host.Services.CreateScope())
             {
-                foreach (var i in h.HookInstances)
+                var hook = host.Services.GetServices<IWebhookInstanceManagerService>();
+                foreach (var h in hook)
                 {
-                    try
+                    foreach (var i in h.HookInstances)
                     {
-                        var hosting = new BackgroundServiceRunner(i.ServiceProvider);
-                        hosting.RunIHostServices();
-                    }
-                    catch
-                    {
-
+                        using (i.ServiceProvider.CreateScope())
+                        {
+                            try
+                            {
+                                host.Services.GetService<ILogService>().Info("Starting backgroundServices for " + i.Name);
+                                host.Services.GetService<ILogService>().Info("Detected " + i.Name + " have " + i.ServiceProvider.GetServices<IBackgroundService>().Count() + " IBackgroundService Registered");
+                                var hosting = new BackgroundServiceRunner(i.ServiceProvider);
+                                await hosting.RunIHostServices();
+                            }
+                            catch (Exception ex)
+                            {
+                                host.Services.GetService<ILogService>().Error(ex.ToString());
+                            }
+                        }
                     }
                 }
             }
-            host.Run();
-
+            await host.RunAsync();
+            await Task.Delay(-1);
         }
     }
 }

@@ -14,17 +14,25 @@ namespace KHLBotSharp.Core.BotHost
         }
         //Create background host here since we don't able to run such thing in WebSocket version
 
-        public async void RunIHostServices()
+        public async Task RunIHostServices()
         {
             var bgservices = provider.GetServices<IBackgroundService>();
             foreach (IBackgroundService hostedService in bgservices)
             {
-                // Fire IHostedService.Start
-                await hostedService.StartAsync().ConfigureAwait(false);
-                AppDomain.CurrentDomain.ProcessExit += async (sender, e) => 
-                { 
-                    Task.WaitAll(hostedService.StopAsync()); 
-                };
+                try
+                {
+                    // Fire IHostedService.Start
+                    await hostedService.StartAsync().ConfigureAwait(false);
+                    AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+                    {
+                        Task.WaitAll(hostedService.StopAsync());
+                    };
+                }
+                catch
+                {
+
+                }
+
             }
         }
     }
