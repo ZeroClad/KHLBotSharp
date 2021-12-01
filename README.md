@@ -91,10 +91,13 @@
 |`IBotConfigSettings`|获取在当前Profile内的config.ini设置|
 
 ---
+### 版本注意：
+目前SDK有v1和v2版本，v1将会是LTS而v2则会是当前版本，v1将会在开黑出版v4 API后停更。推荐使用v2 SDK
+
+---
 > 接下来就是自主编写插件，而插件将会使用到的Http请求则可[在这里查看interface代码](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/IService/IKHLHttpService.cs)
 - 插件需要添加KHLBotSharp.Core作为Dependency，打包后此dll不需要复制
 - 当前将会使用`IGroupTextMessageHandler`作为例子
-- 点击这里查看[一般插件的例子文件(v1 SDK都支持)](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/PluginSample.cs)，这个插件是复读机
 - 点击这里查看[新版本插件的例子文件(v1.0.0.6 SDK 开始支持)](https://github.com/PoH98/KHLBotSharp/blob/master/TestPlugin/NewPluginSample.cs)，这个插件是复读机
 - `Ctor`为插件的初始化，在这里你会获得IServiceProvider，源自于Dependency Injection(DI)，因此可以进行`GetService`获取你想使用的东西，但是还请注意，这里并不能让你注册DI，只能获取
 - `Handle`则是插件的真正运行位置，当收到特定的Event后将会传输到这，再进行处理即可
