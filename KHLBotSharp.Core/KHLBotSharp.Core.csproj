@@ -5,11 +5,11 @@
     <Description>开黑啦机器人框架</Description>
     <Copyright>MIT License</Copyright>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.0.9</Version>
+    <Version>1.0.0.10</Version>
     <RepositoryUrl>https://github.com/PoH98/KHLBotSharp</RepositoryUrl>
     <PackageTags>KHLSharp.Core</PackageTags>
-    <AssemblyVersion>1.0.0.9</AssemblyVersion>
-    <FileVersion>1.0.0.9</FileVersion>
+    <AssemblyVersion>1.0.0.10</AssemblyVersion>
+    <FileVersion>1.0.0.10</FileVersion>
     <PackageProjectUrl>https://github.com/PoH98/KHLBotSharp</PackageProjectUrl>
     <Authors>PoH98</Authors>
   </PropertyGroup>
