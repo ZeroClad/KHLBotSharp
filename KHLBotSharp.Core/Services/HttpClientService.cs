@@ -71,31 +71,7 @@ namespace KHLBotSharp.Services
             }
             catch (Exception e)
             {
-                if (e is OperationCanceledException)
-                {
-                    log.Error("Connection Timeout for " + url);
-                }
-                else
-                {
-                    log.Error(e.ToString());
-                }
-                errorRateService.AddError();
-                if (e.Message.Contains("401") || e.Message.Contains("403"))
-                {
-                    throw new NoPermissionException();
-                }
-                if (e.Message.Contains("400"))
-                {
-                    settings.Active = false;
-                    log.Error("机器人已被封禁，自动取消Bot运行");
-                    settings.Save();
-                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
-                    Environment.Exit(0);
-                }
-                if (e.Message.Contains("429"))
-                {
-                    throw new RateLimitException();
-                }
+                ExceptionHandler(e, url);
                 return await GetAsync<T>(url);
             }
 
@@ -200,31 +176,7 @@ namespace KHLBotSharp.Services
             }
             catch (Exception e)
             {
-                if (e is OperationCanceledException)
-                {
-                    log.Error("Connection Timeout for " + url);
-                }
-                else
-                {
-                    log.Error(e.ToString());
-                }
-                if (e.Message.Contains("401") || e.Message.Contains("403"))
-                {
-                    throw new NoPermissionException();
-                }
-                if (e.Message.Contains("400"))
-                {
-                    settings.Active = false;
-                    log.Error("机器人已被封禁，自动取消Bot运行");
-                    settings.Save();
-                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
-                    Environment.Exit(0);
-                }
-                if (e.Message.Contains("429"))
-                {
-                    throw new RateLimitException();
-                }
-                errorRateService.AddError();
+                ExceptionHandler(e, url);
                 return await PostAsync<T>(url, data);
             }
         }
@@ -267,35 +219,7 @@ namespace KHLBotSharp.Services
             }
             catch (Exception e)
             {
-                if (e is OperationCanceledException)
-                {
-                    log.Error("Connection Timeout for " + client.BaseAddress + "asset/create");
-                }
-                else
-                {
-                    log.Error(e.ToString());
-                }
-                if (e is FileNotFoundException)
-                {
-                    throw;
-                }
-                if (e.Message.Contains("401") || e.Message.Contains("403"))
-                {
-                    throw new NoPermissionException();
-                }
-                if (e.Message.Contains("400"))
-                {
-                    settings.Active = false;
-                    log.Error("机器人已被封禁，自动取消Bot运行");
-                    settings.Save();
-                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
-                    Environment.Exit(0);
-                }
-                if (e.Message.Contains("429"))
-                {
-                    throw new RateLimitException();
-                }
-                errorRateService.AddError();
+                ExceptionHandler(e, "asset/create");
                 return await UploadFileAsync(file);
             }
 
@@ -346,35 +270,7 @@ namespace KHLBotSharp.Services
             }
             catch (Exception e)
             {
-                if (e is OperationCanceledException)
-                {
-                    log.Error("Connection Timeout for " + client.BaseAddress + "asset/create");
-                }
-                else
-                {
-                    log.Error(e.ToString());
-                }
-                if (e is FileNotFoundException)
-                {
-                    throw;
-                }
-                if (e.Message.Contains("401") || e.Message.Contains("403"))
-                {
-                    throw new NoPermissionException();
-                }
-                if (e.Message.Contains("400"))
-                {
-                    settings.Active = false;
-                    log.Error("机器人已被封禁，自动取消Bot运行");
-                    settings.Save();
-                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
-                    Environment.Exit(0);
-                }
-                if (e.Message.Contains("429"))
-                {
-                    throw new RateLimitException();
-                }
-                errorRateService.AddError();
+                ExceptionHandler(e, "asset/create");
                 return await UploadFileAsync(file, fileName);
             }
         }
@@ -435,31 +331,7 @@ namespace KHLBotSharp.Services
             }
             catch (Exception e)
             {
-                if (e is OperationCanceledException)
-                {
-                    log.Error("Connection Timeout for " + url);
-                }
-                else
-                {
-                    log.Error(e.ToString());
-                }
-                if (e.Message.Contains("401") || e.Message.Contains("403"))
-                {
-                    throw new NoPermissionException();
-                }
-                if (e.Message.Contains("400"))
-                {
-                    settings.Active = false;
-                    log.Error("机器人已被封禁，自动取消Bot运行");
-                    settings.Save();
-                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
-                    Environment.Exit(0);
-                }
-                if (e.Message.Contains("429"))
-                {
-                    throw new RateLimitException();
-                }
-                errorRateService.AddError();
+                ExceptionHandler(e, url);
                 await PostAsync(url, data);
             }
         }
@@ -467,6 +339,35 @@ namespace KHLBotSharp.Services
         ~HttpClientService()
         {
             client.Dispose();
+        }
+
+        private void ExceptionHandler(Exception e, string url)
+        {
+            if (e is OperationCanceledException)
+            {
+                log.Error("Connection Timeout for " + url);
+            }
+            else
+            {
+                log.Error(e.ToString());
+            }
+            if (e.Message.Contains("401") || e.Message.Contains("403"))
+            {
+                throw new NoPermissionException();
+            }
+            if (e.Message.Contains("400") && e.Message.Contains("封禁"))
+            {
+                settings.Active = false;
+                log.Error("机器人已被封禁，自动取消Bot运行");
+                settings.Save();
+                Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                Environment.Exit(0);
+            }
+            if (e.Message.Contains("429"))
+            {
+                throw new RateLimitException();
+            }
+            errorRateService.AddError();
         }
     }
 
@@ -478,10 +379,5 @@ namespace KHLBotSharp.Services
     public class RateLimitException : Exception
     {
         public override string Message => "机器人已被限速！将会自动取消所有正在发送的请求！";
-    }
-
-    public class BannedException : Exception
-    {
-        public override string Message => "机器人已被封禁！请取消机器人的运行！";
     }
 }
