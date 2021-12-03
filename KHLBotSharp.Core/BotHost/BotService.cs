@@ -70,6 +70,8 @@ namespace KHLBotSharp.Core.BotHost
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
             pluginLoader.Init(provider);
+            var serviceRunner = new BackgroundServiceRunner(provider);
+            serviceRunner.RunIHostServices();
             LogService = provider.GetService<ILogService>();
             hc = provider.GetService<IHttpClientService>();
             timer.Interval = 30000;

@@ -112,25 +112,31 @@ namespace KHLBotSharp.Core.BotHost
 
         public static void RunBot(this IHost host)
         {
-            var hook = host.Services.GetServices<IWebhookInstanceManagerService>();
-            foreach(var h in hook)
+            using (var scope = host.Services.CreateScope())
             {
-                foreach(var i in h.HookInstances)
+                var hook = host.Services.GetServices<IWebhookInstanceManagerService>();
+                foreach (var h in hook)
                 {
-                    try
+                    foreach (var i in h.HookInstances)
                     {
-                        var hosting = new BackgroundServiceRunner(i.ServiceProvider);
-                        hosting.RunIHostServices();
+                        using (i.ServiceProvider.CreateScope())
+                        {
+                            try
+                            {
+                                host.Services.GetService<ILogService>().Info("Starting backgroundServices for " + i.Name);
+                                host.Services.GetService<ILogService>().Info("Detected " + i.Name + " have " + i.ServiceProvider.GetServices<IBackgroundService>().Count() + " IBackgroundService Registered");
+                                var hosting = new BackgroundServiceRunner(i.ServiceProvider);
+                                hosting.RunIHostServices();
+                            }
+                            catch (Exception ex)
+                            {
+                                host.Services.GetService<ILogService>().Error(ex.ToString());
+                            }
+                        }
                     }
-                    catch
-                    {
-
-                    }
-
                 }
             }
             host.Run();
-            
         }
     }
 }
