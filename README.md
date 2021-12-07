@@ -1,6 +1,9 @@
 # KHLBotSharp
 开黑啦机器人运行器，支持多机器人以及插件模式运行
 
+## 启动器
+- [启动器已经分离到新的repose](https://github.com/PoH98/KHLSharpLauncher)
+
 ## 下载
 - [可以到这里浏览所有可下载的zip包](https://github.com/PoH98/KHLBotSharp/releases/latest)
 - [Nuget 链接](https://www.nuget.org/packages/KHLBotSharp.Core)
