@@ -2,6 +2,7 @@
 using KHLBotSharp.Common.MessageParser;
 using KHLBotSharp.Common.Request;
 using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.Core.Plugin;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.Objects;
@@ -69,8 +70,6 @@ namespace KHLBotSharp.Core.BotHost
             serviceCollection.AddSingleton(typeof(IBotConfigSettings), settings);
             provider = serviceCollection.BuildServiceProvider();
             pluginLoader.Init(provider);
-            var serviceRunner = new BackgroundServiceRunner(provider);
-            _ = serviceRunner.RunIHostServices();
             LogService = provider.GetService<ILogService>();
             hc = provider.GetService<IHttpClientService>();
             timer.Interval = 30000;
@@ -79,7 +78,9 @@ namespace KHLBotSharp.Core.BotHost
 #pragma warning disable CS0612 // Type or member is obsolete
             LogService.Init(bot.Split('\\').Last(), settings);
 #pragma warning restore CS0612 // Type or member is obsolete
-
+            LogService.Info("Detected " + provider.GetServices<IBackgroundService>().Count() + " of IBackgroundServices");
+            var serviceRunner = new BackgroundServiceRunner(provider);
+            _ = serviceRunner.RunIHostServices();
             if (settings.Debug)
             {
                 LogService.Warning("Debug activated, this will cause more logs appears!");
