@@ -129,9 +129,10 @@ namespace KHLBotSharp.Core.BotHost
             {
                 try
                 {
-                    Me = (await hc.GetAsync<KHLResponseMessage<User>>("user/me", HttpCompletionOption.ResponseHeadersRead)).Data;
+                    IKHLHttpService khl = provider.GetRequiredService<IKHLHttpService>();
+                    Me = (await khl.GetMyself()).Data;
                     LogService.Info("Bot ID readed as " + Me.Id + " Name: " + Me.Nick);
-                    var result = await hc.GetAsync<JObject>("gateway/index", HttpCompletionOption.ResponseHeadersRead);
+                    var result = await hc.GetCustomAsync<JObject>("gateway/index");
                     var socketUrl = result["data"]["url"].ToString();
                     await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
                     LogService.Info("WebSocket Established");
@@ -277,7 +278,7 @@ namespace KHLBotSharp.Core.BotHost
             }
             try
             {
-                var result = await hc.GetAsync<JObject>("gateway/index");
+                var result = await hc.GetCustomAsync<JObject>("gateway/index");
                 var socketUrl = result["data"]["url"].ToString();
                 ws = new ClientWebSocket();
                 await ws.ConnectAsync(new Uri(socketUrl), CancellationToken.None);

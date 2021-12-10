@@ -13,15 +13,22 @@ namespace KHLBotSharp.IService
     public interface IHttpClientService
     {
         /// <summary>
+        /// Get request
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        Task<T> GetCustomAsync<T>(string url);
+        /// <summary>
         /// 发送Get请求，返回T类型数据
         /// </summary>
         /// <returns></returns>
-        Task<T> GetAsync<T>(string url);
+        Task<KHLResponseMessage<T>> GetAsync<T>(string url) where T : BaseData;
         /// <summary>
         /// 发送Get请求，并且附带数据，返回T类型请求
         /// </summary>
         /// <returns></returns>
-        Task<T> GetAsync<T>(string url, object data);
+        Task<KHLResponseMessage<T>> GetAsync<T>(string url, object data) where T : BaseData;
         /// <summary>
         /// 发送Post请求，并且附带数据，返回T类型请求
         /// </summary>

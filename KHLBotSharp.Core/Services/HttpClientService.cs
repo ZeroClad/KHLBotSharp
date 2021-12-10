@@ -35,7 +35,7 @@ namespace KHLBotSharp.Services
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public async Task<T> GetAsync<T>(string url)
+        public async Task<KHLResponseMessage<T>> GetAsync<T>(string url) where T : BaseData
         {
             stopwatch.Reset();
             stopwatch.Start();
@@ -53,7 +53,11 @@ namespace KHLBotSharp.Services
                                 using (JsonReader jr = new JsonTextReader(r))
                                 {
                                     JsonSerializer s = new JsonSerializer();
-                                    var data = s.Deserialize<T>(jr);
+                                    var data = s.Deserialize<KHLResponseMessage<T>>(jr);
+                                    if(data.Code != 0)
+                                    {
+                                        throw new HttpRequestException(data.Message);
+                                    }
                                     result.Dispose();
                                     stopwatch.Stop();
                                     log.Write("GET " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -79,8 +83,8 @@ namespace KHLBotSharp.Services
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public Task<T> GetAsync<T>(string url, object data)
-        {
+        public Task<KHLResponseMessage<T>> GetAsync<T>(string url, object data) where T : BaseData
+{
             StringBuilder sb = new StringBuilder();
             sb.Append(url + "?");
             var proplist = data.GetType().GetProperties();
@@ -368,6 +372,47 @@ namespace KHLBotSharp.Services
                 throw new RateLimitException();
             }
             errorRateService.AddError();
+        }
+
+        public async Task<T> GetCustomAsync<T>(string url)
+        {
+            stopwatch.Reset();
+            stopwatch.Start();
+            try
+            {
+                log.Write("GET " + url);
+                using (var result = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    using (var stream = await result.Content.ReadAsStreamAsync())
+                    {
+                        using (StreamReader r = new StreamReader(stream))
+                        {
+                            if (result.IsSuccessStatusCode)
+                            {
+                                using (JsonReader jr = new JsonTextReader(r))
+                                {
+                                    JsonSerializer s = new JsonSerializer();
+                                    var data = s.Deserialize<T>(jr);
+                                    result.Dispose();
+                                    stopwatch.Stop();
+                                    log.Write("GET " + url + " done in " + stopwatch.ElapsedMilliseconds + " ms");
+                                    return data;
+                                }
+                            }
+                            else
+                            {
+                                log.Write(await r.ReadToEndAsync());
+                                throw new HttpRequestException(((int)result.StatusCode).ToString());
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler(e, url);
+                return await GetCustomAsync<T>(url);
+            }
         }
     }
 
