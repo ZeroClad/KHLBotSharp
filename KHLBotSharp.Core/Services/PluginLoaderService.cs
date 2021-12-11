@@ -1,4 +1,5 @@
-﻿using KHLBotSharp.Core.Models.Config;
+﻿using KHLBotSharp.Core;
+using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Core.Models.Objects;
 using KHLBotSharp.Core.Plugin;
 using KHLBotSharp.IService;
@@ -141,6 +142,23 @@ namespace KHLBotSharp.Services
                         var prefix = plug.Prefix?.Any(x => settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + x)));
                         if (settings.ProcessChar.Any(y => input.Data.Content.Split(' ').FirstOrDefault() == (y + plug.Name)) || (prefix != null && prefix.Value))
                         {
+                            var permission = plug.GetType().GetCustomAttribute<PermissionAttribute>();
+                            if (permission != null)
+                            {
+                                if(!permission.RoleId.Any(x => (input.Data.Extra as TextMessageExtra).Author.Roles.Contains(x)))
+                                {
+                                    try
+                                    {
+                                        var httpService = provider.GetRequiredService<IKHLHttpService>();
+                                        await httpService.SendGroupMessage(new SendMessage() { Content = "您并没有权限使用此指令！", TargetId = input.Data.TargetId });
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        logService.Error(ex.ToString());
+                                    }
+                                    return;
+                                }
+                            }
                             completed = await plugin.Handle(input);
                             pluginExecuteTime.Stop();
                         }

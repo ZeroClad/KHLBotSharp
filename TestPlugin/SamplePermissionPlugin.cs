@@ -1,19 +1,17 @@
-﻿using KHLBotSharp;
-using KHLBotSharp.EventHandlers.TextEvents;
-using KHLBotSharp.Models.EventsMessage;
+﻿using KHLBotSharp.Core;
 using KHLBotSharp.Core.Models.Config;
-using System;
-using System.Threading.Tasks;
+using KHLBotSharp.EventHandlers.TextEvents;
 using KHLBotSharp.IService;
-using KHLBotSharp.Models.MessageHttps.RequestMessage;
+using KHLBotSharp.Models.EventsMessage;
+using System.Threading.Tasks;
 
 namespace TestPlugin
 {
-    /// <summary>
-    /// 新版本插件写法，推荐用这个，在这里假设<seealso cref="IBotConfigSettings.ProcessChar"/>为"."
-    /// </summary>
-    public class NewPluginSample : IGroupTextMessageHandler
+    //角色ID
+    [Permission(1000)]
+    public class SamplePermissionPlugin : IGroupTextMessageHandler
     {
+        //下面的就照旧了
         /// <summary>
         /// 在config.json内设置的<seealso cref="IBotConfigSettings.ProcessChar"/>加这个就是主要指令，因此根据假设将会是".测试"
         /// </summary>
@@ -46,7 +44,7 @@ namespace TestPlugin
         /// <param name="kHLHttpService"></param>
         /// <param name="botConfigSettings"></param>
         /// <param name="testDI"></param>
-        public NewPluginSample(ILogService logService, IKHLHttpService kHLHttpService, IBotConfigSettings botConfigSettings, ITestDI testDI)
+        public SamplePermissionPlugin(ILogService logService, IKHLHttpService kHLHttpService, IBotConfigSettings botConfigSettings, ITestDI testDI)
         {
             this.logService = logService;
             requestFactory = kHLHttpService;
