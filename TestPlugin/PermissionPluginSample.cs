@@ -9,7 +9,7 @@ namespace TestPlugin
 {
     //角色ID
     [Permission(1000)]
-    public class SamplePermissionPlugin : IGroupTextMessageHandler
+    public class PermissionPluginSample : IGroupTextMessageHandler
     {
         //下面的就照旧了
         /// <summary>
@@ -44,7 +44,7 @@ namespace TestPlugin
         /// <param name="kHLHttpService"></param>
         /// <param name="botConfigSettings"></param>
         /// <param name="testDI"></param>
-        public SamplePermissionPlugin(ILogService logService, IKHLHttpService kHLHttpService, IBotConfigSettings botConfigSettings, ITestDI testDI)
+        public PermissionPluginSample(ILogService logService, IKHLHttpService kHLHttpService, IBotConfigSettings botConfigSettings, ITestDI testDI)
         {
             this.logService = logService;
             requestFactory = kHLHttpService;
