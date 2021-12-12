@@ -1,4 +1,6 @@
+![logo](/Assets/icon.png)
 # KHLBotSharp
+
 开黑啦机器人运行器，支持多机器人以及插件模式运行
 
 查看官方文档请点击：https://developer.kaiheila.cn/doc/intro
