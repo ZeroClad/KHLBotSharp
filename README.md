@@ -112,6 +112,6 @@
 > 如果想要注册自己想在Ctor的时候用的一些Service，可以尝试使用`IServiceRegister` Interface，只需要创建新的class (尽量别跟原本的消息处理事件放一起) 加上interface后，就可以获取个`void Register(IServiceCollection services)`功能进行注册DI
 
 ## 启动器选择
-- 目前启动器支持俩选择: .NET 5，.NET 6以及.NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6，如果需要下载可到[这里](https://github.com/PoH98/KHLBotSharp/releases/latest)
+- 目前启动器只有NET Core 3.1, 而插件因KHLBotSharp为.NET Standard 2.0因此可支持.NET Framework 4.6.1 以及.NET Core 2.0 以上甚至是最新的.NET 5和6，如果需要（懒得打包）下载可到[这里下载.NET Core 3.1版本](https://github.com/PoH98/KHLSharpLauncher/releases/latest)
 - Websocket启动器也可以自主添加或者修改，相同的插件可支持
 - Webhook启动器也可自主添加或者修改，相同插件可支持
