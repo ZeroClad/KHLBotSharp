@@ -1,6 +1,8 @@
 # KHLBotSharp
 开黑啦机器人运行器，支持多机器人以及插件模式运行
 
+查看官方文档请点击：https://developer.kaiheila.cn/doc/intro
+
 ## 启动器
 - [启动器已经分离到新的repose](https://github.com/PoH98/KHLSharpLauncher)
 
