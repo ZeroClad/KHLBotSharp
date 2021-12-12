@@ -97,7 +97,7 @@
 
 ---
 ### 版本注意：
-目前SDK有v1和v2版本，v1将会是LTS而v2则会是当前版本，v1将会在开黑出版v4 API后停更。推荐使用v2 SDK
+目前SDK有v1和v2版本，v1将会是维护状态而v2则会是当前版本，v1将会在开黑出版v4 API后全面停更。推荐使用v2 SDK以享受更多最新功能
 
 ---
 > 接下来就是自主编写插件，而插件将会使用到的Http请求则可[在这里查看interface代码](https://github.com/PoH98/KHLBotSharp/blob/master/KHLBotSharp.Core/IService/IKHLHttpService.cs)
