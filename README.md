@@ -89,7 +89,7 @@
 
 ---
 
-> 在创建了`class`后，你可以使用正常的`Dependency Injection`使用方式来获取下列内置的IService功能
+> 在创建了`class`后，你可以使用正常的[`Dependency Injection`](https://docs.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)使用方式来获取下列内置的IService功能
 
 |IService|解释|
 |----------|----|
