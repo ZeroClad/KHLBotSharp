@@ -89,7 +89,7 @@
 
 ---
 
-> 在创建了`class`后，以下是一些你可以在`Ctor`内从`IServiceProvider`获得到的`interface`
+> 在创建了`class`后，你可以使用正常的`Dependency Injection`使用方式来获取下列内置的IService功能
 
 |IService|解释|
 |----------|----|
