@@ -1,8 +1,10 @@
 ﻿using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using KHLBotSharp.Common.MessageParser;
 using KHLBotSharp.Common.Request;
+using KHLBotSharp.Core.IService;
 using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Core.Plugin;
+using KHLBotSharp.Core.Services;
 using KHLBotSharp.IService;
 using KHLBotSharp.Models.MessageHttps.ResponseMessage;
 using KHLBotSharp.Models.Objects;
@@ -51,6 +53,7 @@ namespace KHLBotSharp.Core.BotHost
             serviceCollection.AddHttpClient<IHttpClientService, HttpClientService>();
             serviceCollection.AddScoped(typeof(IKHLHttpService), typeof(KHLHttpService));
             serviceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
+            serviceCollection.AddSingleton<IAudioChannelService, AudioChannelService>();
             serviceCollection.AddMemoryCache();
             ws = new ClientWebSocket();
             pluginLoader = new PluginLoaderService();

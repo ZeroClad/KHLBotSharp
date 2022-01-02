@@ -1,6 +1,8 @@
 ﻿using KHLBotSharp.Common.Request;
+using KHLBotSharp.Core.IService;
 using KHLBotSharp.Core.Models.Config;
 using KHLBotSharp.Core.Plugin;
+using KHLBotSharp.Core.Services;
 using KHLBotSharp.IService;
 using KHLBotSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -100,6 +102,7 @@ namespace KHLBotSharp.Core.BotHost
                 hookInstance.ServiceCollection.AddSingleton(typeof(IErrorRateService), typeof(ErrorRateService));
                 hookInstance.ServiceCollection.AddHttpClient<IHttpClientService, HttpClientService>();
                 hookInstance.ServiceCollection.AddScoped<IDecoderService, DecoderService>();
+                hookInstance.ServiceCollection.AddSingleton<IAudioChannelService, AudioChannelService>();
                 hookInstance.ServiceCollection.AddMemoryCache();
                 hookManager.Add(hookInstance);
             }

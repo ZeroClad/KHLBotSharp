@@ -1,9 +1,12 @@
 ﻿using KHLBotSharp.Core.IService;
 using KHLBotSharp.Core.Models.Config;
+using KHLBotSharp.IService;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -13,15 +16,18 @@ namespace KHLBotSharp.Core.Services
     {
         private readonly string token;
         private Process player;
-        public AudioChannelService(IBotConfigSettings config)
+        private ILogService logService;
+        public AudioChannelService(IBotConfigSettings config, ILogService logService)
         {
             token = config.BotToken;
+            this.logService = logService;
         }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public Task Init()
+        public virtual async Task Init()
         {
+            logService.Info("Initing KHL-Voice...");
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Process p = new Process()
@@ -46,60 +52,88 @@ namespace KHLBotSharp.Core.Services
                 }
                 if (!File.Exists("khl-voice.exe"))
                 {
-                    var zipArchive = new ZipArchive(new MemoryStream(Resource.khl_voice_exe));
-                    zipArchive.ExtractToDirectory(Environment.CurrentDirectory);
+                    HttpClient hc = new HttpClient();
+                    hc.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36");
+                    var result = await hc.GetAsync("https://img.kaiheila.cn/attachments/2021-12/21/61c194328d749");
+                    using (var stream = await result.Content.ReadAsStreamAsync())
+                    {
+                        using (var fs = File.Create("khl-voice.exe"))
+                        {
+                            stream.CopyTo(fs);
+                        }
+                    }
                 }
             }
             else
                 if (!File.Exists("khl-voice"))
                 {
-                var zipArchive = new ZipArchive(new MemoryStream(Resource.khl_voice));
-                zipArchive.ExtractToDirectory(Environment.CurrentDirectory);
-            }
-            return Task.CompletedTask;
+                    HttpClient hc = new HttpClient();
+                    hc.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36");
+                    var result = await hc.GetAsync("https://img.kaiheila.cn/attachments/2021-12/21/61c193d6efffb");
+                    using (var stream = await result.Content.ReadAsStreamAsync())
+                    {
+                        using (var fs = File.Create("khl-voice"))
+                        {
+                            stream.CopyTo(fs);
+                        }
+                    }
+                }
         }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public Task Play(string fileName, string channelId, bool repeat  = false)
+        public virtual Task Play(string fileName, string channelId, bool repeat  = false)
         {
             return Task.Run(() =>
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                logService.Info("Playing "+fileName+" at " + channelId);
+                if(player != null && !player.HasExited)
                 {
-                    player = new Process()
-                    {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = "khl-voice.exe",
-                            Arguments = "-i " + fileName + " -t " + token + " -c " + channelId,
-                            CreateNoWindow = true,
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            WorkingDirectory = Environment.CurrentDirectory
-                        }
-                    };
+                    player.StandardInput.WriteLine("-i " + fileName + " -t " + token + " -c " + channelId);
                 }
                 else
                 {
-                    player = new Process()
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
-                        StartInfo = new ProcessStartInfo
+                        player = new Process()
                         {
-                            FileName = "khl-voice",
-                            Arguments = "-i " + fileName + " -t " + token + " -c " + channelId,
-                            CreateNoWindow = true,
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            WorkingDirectory = Environment.CurrentDirectory
-                        }
-                    };
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = "khl-voice.exe",
+                                Arguments = "-i " + fileName + " -t " + token + " -c " + channelId,
+                                CreateNoWindow = true,
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                WorkingDirectory = Environment.CurrentDirectory,
+                                RedirectStandardInput = true,
+                                UseShellExecute = false
+                            }
+                        };
+                    }
+                    else
+                    {
+                        player = new Process()
+                        {
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = "khl-voice",
+                                Arguments = "-i " + fileName + " -t " + token + " -c " + channelId,
+                                CreateNoWindow = true,
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                WorkingDirectory = Environment.CurrentDirectory,
+                                RedirectStandardInput = true,
+                                UseShellExecute = false
+                            }
+                        };
+                    }
+                    player.Start();
                 }
-                player.Start();
+
             });
         }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public Task Stop()
+        public virtual Task Stop()
         {
             player.Kill();
             return Task.CompletedTask;
