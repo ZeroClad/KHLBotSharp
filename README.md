@@ -1,4 +1,5 @@
 ![logo](/Assets/icon.png)
+# 已封号，告辞
 # KHLBotSharp
 
 开黑啦机器人运行器，支持多机器人以及插件模式运行
