@@ -16,15 +16,15 @@ namespace KHLBotSharp.Common.MessageParser
                 switch (eventMsg.Value<JToken>("d").Value<int>("type"))
                 {
                     case 1:
-                        var groupText = eventMsg.ToObject<EventMessage<GroupTextMessageEvent>>();
-                        if (settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
-                        {
-                            if (!groupText.Data.Extra.Author.IsBot)
-                            {
-                                logService.Debug("Received Group Text Event, Triggering Plugins");
-                                pluginLoader.HandleMessage(groupText);
-                            }
-                        }
+                        //var groupText = eventMsg.ToObject<EventMessage<GroupTextMessageEvent>>();
+                        //if (settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
+                        //{
+                        //    if (!groupText.Data.Extra.Author.IsBot)
+                        //    {
+                        //        logService.Debug("Received Group Text Event, Triggering Plugins");
+                        //        pluginLoader.HandleMessage(groupText);
+                        //    }
+                        //}
                         break;
                     case 2:
                         logService.Debug("Received Group Image Event, Triggering Plugins");
@@ -35,8 +35,17 @@ namespace KHLBotSharp.Common.MessageParser
                         pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupVideoMessageEvent>>());
                         break;
                     case 9:
-                        logService.Debug("Received Group Markdown Event, Triggering Plugins");
-                        pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>());
+                        var groupText = eventMsg.ToObject<EventMessage<GroupTextMessageEvent>>();
+                        if (settings.ProcessChar.Any(x => groupText.Data.Content.StartsWith(x)))
+                        {
+                            if (!groupText.Data.Extra.Author.IsBot)
+                            {
+                                logService.Debug("Received Group Text Event, Triggering Plugins");
+                                pluginLoader.HandleMessage(groupText);
+                            }
+                        }
+                        //logService.Debug("Received Group Markdown Event, Triggering Plugins");
+                        //pluginLoader.HandleMessage(eventMsg.ToObject<EventMessage<GroupKMarkdownMessageEvent>>());
                         break;
                     case 10:
                         logService.Debug("Received Group Card Event, Triggering Plugins");

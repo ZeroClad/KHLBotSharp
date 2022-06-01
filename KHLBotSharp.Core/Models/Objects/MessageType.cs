@@ -5,7 +5,7 @@
     /// </summary>
     public enum MessageType : int
     {
-        TextMessage = 1,
+        TextMessage = 9,
         ImageMessage = 2,
         VideoMessage = 3,
         FileMessage = 4,
