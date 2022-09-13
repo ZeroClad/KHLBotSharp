@@ -273,16 +273,17 @@ namespace KHLBotSharp.Core.BotHost
                 HttpClient hc = new HttpClient();
                 hc.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("KHLBotSharp.Core", currentVer));
                 hc.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("(KHLBotUpdateCheck)"));
-                var version = JsonConvert.DeserializeObject<GithubVersion>(await hc.GetStringAsync("https://api.github.com/repos/PoH98/KHLBotSharp/releases/latest"));
-                var compareResult = String.Compare(currentVer, version.TagName);
+                //var version = JsonConvert.DeserializeObject<GithubVersion>(await hc.GetStringAsync("https://api.github.com/repos/PoH98/KHLBotSharp/releases/latest"));
+                //var compareResult = String.Compare(currentVer, version.TagName);
+                var compareResult = 0;
                 if (compareResult < 0)
                 {
-                    AnsiConsole.Write(new Rule("[red]Found Github latest version is " + version.TagName + "[/]"));
-                    AnsiConsole.WriteLine();
-                    AnsiConsole.Write(new Markup("[underline lime1]Download latest version on " + version.HtmlUrl + "[/]"));
-                    AnsiConsole.WriteLine();
-                    AnsiConsole.WriteLine();
-                    AnsiConsole.WriteLine();
+                    //AnsiConsole.Write(new Rule("[red]Found Github latest version is " + version.TagName + "[/]"));
+                    //AnsiConsole.WriteLine();
+                    //AnsiConsole.Write(new Markup("[underline lime1]Download latest version on " + version.HtmlUrl + "[/]"));
+                    //AnsiConsole.WriteLine();
+                    //AnsiConsole.WriteLine();
+                    //AnsiConsole.WriteLine();
                 }
                 else if (compareResult == 0)
                 {
@@ -291,11 +292,11 @@ namespace KHLBotSharp.Core.BotHost
                 }
                 else
                 {
-                    AnsiConsole.Write(new Rule("[red]Found Github latest version is " + version.TagName + "[/]"));
-                    AnsiConsole.WriteLine();
-                    AnsiConsole.Write(new Markup("[underline cyan1]Wow! You are using future version of KHLBot![/]"));
-                    AnsiConsole.WriteLine();
-                    AnsiConsole.WriteLine();
+                    //AnsiConsole.Write(new Rule("[red]Found Github latest version is " + version.TagName + "[/]"));
+                    //AnsiConsole.WriteLine();
+                    //AnsiConsole.Write(new Markup("[underline cyan1]Wow! You are using future version of KHLBot![/]"));
+                    //AnsiConsole.WriteLine();
+                    //AnsiConsole.WriteLine();
                 }
             }
             catch (Exception ex)
